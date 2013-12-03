@@ -1,5 +1,6 @@
 package com.topaz.dao;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -9,10 +10,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.topaz.common.Config;
+
 public class DaoManagerTransactionTest {
 
 	@Before
 	public void setUp() throws Exception {
+		File cfgFile = new File("src/test/resources/config.properties");
+		Config.init(cfgFile);
 	}
 
 	@After

@@ -35,9 +35,9 @@ import com.topaz.controller.interceptor.Interceptors;
  * @author Isaac Tian
  */
 public class CoreFilter implements Filter {
-	private String controllerBase = "com.topaz.controller.";
-	private String viewBase = "/WEB_INF/view";
-	private String cfgFilePath = "/WEB-INF/config.properties";
+	private String controllerBase = "topaz.controller.";
+	private String viewBase = "/WEB-INF/view";
+	private String cfgFilePath;
 	private ConcurrentHashMap<String, Controller> controllers = new ConcurrentHashMap<String, Controller>();
 
 	private static Log log = LogFactory.getLog(CoreFilter.class);
@@ -46,6 +46,7 @@ public class CoreFilter implements Filter {
 	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
 	 */
 	public void init(FilterConfig config) throws ServletException {
+		cfgFilePath = config.getServletContext().getRealPath("/WEB-INF/config.properties");
 		String cBase =  config.getInitParameter("controllerBase");
 		String vBase = config.getInitParameter("viewBase");
 		String cFile = config.getInitParameter("configFile");
@@ -58,8 +59,8 @@ public class CoreFilter implements Filter {
 		if(StringUtils.isNotBlank(cFile)) {
 			cfgFilePath = cFile;
 		}
+		
 		Config.init(new File(cfgFilePath));
-
 		config.getServletContext().setAttribute("contextPath",
 				config.getServletContext().getContextPath());
 
