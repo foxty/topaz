@@ -28,6 +28,9 @@ public class Config {
 	private List<String> booleanValues = new ArrayList<String>(2);
 
 	public static void init(File cFile) {
+		if(!cFile.exists()) {
+			throw new TopazException("Cant'f get configuration file. " + cFile);
+		}
 		instance = new Config(cFile);
 	}
 
