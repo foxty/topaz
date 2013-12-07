@@ -18,7 +18,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringUtils;
 
 public class WebContext {
-	
+
 	private HttpServletRequest request;
 	private HttpServletResponse response;
 	private HttpSession session;
@@ -26,7 +26,7 @@ public class WebContext {
 	private Map<String, String> errors = new HashMap<String, String>();
 
 	private String contextPath;
-	//private String moduleName;
+	// private String moduleName;
 	private String controllerName;
 	private String methodName = "index";
 	private String id = "";
@@ -53,7 +53,8 @@ public class WebContext {
 		this.session = req.getSession();
 		this.application = this.session.getServletContext();
 		this.controllerBase = controllerBase;
-		this.viewBase = StringUtils.isBlank(viewBase) ? "/view/" : viewBase;
+		this.viewBase = StringUtils.isBlank(viewBase) ? "/view/" : (viewBase
+				.endsWith("/") ? viewBase : viewBase + "/");
 		this.contextPath = request.getContextPath();
 
 		String uri = req.getRequestURI()
@@ -69,7 +70,8 @@ public class WebContext {
 		case 1:
 			this.controllerName = uriArr[0];
 		}
-		request.setAttribute("requestResource", controllerName + "." + methodName);
+		request.setAttribute("requestResource", controllerName + "."
+				+ methodName);
 	}
 
 	/**
