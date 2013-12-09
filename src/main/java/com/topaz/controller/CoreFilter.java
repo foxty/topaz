@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -35,6 +36,7 @@ import com.topaz.controller.interceptor.Interceptors;
  * @author Isaac Tian
  */
 public class CoreFilter implements Filter {
+	private String ROOT_CONT = "topaz.controller.RootController";
 	private String controllerBase = "topaz.controller.";
 	private String viewBase = "/WEB-INF/view";
 	private String cfgFilePath;
@@ -46,20 +48,21 @@ public class CoreFilter implements Filter {
 	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
 	 */
 	public void init(FilterConfig config) throws ServletException {
-		cfgFilePath = config.getServletContext().getRealPath("/WEB-INF/config.properties");
-		String cBase =  config.getInitParameter("controllerBase");
+		cfgFilePath = config.getServletContext().getRealPath(
+				"/WEB-INF/config.properties");
+		String cBase = config.getInitParameter("controllerBase");
 		String vBase = config.getInitParameter("viewBase");
 		String cFile = config.getInitParameter("configFile");
-		if(StringUtils.isNotBlank(cBase)) {
+		if (StringUtils.isNotBlank(cBase)) {
 			controllerBase = cBase;
 		}
-		if(StringUtils.isNotBlank(vBase)) {
+		if (StringUtils.isNotBlank(vBase)) {
 			viewBase = vBase;
 		}
-		if(StringUtils.isNotBlank(cFile)) {
+		if (StringUtils.isNotBlank(cFile)) {
 			cfgFilePath = cFile;
 		}
-		
+
 		Config.init(new File(cfgFilePath));
 		config.getServletContext().setAttribute("contextPath",
 				config.getServletContext().getContextPath());
@@ -98,11 +101,25 @@ public class CoreFilter implements Filter {
 
 	private void execute() {
 		WebContext ctx = WebContext.get();
-		String method = ctx.getMethodName();
 
 		String controllerClassUri = ctx.getControllerClassUri();
-		log.debug("Process " + controllerClassUri + "." + method);
+		log.debug("Process " + controllerClassUri + ".");
 		Controller c = getController(controllerClassUri);
+		// Dispatch to root controller
+		if (c == null && !ROOT_CONT.equals(controllerClassUri)) {
+			c = getController(ROOT_CONT);
+			// Send 404 error to client if both current controller doesn't exist
+			if (c == null) {
+				try {
+					ctx.getResponse().sendError(404);
+				} catch (IOException e1) {
+				}
+				return;
+			}
+			ctx.setMethodName(ctx.getControllerName());
+			ctx.setControllerName("root");
+		}
+
 		// get all interceptors from annotation
 		List<IInterceptor> interceptors = new ArrayList<IInterceptor>();
 		Class controllerClazz = c.getClass();
@@ -121,16 +138,13 @@ public class CoreFilter implements Filter {
 			controllerClazz = controllerClazz.getSuperclass();
 		}
 		if (log.isDebugEnabled()) {
-			log
-					.debug(ctx.getControllerClassUri() + " got "
-							+ interceptors.size() + " interceptors, as "
-							+ interceptors);
+			log.debug(ctx.getControllerClassUri() + " got "
+					+ interceptors.size() + " interceptors, as " + interceptors);
 		}
 
+		// interceptors chain
 		FinalInterceptor fin = new FinalInterceptor(c);
 		interceptors.add(fin);
-
-		// start intercepros chain
 		InterceptorChain chain = new InterceptorChain(interceptors);
 		chain.proceed(ctx);
 	}
@@ -141,6 +155,12 @@ public class CoreFilter implements Filter {
 				: new Class[] {};
 	}
 
+	/**
+	 * Return null if can't find controller or initialize failed.
+	 * 
+	 * @param fullClassPath
+	 * @return
+	 */
 	private Controller getController(String fullClassPath) {
 		Controller c = controllers.get(fullClassPath);
 		if (c == null) {
@@ -148,12 +168,12 @@ public class CoreFilter implements Filter {
 				Class<?> clazz = Class.forName(fullClassPath);
 				c = (Controller) clazz.newInstance();
 				controllers.putIfAbsent(fullClassPath, c);
+				log.info("New controller " + fullClassPath);
+			} catch (ClassNotFoundException cnfe) {
+				log.error("Resource " + fullClassPath + " not fond! ");
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
-				throw new ControllerException("Error while create controller "
-						+ fullClassPath, e);
 			}
-			log.info("New controller " + fullClassPath);
 		}
 		return c;
 	}

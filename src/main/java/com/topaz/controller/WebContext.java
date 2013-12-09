@@ -115,9 +115,17 @@ public class WebContext {
 	public String getControllerName() {
 		return controllerName;
 	}
+	
+	public void setControllerName(String cName) {
+		this.controllerName = cName;
+	}
 
 	public String getMethodName() {
 		return methodName;
+	}
+	
+	public void setMethodName(String mName) {
+		this.methodName = mName;
 	}
 
 	public String getId() {
