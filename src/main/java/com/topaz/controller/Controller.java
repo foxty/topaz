@@ -33,7 +33,7 @@ public class Controller {
 
 	private static String WEB_ERRORS = "errors";
 	private static String DEF_LAYOUT = "layout.ftl";
-	private static String LAYOUT_PLACEHOLDER = "children";
+	private static String LAYOUT_CHILDREN = "children";
 
 	private static Log log = LogFactory.getLog(Controller.class);
 
@@ -48,40 +48,42 @@ public class Controller {
 				&& (resPath.startsWith("/") || resPath.startsWith("\\"));
 	}
 
-	protected void render(String resName) {
-		render(null, resName, true);
+	public void render(String resName) {
+		render(DEF_LAYOUT, resName);
 	}
 
-	protected void renderWithoutLayout(String resName) {
-		render(null, resName, false);
+	public void renderWithoutLayout(String resName) {
+		render(null, resName);
 	}
 
-	protected void render(String layoutName, String resourceName,
-			boolean useDefaultLayout) {
+	protected void render(String layoutName, String resourceName) {
 
 		WebContext ctx = WebContext.get();
 		HttpServletRequest request = ctx.getRequest();
 		HttpServletResponse response = ctx.getResponse();
-		request.setAttribute(WEB_ERRORS, ctx.getErrors());
-		request.setAttribute(
-				LAYOUT_PLACEHOLDER,
-				isAbsolutePath(resourceName) ? resourceName : ctx
-						.getControllerName() + "/" + resourceName);
 
+		request.setAttribute(WEB_ERRORS, ctx.getErrors());
+		String resPath = isAbsolutePath(resourceName) ? resourceName : ctx
+				.getControllerName() + "/" + resourceName;
+		File resFile = new File(ctx.getApplication().getRealPath(
+				ctx.getViewBase() + resPath));
+		if (!resFile.exists()) {
+			log.error("Can't find resource " + resFile);
+			try {
+				response.sendError(404);
+			} catch (IOException e1) {
+			}
+			return;
+		}
 		// Find the layout if exist
-		String newResPath = "";
+		String targetRes = resPath;
 		if (null != layoutName) {
-			newResPath = ctx.getViewBase() + layoutName;
-		} else {
-			String defLayoutPath = ctx.getApplication().getRealPath(
-					ctx.getViewBase() + DEF_LAYOUT);
-			File defLayoutFile = new File(defLayoutPath);
-			if (useDefaultLayout && defLayoutFile.exists()) {
-				newResPath = ctx.getViewBase() + DEF_LAYOUT;
-			} else {
-				newResPath = ctx.getViewBase()
-						+ (isAbsolutePath(resourceName) ? resourceName : ctx
-								.getControllerName() + "/" + resourceName);
+			String layoutResPath = ctx.getApplication().getRealPath(
+					ctx.getViewBase() + layoutName);
+			File layoutFile = new File(layoutResPath);
+			if (layoutFile.exists()) {
+				targetRes = ctx.getViewBase() + layoutName;
+				request.setAttribute(LAYOUT_CHILDREN, resPath);
 			}
 		}
 
@@ -91,9 +93,9 @@ public class Controller {
 			log.error(e.toString(), e);
 		}
 		if (log.isDebugEnabled())
-			log.debug("Render  " + newResPath + ", resource " + resourceName);
+			log.debug("Render  " + targetRes + ", resource " + resourceName);
 		RequestDispatcher rd = ctx.getApplication().getRequestDispatcher(
-				newResPath);
+				targetRes);
 		try {
 			rd.include(request, response);
 		} catch (Exception e) {

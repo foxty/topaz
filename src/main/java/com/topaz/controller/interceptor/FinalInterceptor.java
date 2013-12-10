@@ -13,8 +13,7 @@ import com.topaz.controller.WebContext;
 import com.topaz.dao.DaoException;
 
 /**
- * Final interceptor will add to interceptor chain's last position 
- * to handle the resource request.
+ * Final interceptor was last in the chanin to handle the resource request.
  * 
  * @author itian
  */
@@ -28,19 +27,26 @@ public class FinalInterceptor implements IInterceptor {
 	}
 
 	public void intercept(InterceptorChain chain, WebContext wc) {
-		String method = wc.getMethodName();
+		String methodName = wc.getMethodName();
 		try {
-			if(log.isDebugEnabled()) {
-				log.debug("Execute method " + method + " on " + wc.getControllerClassUri());
+			if (log.isDebugEnabled()) {
+				log.debug("Execute method " + methodName + " on "
+						+ wc.getControllerClassUri());
 			}
-			Method m = controller.getClass().getMethod(method);
-			m.invoke(controller);
-		} catch (NoSuchMethodException e) {
-			log.error("Resource " + method + " not exist in "
-					+ wc.getControllerClassUri(), e);
-			try {
-				wc.getResponse().sendError(404);
-			} catch (IOException e1) {
+			Method[] ms = controller.getClass().getMethods();
+			boolean founded = false;
+			Method targetMethod = null;
+			for (Method m : ms) {
+				if (m.getName().equals(methodName)) {
+					founded = true;
+					targetMethod = m;
+					break;
+				}
+			}
+			if (founded) {
+				targetMethod.invoke(controller);
+			} else {
+				controller.render(methodName + ".ftl");
 			}
 		} catch (InvocationTargetException e) {
 			if (e.getTargetException() instanceof ControllerException
