@@ -171,8 +171,9 @@ public class WebContext {
 	 * @param key
 	 * @return Object
 	 */
-	public Object attribute(String key) {
-		return this.request.getAttribute(key);
+	@SuppressWarnings("unchecked")
+	public <T> T attribute(String key) {
+		return (T)this.request.getAttribute(key);
 	}
 
 	/**
@@ -191,8 +192,9 @@ public class WebContext {
 	 * @param key
 	 * @return Object
 	 */
-	public Object session(String key) {
-		return this.session.getAttribute(key);
+	@SuppressWarnings("unchecked")
+	public <T> T session(String key) {
+		return (T)this.session.getAttribute(key);
 	}
 
 	/**
