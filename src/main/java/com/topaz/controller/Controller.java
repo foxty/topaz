@@ -76,7 +76,7 @@ public class Controller {
 			return;
 		}
 		// Find the layout if exist
-		String targetRes = resPath;
+		String targetRes = ctx.getViewBase() + resPath;
 		if (null != layoutName) {
 			String layoutResPath = ctx.getApplication().getRealPath(
 					ctx.getViewBase() + layoutName);
