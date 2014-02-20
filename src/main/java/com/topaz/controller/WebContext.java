@@ -26,12 +26,13 @@ public class WebContext {
 	private Map<String, String> errors = new HashMap<String, String>();
 
 	private String contextPath;
-	// private String moduleName;
-	private String controllerName;
+	private String moduleName;
+	private String controllerName = "root";
 	private String methodName = "index";
-	private String id = "";
 
-	private String controllerBase;
+	private Controller controller;
+
+	// private String controllerBase;
 	private String viewBase;
 
 	private static ThreadLocal<WebContext> local = new ThreadLocal<WebContext>();
@@ -40,38 +41,23 @@ public class WebContext {
 		return local.get();
 	}
 
-	public static void create(HttpServletRequest req, HttpServletResponse resp,
-			String controllerBase, String viewBase) {
-		local.set(new WebContext(req, resp, controllerBase, viewBase));
+	public static WebContext create(HttpServletRequest req, HttpServletResponse resp,
+			String viewBase) {
+		WebContext ctx = new WebContext(req, resp, viewBase);
+		local.set(ctx);
+		return ctx;
 	}
 
 	private WebContext(HttpServletRequest req, HttpServletResponse resp,
-			String controllerBase, String viewBase) {
+			String viewBase) {
 
 		this.request = req;
 		this.response = resp;
 		this.session = req.getSession();
 		this.application = this.session.getServletContext();
-		this.controllerBase = controllerBase;
 		this.viewBase = StringUtils.isBlank(viewBase) ? "/view/" : (viewBase
 				.endsWith("/") ? viewBase : viewBase + "/");
 		this.contextPath = request.getContextPath();
-
-		String uri = req.getRequestURI()
-				.replaceFirst(request.getContextPath(), "").toLowerCase();
-		uri = uri.substring(1);
-		String[] uriArr = uri.split("[/;]");
-		switch (uriArr.length) {
-		case 4:
-		case 3:
-			this.id = uriArr[2];
-		case 2:
-			this.methodName = uri2method(uriArr[1]);
-		case 1:
-			this.controllerName = uriArr[0];
-		}
-		request.setAttribute("requestResource", controllerName + "."
-				+ methodName);
 	}
 
 	/**
@@ -112,10 +98,18 @@ public class WebContext {
 		return contextPath;
 	}
 
+	public String getModuleName() {
+		return moduleName;
+	}
+
+	public void setModuleName(String name) {
+		moduleName = name;
+	}
+
 	public String getControllerName() {
 		return controllerName;
 	}
-	
+
 	public void setControllerName(String cName) {
 		this.controllerName = cName;
 	}
@@ -123,18 +117,9 @@ public class WebContext {
 	public String getMethodName() {
 		return methodName;
 	}
-	
+
 	public void setMethodName(String mName) {
 		this.methodName = mName;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public String getControllerClassUri() {
-		return controllerBase + StringUtils.capitalize(controllerName)
-				+ "Controller";
 	}
 
 	/**
@@ -173,7 +158,7 @@ public class WebContext {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T attribute(String key) {
-		return (T)this.request.getAttribute(key);
+		return (T) this.request.getAttribute(key);
 	}
 
 	/**
@@ -194,7 +179,7 @@ public class WebContext {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T session(String key) {
-		return (T)this.session.getAttribute(key);
+		return (T) this.session.getAttribute(key);
 	}
 
 	/**

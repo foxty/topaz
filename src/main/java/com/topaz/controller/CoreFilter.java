@@ -8,6 +8,7 @@ package com.topaz.controller;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,7 +16,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -36,11 +36,11 @@ import com.topaz.controller.interceptor.Interceptors;
  * @author Isaac Tian
  */
 public class CoreFilter implements Filter {
-	private String ROOT_CONT = "topaz.controller.RootController";
-	private String controllerBase = "topaz.controller.";
+	private String controllerBase = "/topaz/controller/";
 	private String viewBase = "/WEB-INF/view";
 	private String cfgFilePath;
 	private ConcurrentHashMap<String, Controller> controllers = new ConcurrentHashMap<String, Controller>();
+	private ModuleNode rootNode = new ModuleNode("", null);
 
 	private static Log log = LogFactory.getLog(CoreFilter.class);
 
@@ -55,6 +55,9 @@ public class CoreFilter implements Filter {
 		String cFile = config.getInitParameter("configFile");
 		if (StringUtils.isNotBlank(cBase)) {
 			controllerBase = cBase;
+			if (!controllerBase.endsWith("/")) {
+				controllerBase += "/";
+			}
 		}
 		if (StringUtils.isNotBlank(vBase)) {
 			viewBase = vBase;
@@ -63,12 +66,63 @@ public class CoreFilter implements Filter {
 			cfgFilePath = cFile;
 		}
 
+		log.info("Start load Config from file " + cfgFilePath);
 		Config.init(new File(cfgFilePath));
 		config.getServletContext().setAttribute("contextPath",
 				config.getServletContext().getContextPath());
 
-		log.info("CoreFilter has inited: controllerBase=" + controllerBase
-				+ ", viewBase=" + viewBase);
+		log.info("Start load controllers");
+		URL contUrl = Config.class.getResource(controllerBase);
+		if (contUrl == null) {
+			log.error("Can't find controller resource under " + controllerBase);
+			throw new ControllerException(
+					"Can't find controller resource under " + controllerBase);
+		} else {
+			File cp = new File(contUrl.getFile());
+			if (cp != null && cp.isDirectory()) {
+				feedNode(rootNode, cp);
+			}
+
+			log.info("CoreFilter has inited: controllerBase=" + controllerBase
+					+ ", viewBase=" + viewBase);
+		}
+	}
+
+	private void feedNode(ModuleNode node, File folder) {
+		for (File f : folder.listFiles()) {
+			String pName = f.getName();
+			if (f.isFile()) {
+				if (pName.endsWith("Controller.class")) {
+					String tmpPath = controllerBase + node.fullPath() + "/" + pName;
+					String classPath = tmpPath.replace(
+							".class", "").replaceAll("[/\\\\]+", ".").substring(1); 
+
+					ControllerNode cn = new ControllerNode(pName.replace(
+							"Controller.class", "").toLowerCase(),
+							initController(classPath), node);
+					node.addControllerNode(cn);
+				}
+			} else {
+				ModuleNode n = new ModuleNode(pName, node);
+				node.addModuleNode(n);
+				feedNode(n, f);
+			}
+		}
+	}
+
+	private Controller initController(String fullClassPath) {
+		Controller c = null;
+		try {
+			Class<?> clazz = Class.forName(fullClassPath);
+			c = (Controller) clazz.newInstance();
+			controllers.putIfAbsent(fullClassPath, c);
+			log.info("New controller " + fullClassPath);
+		} catch (ClassNotFoundException cnfe) {
+			log.error("Resource " + fullClassPath + " not fond! ");
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		return c;
 	}
 
 	public void doFilter(ServletRequest request, ServletResponse response,
@@ -85,39 +139,62 @@ public class CoreFilter implements Filter {
 				.toLowerCase();
 		log.debug("Current uri = " + uri);
 
-		// 如果是REST风格的映射
+		// if its REST style
 		if (uri.indexOf('.') <= 0 && uri.length() > 1) {
-			createContext(uri, req, resp);
-			execute();
+			WebContext ctx = WebContext.create(req, resp, viewBase);
+
+			String[] uriArr = uri.split("[/;]");
+			// First path is root, so we start search from 1
+			ControllerNode cn = findControllerNode(rootNode, 1, uriArr);
+			Controller c = null;
+			if (cn != null) {
+				ctx.setModuleName(cn.getParent().fullPath());
+				ctx.setControllerName(cn.getNodeName());
+				if (cn.getPos() + 1 < uriArr.length) {
+					ctx.setMethodName(uriArr[cn.getPos() + 1]);
+				}
+				c = cn.getController();
+			} else {
+				cn = rootNode.findControllerNode("root");
+				c = (cn != null ? cn.getController() : null);
+				ctx.setModuleName(rootNode.fullPath());
+				ctx.setControllerName("root");
+				// First path is root, so we use 1 as the method name
+				ctx.setMethodName(uriArr[1]);
+			}
+			// request.setAttribute("requestResource", controllerName + "." +
+			// methodName);
+
+			execute(c);
 		} else {
 			chain.doFilter(request, response);
 		}
 	}
 
-	private void createContext(String uri, HttpServletRequest req,
-			HttpServletResponse resp) {
-		WebContext.create(req, resp, controllerBase, viewBase);
+	private ControllerNode findControllerNode(ModuleNode node, int pos,
+			String[] pNames) {
+		if (pos >= pNames.length)
+			return null;
+		String pName = pNames[pos];
+		if (node.hasController(pName)) {
+			return node.findControllerNode(pName);
+		}
+		if (node.hasNode(pName)) {
+			return findControllerNode(node.findNode(pName), pos++, pNames);
+		}
+		return null;
 	}
 
-	private void execute() {
+	private void execute(Controller c) {
 		WebContext ctx = WebContext.get();
 
-		String controllerClassUri = ctx.getControllerClassUri();
-		log.debug("Process " + controllerClassUri + ".");
-		Controller c = getController(controllerClassUri);
-		// Dispatch to root controller
-		if (c == null && !ROOT_CONT.equals(controllerClassUri)) {
-			c = getController(ROOT_CONT);
-			// Send 404 error to client if both current controller doesn't exist
-			if (c == null) {
-				try {
-					ctx.getResponse().sendError(404);
-				} catch (IOException e1) {
-				}
-				return;
+		// Send 404 error to client if both current controller doesn't exist
+		if (c == null) {
+			try {
+				ctx.getResponse().sendError(404);
+			} catch (IOException e1) {
 			}
-			ctx.setMethodName(ctx.getControllerName());
-			ctx.setControllerName("root");
+			return;
 		}
 
 		// get all interceptors from annotation
@@ -138,8 +215,8 @@ public class CoreFilter implements Filter {
 			controllerClazz = controllerClazz.getSuperclass();
 		}
 		if (log.isDebugEnabled()) {
-			log.debug(ctx.getControllerClassUri() + " got "
-					+ interceptors.size() + " interceptors, as " + interceptors);
+			log.debug(ctx.getControllerName() + " got " + interceptors.size()
+					+ " interceptors, as " + interceptors);
 		}
 
 		// interceptors chain
@@ -155,30 +232,17 @@ public class CoreFilter implements Filter {
 				: new Class[] {};
 	}
 
-	/**
-	 * Return null if can't find controller or initialize failed.
-	 * 
-	 * @param fullClassPath
-	 * @return
-	 */
-	private Controller getController(String fullClassPath) {
-		Controller c = controllers.get(fullClassPath);
-		if (c == null) {
-			try {
-				Class<?> clazz = Class.forName(fullClassPath);
-				c = (Controller) clazz.newInstance();
-				controllers.putIfAbsent(fullClassPath, c);
-				log.info("New controller " + fullClassPath);
-			} catch (ClassNotFoundException cnfe) {
-				log.error("Resource " + fullClassPath + " not fond! ");
-			} catch (Exception e) {
-				log.error(e.getMessage(), e);
-			}
-		}
-		return c;
-	}
-
 	public void destroy() {
 		log.info("CoreFilter has been destroyed!");
+	}
+
+	public static void main(String[] args) {
+		System.out.println(Config.class.getResource("/com"));
+		File cp = new File(Config.class.getResource("/com/topaz/controller/")
+				.getFile());
+		PathNode rn = new PathNode("/", null);
+		if (cp != null && cp.isDirectory()) {
+
+		}
 	}
 }
