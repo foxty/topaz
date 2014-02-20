@@ -31,7 +31,7 @@ public class FinalInterceptor implements IInterceptor {
 		try {
 			if (log.isDebugEnabled()) {
 				log.debug("Execute method " + methodName + " on "
-						+ wc.getControllerClassUri());
+						+ wc.getControllerName());
 			}
 			Method[] ms = controller.getClass().getMethods();
 			boolean founded = false;
