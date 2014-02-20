@@ -64,7 +64,10 @@ public class Controller {
 
 		request.setAttribute(WEB_ERRORS, ctx.getErrors());
 		String resPath = isAbsolutePath(resourceName) ? resourceName : ctx
-				.getControllerName() + "/" + resourceName;
+				.getModuleName()
+				+ "/"
+				+ ctx.getControllerName()
+				+ "/" + resourceName;
 		File resFile = new File(ctx.getApplication().getRealPath(
 				ctx.getViewBase() + resPath));
 		if (!resFile.exists()) {
@@ -83,7 +86,7 @@ public class Controller {
 			File layoutFile = new File(layoutResPath);
 			if (layoutFile.exists()) {
 				targetRes = ctx.getViewBase() + layoutName;
-				request.setAttribute(LAYOUT_CHILDREN, resPath);
+				request.setAttribute(LAYOUT_CHILDREN, ctx.getViewBase() + resPath);
 			}
 		}
 

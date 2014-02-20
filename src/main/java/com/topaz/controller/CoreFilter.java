@@ -180,7 +180,7 @@ public class CoreFilter implements Filter {
 			return node.findControllerNode(pName);
 		}
 		if (node.hasNode(pName)) {
-			return findControllerNode(node.findNode(pName), pos++, pNames);
+			return findControllerNode(node.findNode(pName), ++pos, pNames);
 		}
 		return null;
 	}
