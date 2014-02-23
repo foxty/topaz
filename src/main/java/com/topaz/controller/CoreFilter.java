@@ -162,8 +162,7 @@ public class CoreFilter implements Filter {
 				// First path is root, so we use 1 as the method name
 				ctx.setMethodName(uriArr[1]);
 			}
-			// request.setAttribute("requestResource", controllerName + "." +
-			// methodName);
+			request.setAttribute("requestResource", ctx.getRequestResource());
 
 			execute(c);
 		} else {
