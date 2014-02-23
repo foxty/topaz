@@ -41,8 +41,8 @@ public class WebContext {
 		return local.get();
 	}
 
-	public static WebContext create(HttpServletRequest req, HttpServletResponse resp,
-			String viewBase) {
+	public static WebContext create(HttpServletRequest req,
+			HttpServletResponse resp, String viewBase) {
 		WebContext ctx = new WebContext(req, resp, viewBase);
 		local.set(ctx);
 		return ctx;
@@ -120,6 +120,10 @@ public class WebContext {
 
 	public void setMethodName(String mName) {
 		this.methodName = mName;
+	}
+
+	public String getRequestResource() {
+		return moduleName + "/" + controllerName + "/" + methodName;
 	}
 
 	/**
