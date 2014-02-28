@@ -67,7 +67,8 @@ public class Controller {
 				.getModuleName()
 				+ "/"
 				+ ctx.getControllerName()
-				+ "/" + resourceName;
+				+ "/"
+				+ resourceName;
 		File resFile = new File(ctx.getApplication().getRealPath(
 				ctx.getViewBase() + resPath));
 		if (!resFile.exists()) {
@@ -86,8 +87,12 @@ public class Controller {
 			File layoutFile = new File(layoutResPath);
 			if (layoutFile.exists()) {
 				targetRes = ctx.getViewBase() + layoutName;
-				request.setAttribute(LAYOUT_CHILDREN, ctx.getViewBase() + resPath);
+			} else {
+				targetRes = ctx.getViewBase() + DEF_LAYOUT;
+				log.warn("Layout " + layoutName + " not exist, now using default layout" + DEF_LAYOUT);
 			}
+			request.setAttribute(LAYOUT_CHILDREN, ctx.getViewBase()
+					+ resPath);
 		}
 
 		try {
