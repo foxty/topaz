@@ -27,7 +27,6 @@ public class BaseModel implements Serializable {
 	private static Map<Class<?>, String> TABLE_NAMES = new HashMap<Class<?>, String>();
 	private static Map<Class<?>, Map<String, PropertyMapping>> PROPS_MAPPINGS = new HashMap<Class<?>, Map<String, PropertyMapping>>();
 
-	protected static DaoManager daoMgr = DaoManager.getInstance();
 	// Primary Key for object
 	@Column
 	protected Long id;
