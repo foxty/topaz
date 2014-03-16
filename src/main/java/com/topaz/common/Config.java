@@ -61,7 +61,7 @@ public class Config {
 		}
 	}
 
-	protected String getConfig(String key) {
+	public String getConfig(String key) {
 		long millisDiff = System.currentTimeMillis() - lastCheckTime;
 		if (millisDiff > REFRESH_TIME
 				&& FileUtils.isFileNewer(cfgFile, lastModifiedTime)) {
