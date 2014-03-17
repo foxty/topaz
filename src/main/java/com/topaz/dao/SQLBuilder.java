@@ -107,7 +107,7 @@ public class SQLBuilder {
 	}
 
 	public SQLBuilder or(String prop, Object value) {
-		return where(prop, EQ, value);
+		return or(prop, EQ, value);
 	}
 
 	public SQLBuilder or(String prop, String op, Object value) {
