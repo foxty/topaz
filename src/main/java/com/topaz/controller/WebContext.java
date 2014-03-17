@@ -18,7 +18,10 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringUtils;
 
 public class WebContext {
-
+	
+	public final static String ACCEPT_JSON = "application/json";
+	public final static String ACCEPT_XML = "application/xml";
+	
 	private HttpServletRequest request;
 	private HttpServletResponse response;
 	private HttpSession session;
@@ -29,10 +32,6 @@ public class WebContext {
 	private String moduleName;
 	private String controllerName = "root";
 	private String methodName = "index";
-
-	private Controller controller;
-
-	// private String controllerBase;
 	private String viewBase;
 
 	private static ThreadLocal<WebContext> local = new ThreadLocal<WebContext>();
@@ -58,16 +57,6 @@ public class WebContext {
 		this.viewBase = StringUtils.isBlank(viewBase) ? "/view/" : (viewBase
 				.endsWith("/") ? viewBase : viewBase + "/");
 		this.contextPath = request.getContextPath();
-	}
-
-	/**
-	 * Change partion of URI to method name replace "-" to "_"
-	 * 
-	 * @param uri
-	 * @return
-	 */
-	private String uri2method(String uri) {
-		return uri.replaceAll("\\-", "_");
 	}
 
 	public final ServletContext getApplication() {
@@ -194,6 +183,16 @@ public class WebContext {
 	 */
 	public void session(String key, Object value) {
 		this.session.setAttribute(key, value);
+	}
+	
+	public boolean isAcceptJSON() {
+		String reqAccept = this.request.getHeader("Accept");
+		return reqAccept.contains(ACCEPT_JSON);
+	}
+	
+	public boolean isAcceptXML() {
+		String reqAccept = this.request.getHeader("Accept");
+		return reqAccept.contains(ACCEPT_XML);
 	}
 
 }
