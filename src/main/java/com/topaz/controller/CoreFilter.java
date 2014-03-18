@@ -48,8 +48,6 @@ public class CoreFilter implements Filter {
 	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
 	 */
 	public void init(FilterConfig config) throws ServletException {
-		cfgFilePath = config.getServletContext().getRealPath(
-				"/WEB-INF/config.properties");
 		String cBase = config.getInitParameter("controllerBase");
 		String vBase = config.getInitParameter("viewBase");
 		String cFile = config.getInitParameter("configFile");

@@ -13,6 +13,8 @@ import org.apache.commons.dbutils.handlers.ScalarHandler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.topaz.common.TopazUtil;
+
 /**
  * Not thread safe!
  * 
@@ -42,7 +44,7 @@ public class SQLBuilder {
 	public SQLBuilder(Class clazz, Map<String, PropertyMapping> mappings,
 			SQLBuilderType type) {
 		this.clazz = clazz;
-		this.tableName = Utils.camel2flat(clazz.getSimpleName());
+		this.tableName = TopazUtil.camel2flat(clazz.getSimpleName());
 		this.mappings = mappings;
 		this.type = type;
 
