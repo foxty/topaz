@@ -16,7 +16,7 @@ public class DaoManagerTransactionTest {
 
 	@Before
 	public void setUp() throws Exception {
-		File cfgFile = new File("src/test/resources/config.properties");
+		File cfgFile = new File("src/test/resources/config-test.properties");
 		Config.init(cfgFile);
 	}
 

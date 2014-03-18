@@ -19,6 +19,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.topaz.common.TopazUtil;
+
 @SuppressWarnings("serial")
 public class BaseModel implements Serializable {
 
@@ -40,7 +42,7 @@ public class BaseModel implements Serializable {
 	}
 
 	protected static void initDao(Class<?> clazz) {
-		TABLE_NAMES.put(clazz, Utils.camel2flat(clazz.getSimpleName()));
+		TABLE_NAMES.put(clazz, TopazUtil.camel2flat(clazz.getSimpleName()));
 		PROPS_MAPPINGS.put(clazz, extractPropMethods(clazz));
 	}
 
@@ -62,7 +64,7 @@ public class BaseModel implements Serializable {
 			Column c = f.getAnnotation(Column.class);
 			if (c != null) {
 				String propName = f.getName();
-				String columnName = ("".equals(c.name()) ? Utils
+				String columnName = ("".equals(c.name()) ? TopazUtil
 						.camel2flat(propName) : c.name());
 				String readMethodName = (f.getType() == boolean.class || f.getType() == Boolean.class ? "is"
 						: "get")
@@ -137,7 +139,7 @@ public class BaseModel implements Serializable {
 		final StringBuffer valueSql = new StringBuffer(" VALUES(");
 		final List<Object> params = new ArrayList<Object>(mapping.size());
 
-		String tblName = Utils.camel2flat(clazz.getSimpleName());
+		String tblName = TopazUtil.camel2flat(clazz.getSimpleName());
 		insertSql.append(tblName).append(" (");
 		for (Map.Entry<String, PropertyMapping> entry : mapping.entrySet()) {
 			PropertyMapping pm = entry.getValue();

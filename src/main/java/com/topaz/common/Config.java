@@ -28,9 +28,6 @@ public class Config {
 	private List<String> booleanValues = new ArrayList<String>(2);
 
 	public static void init(File cFile) {
-		if(!cFile.exists()) {
-			throw new TopazException("Cant'f get configuration file. " + cFile);
-		}
 		instance = new Config(cFile);
 	}
 
@@ -45,11 +42,16 @@ public class Config {
 		booleanValues.add("True");
 		booleanValues.add("false");
 		booleanValues.add("False");
-		
+
 		loadConfig();
 	}
 
 	private void loadConfig() {
+		if (cfgFile == null || !cfgFile.exists()) {
+			log.warn("Cant'f get configuration file " + cfgFile
+					+ ", using default configuration.");
+			return;
+		}
 		try {
 			props.load(FileUtils.openInputStream(cfgFile));
 			lastModifiedTime = cfgFile.lastModified();
@@ -63,9 +65,9 @@ public class Config {
 
 	public String getConfig(String key) {
 		long millisDiff = System.currentTimeMillis() - lastCheckTime;
-		if (millisDiff > REFRESH_TIME
+		if (lastCheckTime != 0 && millisDiff > REFRESH_TIME
 				&& FileUtils.isFileNewer(cfgFile, lastModifiedTime)) {
-			log.info("Config file changed, reloading. ");
+			log.info("Config file changed, reloading... ");
 			loadConfig();
 		}
 		return (String) props.get(key);
@@ -82,6 +84,14 @@ public class Config {
 			result = defaultValue;
 		}
 		return result;
+	}
+	
+	private String getStringItem(String key, String defValue) {
+		String v = getConfig(key);
+		if(v == null || v.isEmpty()) {
+			v = defValue;
+		}
+		return v;
 	}
 
 	private long getLongItem(String key, long defValue) {
@@ -110,7 +120,7 @@ public class Config {
 	 * Database Connection Configurations
 	 */
 	public String getDbDriver() {
-		return getConfig("ds.Driver");
+		return getStringItem("ds.Driver", "com.mysql.jdbc.Driver");
 	}
 
 	public String getDbUrl() {
