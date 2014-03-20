@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.alibaba.fastjson.JSON;
+import com.topaz.common.DataChecker;
 
 /**
  * @author Isaac Tian
@@ -30,6 +31,7 @@ public class Controller {
 	protected static final int V_INCLUEITION = 3;
 	protected static final int V_EXCLUETION = 4;
 	protected static final int V_EMAIL = 5;
+	protected static final int V_CELLPHONE = 6;
 
 	private static String WEB_ERRORS = "errors";
 	private static String DEF_LAYOUT = "layout.ftl";
@@ -89,10 +91,10 @@ public class Controller {
 				targetRes = ctx.getViewBase() + layoutName;
 			} else {
 				targetRes = ctx.getViewBase() + DEF_LAYOUT;
-				log.warn("Layout " + layoutName + " not exist, now using default layout" + DEF_LAYOUT);
+				log.warn("Layout " + layoutName
+						+ " not exist, now using default layout" + DEF_LAYOUT);
 			}
-			request.setAttribute(LAYOUT_CHILDREN, ctx.getViewBase()
-					+ resPath);
+			request.setAttribute(LAYOUT_CHILDREN, ctx.getViewBase() + resPath);
 		}
 
 		try {
@@ -157,13 +159,13 @@ public class Controller {
 	protected void validate(int type, Object[] params, String key, String errMsg) {
 		switch (type) {
 		case V_REGEX:
-			if (!DataChecker.chkStr((String) params[0], (String) params[1])) {
+			if (!DataChecker.regexTest((String) params[0], (String) params[1])) {
 				addError(key, errMsg);
 			}
 			break;
 		case V_LENGTH:
-			if (!DataChecker.isSafe((String) params[0], (Integer) params[1],
-					(Integer) params[2], null)) {
+			if (!DataChecker.isSafeString((String) params[0],
+					(Integer) params[1], (Integer) params[2], null)) {
 				addError(key, errMsg);
 			}
 			break;
@@ -196,6 +198,12 @@ public class Controller {
 			if (!re) {
 				addError(key, errMsg);
 			}
+			break;
+		case V_CELLPHONE:
+			if (!DataChecker.isCellphone((String) params[0])) {
+				addError(key, errMsg);
+			}
+
 			break;
 		}
 	}

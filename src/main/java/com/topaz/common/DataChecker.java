@@ -1,6 +1,5 @@
-package com.topaz.controller;
+package com.topaz.common;
 
-import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -17,6 +16,24 @@ import java.util.Date;
  * @version 1.0
  */
 public class DataChecker {
+
+	/**
+	 * 自定义验证方法,利用政则表达式验证字符串
+	 * 
+	 * @param exp
+	 *            政则表达式
+	 * @param str
+	 *            输入字符串
+	 * @return boolean
+	 */
+	public static boolean regexTest(String exp, String str) {
+		boolean result = false;
+		if (str != null) {
+			result = str.matches(exp);
+		}
+		return result;
+	}
+
 	/**
 	 * 字符串验证 验证输入字符串的长度范围以及是否包含非法字符
 	 * 
@@ -26,12 +43,12 @@ public class DataChecker {
 	 *            最少长度限制
 	 * @param maxLength
 	 *            最大长度限制
-	 * @param unSafeStr
+	 * @param unSafeChars
 	 *            不允许包含的字符集合
 	 * @return boolean
 	 */
-	public static boolean isSafe(String src, int minLength, int maxLength,
-			String unSafeStr) {
+	public static boolean isSafeString(String src, int minLength,
+			int maxLength, char[] unSafeChars) {
 		boolean result = true;
 		if (src != null) {
 			if (src.length() < minLength || src.length() > maxLength) {
@@ -39,14 +56,11 @@ public class DataChecker {
 				return result;
 			}
 
-			if (unSafeStr != null) {
-				for (int i = 0; i < unSafeStr.length(); i++) {
-					String unSafeChar = unSafeStr.substring(i, i + 1);
-					for (int j = 0; j < src.length(); j++) {
-						if (src.indexOf(unSafeChar) >= 0) {
-							result = false;
-							break;
-						}
+			if (unSafeChars != null) {
+				for (char c : unSafeChars) {
+					if (src.indexOf(c) >= 0) {
+						result = false;
+						break;
 					}
 				}
 			}
@@ -65,27 +79,8 @@ public class DataChecker {
 	 */
 	public static boolean isInt(String str) {
 		boolean result = false;
-		if (str != null && !str.trim().equalsIgnoreCase("")) {
-			if (str.startsWith("-"))
-				str = str.substring(1);
-			result = chkStr("\\d+", str);
-		}
-		return result;
-	}
-
-	/**
-	 * 自定义验证方法,利用政则表达式验证字符串
-	 * 
-	 * @param exp
-	 *            政则表达式
-	 * @param str
-	 *            输入字符串
-	 * @return boolean
-	 */
-	public static boolean chkStr(String exp, String str) {
-		boolean result = false;
-		if (str != null) {
-			result = str.matches(exp);
+		if (str != null && !str.trim().equals("")) {
+			result = regexTest("^[+-]?\\d+$", str);
 		}
 		return result;
 	}
@@ -114,34 +109,26 @@ public class DataChecker {
 	}
 
 	/**
-	 * IP验证方法,验证输入的字符串是否为正确的IP
+	 * IP验证方法,验证输入的字符串是否为正确的IPv4
 	 * 
 	 * @param ip
 	 *            输入IP字符串
 	 * @return boolean
 	 */
-	public static boolean isIp(String ip) {
+	public static boolean isIpv4(String ip) {
 		boolean result = false;
-		if (null != ip) {
-			result = DataChecker.chkStr("(\\d{1,3}\\.){3}\\d{1,3}", ip);
+		if (null != ip && DataChecker.regexTest("(\\d{1,3}\\.){3}\\d{1,3}", ip)) {
+			result = true;
+			String[] segs = ip.split("\\.");
+			for (String seg : segs) {
+				int ipNum = Integer.parseInt(seg);
+				if(ipNum <=0 || ipNum >= 255) {
+					result = false;
+					break;
+				}
+			}
 		}
 		return result;
-	}
-
-	/**
-	 * 字符串转码
-	 * 
-	 * @param str
-	 * @param src
-	 * @param dest
-	 * @return String
-	 */
-	public static String convertCode(String str, String src, String dest) {
-		try {
-			str = new String(str.getBytes(src), dest);
-		} catch (UnsupportedEncodingException e) {
-		}
-		return str;
 	}
 
 	/**
@@ -155,18 +142,17 @@ public class DataChecker {
 		if (input != null) {
 			result = result.replaceAll("<", "&lt;");
 			result = result.replaceAll(">", "&gt;");
-			// result = result.replaceAll("\\r\\n", "<br>");
 		}
 		return result;
 	}
 
 	public static boolean isEmail(String input) {
-		boolean re =  chkStr("^[\\w.]+@[\\w.]+[\\w]$", input);
+		boolean re = regexTest("^[\\w.-]+@[\\w.-]+[\\w-]$", input);
 		return re;
 	}
 
-	public static void main(String args[]) {
-		//System.out.println(DataChecker.isInt("-100a0"));
-		System.out.println( DataChecker.isEmail("foxty@sina.com"));
+	public static boolean isCellphone(String input) {
+		boolean re = regexTest("^1[358]\\d{9}$", input);
+		return re;
 	}
 }
