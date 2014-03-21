@@ -26,13 +26,6 @@ import com.topaz.common.DataChecker;
  * @author Isaac Tian
  */
 public class Controller {
-	protected static final int V_REGEX = 1;
-	protected static final int V_LENGTH = 2;
-	protected static final int V_INCLUEITION = 3;
-	protected static final int V_EXCLUETION = 4;
-	protected static final int V_EMAIL = 5;
-	protected static final int V_CELLPHONE = 6;
-
 	private static String WEB_ERRORS = "errors";
 	private static String DEF_LAYOUT = "layout.ftl";
 	private static String LAYOUT_CHILDREN = "children";
@@ -150,61 +143,75 @@ public class Controller {
 	}
 
 	/**
-	 * 验证方法
+	 * Get request parameter by paramKey and validate by regex.
 	 * 
-	 * @param data
-	 * @param params
+	 * @param paramKey
+	 * @param regex
 	 * @param errMsg
 	 */
-	protected void validate(int type, Object[] params, String key, String errMsg) {
-		switch (type) {
-		case V_REGEX:
-			if (!DataChecker.regexTest((String) params[0], (String) params[1])) {
-				addError(key, errMsg);
-			}
-			break;
-		case V_LENGTH:
-			if (!DataChecker.isSafeString((String) params[0],
-					(Integer) params[1], (Integer) params[2], null)) {
-				addError(key, errMsg);
-			}
-			break;
-		case V_INCLUEITION:
-			Object[] arr1 = (Object[]) params[0];
-			boolean res1 = false;
-			for (Object obj : arr1) {
-				if (obj.equals(params[1])) {
-					res1 = true;
-				}
-			}
-			if (!res1) {
-				addError(key, errMsg);
-			}
-			break;
-		case V_EXCLUETION:
-			Object[] arr2 = (Object[]) params[0];
-			boolean res2 = true;
-			for (Object obj : arr2) {
-				if (obj.equals(params[1])) {
-					res2 = false;
-				}
-			}
-			if (!res2) {
-				addError(key, errMsg);
-			}
-			break;
-		case V_EMAIL:
-			boolean re = DataChecker.isEmail((String) params[0]);
-			if (!re) {
-				addError(key, errMsg);
-			}
-			break;
-		case V_CELLPHONE:
-			if (!DataChecker.isCellphone((String) params[0])) {
-				addError(key, errMsg);
-			}
+	protected void vRegex(String paramKey, String regex, String errMsg) {
+		String value = WebContext.get().parameter(paramKey);
+		if (!DataChecker.regexTest(regex, value)) {
+			addError(paramKey, errMsg);
+		}
+	}
 
-			break;
+	/**
+	 * Get request parameter by paramKey and validate by range of length.
+	 * Inclusion.
+	 * 
+	 * @param paramKey
+	 * @param minLength
+	 * @param maxLength
+	 * @param errMsg
+	 */
+	protected void vRangeLength(String paramKey, int minLength, int maxLength,
+			String errMsg) {
+		String value = WebContext.get().parameter(paramKey);
+		if (!DataChecker.isSafeString(value, minLength, maxLength, null)) {
+			addError(paramKey, errMsg);
+		}
+	}
+
+	protected void vMinLength(String paramKey, int minlength, String errMsg) {
+		String value = WebContext.get().parameter(paramKey);
+		if (StringUtils.trimToEmpty(value).length() < minlength) {
+			addError(paramKey, errMsg);
+		}
+	}
+
+	protected void vMaxLength(String paramKey, int maxlength, String errMsg) {
+		String value = WebContext.get().parameter(paramKey);
+		if (StringUtils.trimToEmpty(value).length() > maxlength) {
+			addError(paramKey, errMsg);
+		}
+	}
+
+	protected void vInt(String paramKey, String errMsg) {
+		String value = WebContext.get().parameter(paramKey);
+		if (!DataChecker.isInt(value)) {
+			addError(paramKey, errMsg);
+		}
+	}
+
+	protected void vDate(String paramKey, String format, String errMsg) {
+		String value = WebContext.get().parameter(paramKey);
+		if (!DataChecker.isDate(value, format)) {
+			addError(paramKey, errMsg);
+		}
+	}
+
+	protected void vEmail(String paramKey, String errMsg) {
+		String value = WebContext.get().parameter(paramKey);
+		if (!DataChecker.isEmail(value)) {
+			addError(paramKey, errMsg);
+		}
+	}
+
+	protected void vCellphone(String paramKey, String errMsg) {
+		String value = WebContext.get().parameter(paramKey);
+		if (!DataChecker.isCellphone(value)) {
+			addError(paramKey, errMsg);
 		}
 	}
 
@@ -217,7 +224,7 @@ public class Controller {
 	 * 
 	 * @return boolean
 	 */
-	protected boolean isValid() {
+	protected boolean isInputValid() {
 		return WebContext.get().getErrors().isEmpty();
 	}
 

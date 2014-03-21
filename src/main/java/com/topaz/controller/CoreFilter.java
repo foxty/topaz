@@ -39,6 +39,8 @@ public class CoreFilter implements Filter {
 	private String controllerBase = "/topaz/controller/";
 	private String viewBase = "/WEB-INF/view";
 	private String cfgFilePath;
+	private boolean xssFilterOn = true;
+
 	private ConcurrentHashMap<String, Controller> controllers = new ConcurrentHashMap<String, Controller>();
 	private ModuleNode rootNode = new ModuleNode("", null);
 
@@ -51,6 +53,7 @@ public class CoreFilter implements Filter {
 		String cBase = config.getInitParameter("controllerBase");
 		String vBase = config.getInitParameter("viewBase");
 		String cFile = config.getInitParameter("configFile");
+		String xssFilterFlag = config.getInitParameter("xssFilterOn");
 		if (StringUtils.isNotBlank(cBase)) {
 			controllerBase = cBase;
 			if (!controllerBase.endsWith("/")) {
@@ -62,6 +65,9 @@ public class CoreFilter implements Filter {
 		}
 		if (StringUtils.isNotBlank(cFile)) {
 			cfgFilePath = cFile;
+		}
+		if (StringUtils.isNotBlank(xssFilterFlag)) {
+			xssFilterOn = Boolean.valueOf(xssFilterFlag);
 		}
 
 		log.info("Start load Config from file " + cfgFilePath);
@@ -91,9 +97,10 @@ public class CoreFilter implements Filter {
 			String pName = f.getName();
 			if (f.isFile()) {
 				if (pName.endsWith("Controller.class")) {
-					String tmpPath = controllerBase + node.fullPath() + "/" + pName;
-					String classPath = tmpPath.replace(
-							".class", "").replaceAll("[/\\\\]+", ".").substring(1); 
+					String tmpPath = controllerBase + node.fullPath() + "/"
+							+ pName;
+					String classPath = tmpPath.replace(".class", "")
+							.replaceAll("[/\\\\]+", ".").substring(1);
 
 					ControllerNode cn = new ControllerNode(pName.replace(
 							"Controller.class", "").toLowerCase(),
@@ -140,6 +147,9 @@ public class CoreFilter implements Filter {
 		// if its REST style
 		if (uri.indexOf('.') <= 0 && uri.length() > 1) {
 			WebContext ctx = WebContext.create(req, resp, viewBase);
+			if (!xssFilterOn) {
+				ctx.xssFilterOff();
+			}
 
 			String[] uriArr = uri.split("[/;]");
 			// First path is root, so we start search from 1
@@ -231,15 +241,5 @@ public class CoreFilter implements Filter {
 
 	public void destroy() {
 		log.info("CoreFilter has been destroyed!");
-	}
-
-	public static void main(String[] args) {
-		System.out.println(Config.class.getResource("/com"));
-		File cp = new File(Config.class.getResource("/com/topaz/controller/")
-				.getFile());
-		PathNode rn = new PathNode("/", null);
-		if (cp != null && cp.isDirectory()) {
-
-		}
 	}
 }

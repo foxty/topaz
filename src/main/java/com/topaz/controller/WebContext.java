@@ -17,11 +17,13 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.topaz.common.DataChecker;
+
 public class WebContext {
-	
+
 	public final static String ACCEPT_JSON = "application/json";
 	public final static String ACCEPT_XML = "application/xml";
-	
+
 	private HttpServletRequest request;
 	private HttpServletResponse response;
 	private HttpSession session;
@@ -33,6 +35,7 @@ public class WebContext {
 	private String controllerName = "root";
 	private String methodName = "index";
 	private String viewBase;
+	private boolean xssFilterOn = true;
 
 	private static ThreadLocal<WebContext> local = new ThreadLocal<WebContext>();
 
@@ -57,6 +60,14 @@ public class WebContext {
 		this.viewBase = StringUtils.isBlank(viewBase) ? "/view/" : (viewBase
 				.endsWith("/") ? viewBase : viewBase + "/");
 		this.contextPath = request.getContextPath();
+	}
+
+	public void xssFilterOn() {
+		xssFilterOn = true;
+	}
+
+	public void xssFilterOff() {
+		xssFilterOn = false;
 	}
 
 	public final ServletContext getApplication() {
@@ -140,7 +151,11 @@ public class WebContext {
 	 * @return String
 	 */
 	public String parameter(String key) {
-		return this.request.getParameter(key);
+		String p = request.getParameter(key);
+		if (xssFilterOn) {
+			p = DataChecker.filterHTML(p);
+		}
+		return p;
 	}
 
 	/**
@@ -151,7 +166,11 @@ public class WebContext {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T attribute(String key) {
-		return (T) this.request.getAttribute(key);
+		Object attr = this.request.getAttribute(key);
+		if (attr instanceof String && xssFilterOn) {
+			attr = DataChecker.filterHTML((String) attr);
+		}
+		return (T) attr;
 	}
 
 	/**
@@ -184,12 +203,12 @@ public class WebContext {
 	public void session(String key, Object value) {
 		this.session.setAttribute(key, value);
 	}
-	
+
 	public boolean isAcceptJSON() {
 		String reqAccept = this.request.getHeader("Accept");
 		return reqAccept.contains(ACCEPT_JSON);
 	}
-	
+
 	public boolean isAcceptXML() {
 		String reqAccept = this.request.getHeader("Accept");
 		return reqAccept.contains(ACCEPT_XML);
