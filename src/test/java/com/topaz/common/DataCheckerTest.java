@@ -24,6 +24,11 @@ public class DataCheckerTest {
 
 	@Test
 	public void testIsSafeString() {
+		assertTrue(DataChecker.isSafeString("abc", 3, 3, null));
+		assertFalse(DataChecker.isSafeString("abcd", 4, 3, null));
+		assertTrue(DataChecker.isSafeString("abc", 1, 3, null));
+		assertTrue(DataChecker.isSafeString("abc", 1, 3, new char[]{'A'}));
+		assertFalse(DataChecker.isSafeString("abc", 1, 3, new char[]{'a'}));
 	}
 
 	@Test
@@ -49,8 +54,10 @@ public class DataCheckerTest {
 
 	@Test
 	public void testFilteHTML() {
-		String re = DataChecker.filteHTML("<abc>");
+		String re = DataChecker.filterHTML("<abc>");
 		assertEquals("&lt;abc&gt;", re);
+		assertEquals("&lt;", DataChecker.filterHTML("\u003c"));
+		assertEquals("&gt;", DataChecker.filterHTML("\u003E"));
 	}
 
 	@Test

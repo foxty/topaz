@@ -4,6 +4,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * <p>
  * 数据验证工具类
@@ -20,16 +22,16 @@ public class DataChecker {
 	/**
 	 * 自定义验证方法,利用政则表达式验证字符串
 	 * 
-	 * @param exp
+	 * @param regex
 	 *            政则表达式
 	 * @param str
 	 *            输入字符串
 	 * @return boolean
 	 */
-	public static boolean regexTest(String exp, String str) {
+	public static boolean regexTest(String regex, String str) {
 		boolean result = false;
 		if (str != null) {
-			result = str.matches(exp);
+			result = str.matches(regex);
 		}
 		return result;
 	}
@@ -47,25 +49,22 @@ public class DataChecker {
 	 *            不允许包含的字符集合
 	 * @return boolean
 	 */
-	public static boolean isSafeString(String src, int minLength,
+	public static boolean isSafeString(String str, int minLength,
 			int maxLength, char[] unSafeChars) {
 		boolean result = true;
-		if (src != null) {
-			if (src.length() < minLength || src.length() > maxLength) {
-				result = false;
-				return result;
-			}
+		String v = StringUtils.trimToEmpty(str);
+		if (v.length() < minLength || v.length() > maxLength) {
+			result = false;
+			return result;
+		}
 
-			if (unSafeChars != null) {
-				for (char c : unSafeChars) {
-					if (src.indexOf(c) >= 0) {
-						result = false;
-						break;
-					}
+		if (unSafeChars != null) {
+			for (char c : unSafeChars) {
+				if (v.indexOf(c) >= 0) {
+					result = false;
+					break;
 				}
 			}
-		} else {
-			result = false;
 		}
 		return result;
 	}
@@ -122,7 +121,7 @@ public class DataChecker {
 			String[] segs = ip.split("\\.");
 			for (String seg : segs) {
 				int ipNum = Integer.parseInt(seg);
-				if(ipNum <=0 || ipNum >= 255) {
+				if (ipNum <= 0 || ipNum >= 255) {
 					result = false;
 					break;
 				}
@@ -137,7 +136,7 @@ public class DataChecker {
 	 * @param input
 	 * @return String
 	 */
-	public static String filteHTML(String input) {
+	public static String filterHTML(String input) {
 		String result = input;
 		if (input != null) {
 			result = result.replaceAll("<", "&lt;");
