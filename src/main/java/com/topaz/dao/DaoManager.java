@@ -72,7 +72,7 @@ public class DaoManager {
 		return (LOCAL_CONN.get() != null);
 	}
 
-	public Object accessDB(IAccessDB inter) {
+	public <T> T accessDB(IAccessDB inter) {
 		Connection conn = prepareConnection();
 		Object result = null;
 		try {
@@ -83,7 +83,7 @@ public class DaoManager {
 		} finally {
 			closeConnection(conn);
 		}
-		return result;
+		return (T) result;
 	}
 
 	private Connection prepareConnection() {

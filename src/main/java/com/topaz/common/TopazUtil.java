@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
@@ -15,7 +16,6 @@ import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 
 public class TopazUtil {
 
@@ -107,26 +107,37 @@ public class TopazUtil {
 		return re;
 
 	}
-	
+
 	public static boolean isFloatEqual(float f1, float f2, float precision) {
 		return Math.abs(f1 - f2) <= precision;
 	}
-	
+
 	public static boolean isDoubleEqual(double f1, double f2, double precision) {
 		return Math.abs(f1 - f2) <= precision;
 	}
-	
+
 	public static String formatDate(Date d, String fmt) {
 		String re = d.toString();
 		SimpleDateFormat sdf = new SimpleDateFormat(fmt);
 		re = sdf.format(d);
 		return re;
 	}
-	
+
+	public static Date parseDate(String dateString, String format) {
+		SimpleDateFormat sdf = new SimpleDateFormat(format);
+		Date re = null;
+		try {
+			re = sdf.parse(dateString);
+		} catch (ParseException e) {
+			log.error(e.getMessage(), e);
+		}
+		return re;
+	}
+
 	public static String genUUID() {
 		return UUID.randomUUID().toString();
 	}
-	
+
 	public static void main(String[] args) {
 		System.out.println(genUUID().length());
 	}
