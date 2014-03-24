@@ -10,6 +10,7 @@ package com.topaz.controller;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Date;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.alibaba.fastjson.JSON;
 import com.topaz.common.DataChecker;
+import com.topaz.common.TopazUtil;
 
 /**
  * @author Isaac Tian
@@ -149,11 +151,13 @@ public class Controller {
 	 * @param regex
 	 * @param errMsg
 	 */
-	protected void vRegex(String paramKey, String regex, String errMsg) {
+	protected String vRegex(String paramKey, String regex, String errMsg) {
 		String value = WebContext.get().parameter(paramKey);
 		if (!DataChecker.regexTest(regex, value)) {
 			addError(paramKey, errMsg);
+			value = null;
 		}
+		return value;
 	}
 
 	/**
@@ -165,54 +169,68 @@ public class Controller {
 	 * @param maxLength
 	 * @param errMsg
 	 */
-	protected void vRangeLength(String paramKey, int minLength, int maxLength,
-			String errMsg) {
+	protected String vRangeLength(String paramKey, int minLength,
+			int maxLength, String errMsg) {
 		String value = WebContext.get().parameter(paramKey);
 		if (!DataChecker.isSafeString(value, minLength, maxLength, null)) {
 			addError(paramKey, errMsg);
+			value = null;
 		}
+		return value;
 	}
 
-	protected void vMinLength(String paramKey, int minlength, String errMsg) {
+	protected String vMinLength(String paramKey, int minlength, String errMsg) {
 		String value = WebContext.get().parameter(paramKey);
 		if (StringUtils.trimToEmpty(value).length() < minlength) {
 			addError(paramKey, errMsg);
+			value = null;
 		}
+		return value;
 	}
 
-	protected void vMaxLength(String paramKey, int maxlength, String errMsg) {
+	protected String vMaxLength(String paramKey, int maxlength, String errMsg) {
 		String value = WebContext.get().parameter(paramKey);
 		if (StringUtils.trimToEmpty(value).length() > maxlength) {
 			addError(paramKey, errMsg);
+			value = null;
 		}
+		return value;
 	}
 
-	protected void vInt(String paramKey, String errMsg) {
+	protected Integer vInt(String paramKey, String errMsg) {
 		String value = WebContext.get().parameter(paramKey);
 		if (!DataChecker.isInt(value)) {
 			addError(paramKey, errMsg);
+			return null;
 		}
+		return Integer.parseInt(value);
 	}
 
-	protected void vDate(String paramKey, String format, String errMsg) {
+	protected Date vDate(String paramKey, String format, String errMsg) {
 		String value = WebContext.get().parameter(paramKey);
 		if (!DataChecker.isDate(value, format)) {
 			addError(paramKey, errMsg);
+			return null;
 		}
+		return TopazUtil.parseDate(value, format);
 	}
 
-	protected void vEmail(String paramKey, String errMsg) {
+	protected String vEmail(String paramKey, String errMsg) {
 		String value = WebContext.get().parameter(paramKey);
 		if (!DataChecker.isEmail(value)) {
 			addError(paramKey, errMsg);
+			value = null;
 		}
+		return value;
 	}
 
-	protected void vCellphone(String paramKey, String errMsg) {
+	protected String vCellphone(String paramKey, String errMsg) {
 		String value = WebContext.get().parameter(paramKey);
 		if (!DataChecker.isCellphone(value)) {
 			addError(paramKey, errMsg);
+			value = null;
 		}
+		return value;
 	}
 
 	protected void addError(String key, String msg) {

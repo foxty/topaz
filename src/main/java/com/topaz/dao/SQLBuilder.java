@@ -41,7 +41,7 @@ public class SQLBuilder {
 
 	private boolean limited = false;
 
-	public SQLBuilder(Class clazz, Map<String, PropertyMapping> mappings,
+	public SQLBuilder(Class<? extends BaseModel> clazz, Map<String, PropertyMapping> mappings,
 			SQLBuilderType type) {
 		this.clazz = clazz;
 		this.tableName = TopazUtil.camel2flat(clazz.getSimpleName());
@@ -49,6 +49,14 @@ public class SQLBuilder {
 		this.type = type;
 
 		buildSQL();
+	}
+
+	public SQLBuilder(Class<? extends BaseModel> clazz, String sql, List<Object> sqlParams,
+			SQLBuilderType type) {
+		this.clazz = clazz;
+		this.sql.append(sql);
+		this.sqlParams.addAll(sqlParams);
+		this.type = type;
 	}
 
 	private void buildSQL() {
@@ -266,10 +274,10 @@ public class SQLBuilder {
 		});
 		return result;
 	}
-	
+
 	@Override
 	public String toString()
 	{
-		return sql.toString();		
+		return sql.toString();
 	}
 }
