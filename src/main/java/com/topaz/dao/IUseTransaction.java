@@ -1,5 +1,9 @@
 package com.topaz.dao;
 
 public interface IUseTransaction {
-	void transaction();
+	/**
+	 * 
+	 * @return true-commit, false-rollback.
+	 */
+	boolean transaction();
 }

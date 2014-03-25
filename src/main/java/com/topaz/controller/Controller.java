@@ -10,6 +10,7 @@ package com.topaz.controller;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.Date;
 
 import javax.servlet.RequestDispatcher;
@@ -204,6 +205,31 @@ public class Controller {
 			return null;
 		}
 		return Integer.parseInt(value);
+	}
+
+	protected Integer vIntInclude(String paramKey, int[] values, String errMsg) {
+		String value = WebContext.get().parameter(paramKey);
+		if (DataChecker.isInt(value)) {
+			int re = Integer.parseInt(value);
+			Arrays.sort(values);
+			if (Arrays.binarySearch(values, re) > 0) {
+				return re;
+			}
+		}
+		addError(paramKey, errMsg);
+		return null;
+	}
+
+	protected String vStringInclude(String paramKey, String[] values,
+			String errMsg) {
+		String value = WebContext.get().parameter(paramKey);
+		Arrays.sort(values);
+		if (Arrays.binarySearch(values, value) > 0) {
+			return value;
+		} else {
+			addError(paramKey, errMsg);
+			return null;
+		}
 	}
 
 	protected Date vDate(String paramKey, String format, String errMsg) {
