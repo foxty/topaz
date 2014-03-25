@@ -4,9 +4,8 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import junit.framework.Assert;
-
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,9 +27,7 @@ public class DaoManagerTransactionTest {
 	public void testConnectionConsistency() {
 		DaoManager mgr = DaoManager.getInstance();
 		mgr.useTransaction(new IUseTransaction() {
-
-			public void transaction() {
-
+			public boolean transaction() {
 				Connection conn1 = (Connection) DaoManager.getInstance()
 						.accessDB(new IAccessDB() {
 							public Object useDB(Connection conn)
@@ -56,6 +53,7 @@ public class DaoManagerTransactionTest {
 				}
 				Assert.assertEquals(conn1, conn2);
 				Assert.assertEquals(false, autoCommit);
+				return true;
 			}
 		});
 	}
@@ -66,7 +64,7 @@ public class DaoManagerTransactionTest {
 		final int numActive1 = mgr.getNumActive();
 		mgr.useTransaction(new IUseTransaction() {
 
-			public void transaction() {
+			public boolean transaction() {
 
 				Connection conn1 = (Connection) DaoManager.getInstance()
 						.accessDB(new IAccessDB() {
@@ -74,7 +72,6 @@ public class DaoManagerTransactionTest {
 									throws SQLException {
 								return conn;
 							}
-
 						});
 
 				boolean autoCommit = true;
@@ -84,9 +81,9 @@ public class DaoManagerTransactionTest {
 					e.printStackTrace();
 				}
 				Assert.assertEquals(false, autoCommit);
-
 				int numActive2 = mgr.getNumActive();
 				Assert.assertEquals(numActive1 + 1, numActive2);
+				return true;
 			}
 		});
 		int numActive3 = mgr.getNumActive();

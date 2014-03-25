@@ -118,27 +118,29 @@ public class DaoManager {
 		if (log.isDebugEnabled()) {
 			StringBuffer re = new StringBuffer(
 					"[ConnectionPool status before get connection: NumActive/MaxActive=");
-			re.append(connectionPool.getNumActive()).append("/").append(
-					connectionPool.getMaxActive());
+			re.append(connectionPool.getNumActive()).append("/")
+					.append(connectionPool.getMaxActive());
 			re.append(", MinIdle/NumIdle/MaxIdle=");
-			re.append(connectionPool.getMinIdle()).append("/").append(
-					connectionPool.getNumIdle()).append("/").append(
-					connectionPool.getMaxIdle()).append("]");
+			re.append(connectionPool.getMinIdle()).append("/")
+					.append(connectionPool.getNumIdle()).append("/")
+					.append(connectionPool.getMaxIdle()).append("]");
 			log.debug(re);
 		}
 	}
 
-	public void useTransaction(IUseTransaction inter) {
+	public boolean useTransaction(IUseTransaction inter) {
 		// Start transaction set transaction flag
 		Connection conn = prepareConnection();
 		LOCAL_CONN.set(conn);
 		try {
 			conn.setAutoCommit(false);
+			boolean re = inter.transaction();
+			if (re)
+				conn.commit();
+			else
+				conn.rollback();
 
-			inter.transaction();
-
-			// Commit
-			conn.setAutoCommit(true);
+			return re;
 		} catch (Exception e) {
 			// Roll back
 			try {
