@@ -33,7 +33,7 @@ public class BaseModel implements Serializable {
 			new HashMap<Class<? extends BaseModel>, Map<Class<? extends BaseModel>, TableRelation>>();
 
 	// Primary Key for model
-	@Column protected Long id;
+	@Column protected Integer id;
 
 	protected static void prepareModel(Class<?> clazz) {
 		boolean isReady = TABLE_NAMES.containsKey(clazz) && PROP_MAPPINGS.containsKey(clazz);
@@ -128,18 +128,18 @@ public class BaseModel implements Serializable {
 		}
 	}
 
-	public Long getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
 	// Creation methods
 	public boolean save() {
 		boolean result = false;
-		if (getId() != null && getId() != 0L) {
+		if (getId() != null && getId() != 0) {
 			return update();
 		}
 		Class<?> clazz = this.getClass();
@@ -185,7 +185,7 @@ public class BaseModel implements Serializable {
 					result = statement.executeUpdate() == 1;
 					resultSet = statement.getGeneratedKeys();
 					if (resultSet.next()) {
-						id = resultSet.getLong(1);
+						id = resultSet.getInt(1);
 					}
 					return result;
 				} catch (SQLException e) {
@@ -239,7 +239,7 @@ public class BaseModel implements Serializable {
 		return result;
 	}
 
-	final static public <T> T findById(Class<T> clazz, Long id) {
+	final static public <T> T findById(Class<T> clazz, int id) {
 		prepareModel(clazz);
 		SQLBuilder qb = find(clazz);
 		return qb.where("id", id).fetchFirst();
