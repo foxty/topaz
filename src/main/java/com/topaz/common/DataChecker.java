@@ -84,6 +84,18 @@ public class DataChecker {
 		return result;
 	}
 
+	public static boolean isFloat(String str) {
+		boolean result = false;
+		if (StringUtils.isBlank(str))
+			return result;
+		try {
+			Float.parseFloat(str);
+			result = true;
+		} catch (Exception e) {
+		}
+		return result;
+	}
+
 	/**
 	 * 验证日期格式
 	 * 

@@ -207,6 +207,15 @@ public class Controller {
 		return Integer.parseInt(value);
 	}
 
+	protected Float vFloat(String paramKey, String errMsg) {
+		String value = WebContext.get().parameter(paramKey);
+		if (!DataChecker.isFloat(value)) {
+			addError(paramKey, errMsg);
+			return null;
+		}
+		return Float.parseFloat(value);
+	}
+
 	protected Integer vIntInclude(String paramKey, int[] values, String errMsg) {
 		String value = WebContext.get().parameter(paramKey);
 		if (DataChecker.isInt(value)) {
