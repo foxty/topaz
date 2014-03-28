@@ -1,23 +1,22 @@
 package com.topaz.controller.interceptor;
 
+import java.util.Iterator;
 import java.util.List;
 
 import com.topaz.controller.WebContext;
 
 public class InterceptorChain {
-	
-	private List<IInterceptor> interceptors;
-	private int pos;
 
-	public InterceptorChain(
-			List<IInterceptor> interceptors) {
+	private List<IInterceptor> interceptors;
+	private Iterator<IInterceptor> it;
+
+	public InterceptorChain(List<IInterceptor> interceptors) {
 		this.interceptors = interceptors;
-		this.pos = 0;
+		this.it = interceptors.iterator();
 	}
 
-	public void proceed(WebContext wc) {
-		IInterceptor inter = interceptors.get(pos);
-		pos++;
-		inter.intercept(this, wc);
+	public void proceed() {
+		IInterceptor inter = it.next();
+		inter.intercept(this);
 	}
 }

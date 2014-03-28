@@ -9,8 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.Filter;
@@ -41,7 +40,8 @@ public class CoreFilter implements Filter {
 	private String cfgFilePath;
 	private boolean xssFilterOn = true;
 
-	private ConcurrentHashMap<String, Controller> controllers = new ConcurrentHashMap<String, Controller>();
+	private ConcurrentHashMap<String, Controller> controllersCache = new ConcurrentHashMap<String, Controller>();
+	private ConcurrentHashMap<Class<IInterceptor>, IInterceptor> interceptorsCache = new ConcurrentHashMap<Class<IInterceptor>, IInterceptor>();
 	private ModuleNode rootNode = new ModuleNode("", null);
 
 	private static Log log = LogFactory.getLog(CoreFilter.class);
@@ -118,16 +118,36 @@ public class CoreFilter implements Filter {
 	private Controller initController(String fullClassPath) {
 		Controller c = null;
 		try {
-			Class<?> clazz = Class.forName(fullClassPath);
-			c = (Controller) clazz.newInstance();
-			controllers.putIfAbsent(fullClassPath, c);
+			Class<?> contClazz = Class.forName(fullClassPath);
+			c = (Controller) contClazz.newInstance();
+			controllersCache.putIfAbsent(fullClassPath, c);
 			log.info("New controller " + fullClassPath);
+
+			while (contClazz != Controller.class) {
+				for (Class<IInterceptor> clazz : getInterceptors(contClazz)) {
+					try {
+						interceptorsCache.putIfAbsent(clazz,
+								clazz.newInstance());
+					} catch (InstantiationException e) {
+						log.error("Initialize " + clazz + " failed!");
+					} catch (IllegalAccessException e) {
+						log.error(e.getMessage(), e);
+					}
+				}
+				contClazz = contClazz.getSuperclass();
+			}
 		} catch (ClassNotFoundException cnfe) {
-			log.error("Resource " + fullClassPath + " not fond! ");
+			log.error("Controller " + fullClassPath + " not fond! ");
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
 		return c;
+	}
+
+	private Class[] getInterceptors(Class<?> clazz) {
+		Interceptors interAnnotation = clazz.getAnnotation(Interceptors.class);
+		return (interAnnotation != null) ? interAnnotation.interceptors()
+				: new Class[] {};
 	}
 
 	public void doFilter(ServletRequest request, ServletResponse response,
@@ -205,19 +225,11 @@ public class CoreFilter implements Filter {
 		}
 
 		// get all interceptors from annotation
-		List<IInterceptor> interceptors = new ArrayList<IInterceptor>();
+		LinkedList<IInterceptor> interceptors = new LinkedList<IInterceptor>();
 		Class controllerClazz = c.getClass();
 		while (controllerClazz != Controller.class) {
 			for (Class<IInterceptor> clazz : getInterceptors(controllerClazz)) {
-				try {
-					interceptors.add(clazz.newInstance());
-				} catch (InstantiationException e) {
-					log.error(e.getMessage(), e);
-					throw new ControllerException(e);
-				} catch (IllegalAccessException e) {
-					log.error(e.getMessage(), e);
-					throw new ControllerException(e);
-				}
+				interceptors.addFirst(interceptorsCache.get(clazz));
 			}
 			controllerClazz = controllerClazz.getSuperclass();
 		}
@@ -229,14 +241,9 @@ public class CoreFilter implements Filter {
 		// interceptors chain
 		FinalInterceptor fin = new FinalInterceptor(c);
 		interceptors.add(fin);
+		
 		InterceptorChain chain = new InterceptorChain(interceptors);
-		chain.proceed(ctx);
-	}
-
-	private Class[] getInterceptors(Class<?> clazz) {
-		Interceptors interAnnotation = clazz.getAnnotation(Interceptors.class);
-		return (interAnnotation != null) ? interAnnotation.interceptors()
-				: new Class[] {};
+		chain.proceed();
 	}
 
 	public void destroy() {

@@ -1,6 +1,5 @@
 package com.topaz.controller.interceptor;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -26,7 +25,8 @@ public class FinalInterceptor implements IInterceptor {
 		controller = c;
 	}
 
-	public void intercept(InterceptorChain chain, WebContext wc) {
+	public void intercept(InterceptorChain chain) {
+		WebContext wc = WebContext.get();
 		String methodName = wc.getMethodName();
 		try {
 			if (log.isDebugEnabled()) {
