@@ -1,6 +1,5 @@
 package com.topaz.controller.interceptor;
 
-import com.topaz.controller.WebContext;
 
 /**
  * Interface for interceptor use chain pattern to intercept requests.
@@ -9,6 +8,6 @@ import com.topaz.controller.WebContext;
  */
 public interface IInterceptor {
 	
-	void intercept(InterceptorChain chain, WebContext wc);
+	void intercept(InterceptorChain chain);
 	
 }
