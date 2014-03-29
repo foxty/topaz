@@ -9,6 +9,7 @@ package com.topaz.controller;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -23,6 +24,8 @@ public class WebContext {
 
 	public final static String ACCEPT_JSON = "application/json";
 	public final static String ACCEPT_XML = "application/xml";
+
+	public final static String FLASH = "flash";
 
 	private HttpServletRequest request;
 	private HttpServletResponse response;
@@ -202,6 +205,31 @@ public class WebContext {
 	 */
 	public void session(String key, Object value) {
 		this.session.setAttribute(key, value);
+	}
+
+	public void flash(String key, Object value) {
+		ConcurrentHashMap<String, Object> flashMap = session(FLASH);
+		if (flashMap == null) {
+			flashMap = new ConcurrentHashMap<String, Object>();
+			session(FLASH, flashMap);
+		}
+		flashMap.putIfAbsent(key, value);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> T flash(String key) {
+		ConcurrentHashMap<String, Object> flashMap = session(FLASH);
+		if (flashMap == null) {
+			flashMap = new ConcurrentHashMap<String, Object>();
+			session(FLASH, flashMap);
+		}
+		return (T) flashMap.get(key);
+	}
+
+	public void clearFlash() {
+		ConcurrentHashMap<String, Object> flashMap = session(FLASH);
+		if (flashMap != null)
+			flashMap.clear();
 	}
 
 	public boolean isAcceptJSON() {
