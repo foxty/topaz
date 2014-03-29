@@ -50,25 +50,25 @@ public class Controller {
 		render(DEF_LAYOUT, resName);
 	}
 
-	public void renderWithoutLayout(String resName) {
+	protected void renderWithoutLayout(String resName) {
 		render(null, resName);
 	}
 
 	protected void render(String layoutName, String resourceName) {
 
-		WebContext ctx = WebContext.get();
-		HttpServletRequest request = ctx.getRequest();
-		HttpServletResponse response = ctx.getResponse();
+		WebContext wc = WebContext.get();
+		HttpServletRequest request = wc.getRequest();
+		HttpServletResponse response = wc.getResponse();
 
-		request.setAttribute(WEB_ERRORS, ctx.getErrors());
-		String resPath = isAbsolutePath(resourceName) ? resourceName : ctx
+		request.setAttribute(WEB_ERRORS, wc.getErrors());
+		String resPath = isAbsolutePath(resourceName) ? resourceName : wc
 				.getModuleName()
 				+ "/"
-				+ ctx.getControllerName()
+				+ wc.getControllerName()
 				+ "/"
 				+ resourceName;
-		File resFile = new File(ctx.getApplication().getRealPath(
-				ctx.getViewBase() + resPath));
+		File resFile = new File(wc.getApplication().getRealPath(
+				wc.getViewBase() + resPath));
 		if (!resFile.exists()) {
 			log.error("Can't find resource " + resFile);
 			try {
@@ -78,19 +78,19 @@ public class Controller {
 			return;
 		}
 		// Find the layout if exist
-		String targetRes = ctx.getViewBase() + resPath;
+		String targetRes = wc.getViewBase() + resPath;
 		if (null != layoutName) {
-			String layoutResPath = ctx.getApplication().getRealPath(
-					ctx.getViewBase() + layoutName);
+			String layoutResPath = wc.getApplication().getRealPath(
+					wc.getViewBase() + layoutName);
 			File layoutFile = new File(layoutResPath);
 			if (layoutFile.exists()) {
-				targetRes = ctx.getViewBase() + layoutName;
+				targetRes = wc.getViewBase() + layoutName;
 			} else {
-				targetRes = ctx.getViewBase() + DEF_LAYOUT;
+				targetRes = wc.getViewBase() + DEF_LAYOUT;
 				log.warn("Layout " + layoutName
 						+ " not exist, now using default layout" + DEF_LAYOUT);
 			}
-			request.setAttribute(LAYOUT_CHILDREN, ctx.getViewBase() + resPath);
+			request.setAttribute(LAYOUT_CHILDREN, wc.getViewBase() + resPath);
 		}
 
 		try {
@@ -100,7 +100,7 @@ public class Controller {
 		}
 		if (log.isDebugEnabled())
 			log.debug("Render  " + targetRes + ", resource " + resourceName);
-		RequestDispatcher rd = ctx.getApplication().getRequestDispatcher(
+		RequestDispatcher rd = wc.getApplication().getRequestDispatcher(
 				targetRes);
 		try {
 			rd.include(request, response);
@@ -108,6 +108,8 @@ public class Controller {
 			log.error(e.toString(), e);
 			throw new ControllerException(e);
 		}
+		
+		wc.clearFlash();
 	}
 
 	protected void renderJSON(Object object) {
