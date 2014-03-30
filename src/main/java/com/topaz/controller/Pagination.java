@@ -34,6 +34,10 @@ public class Pagination {
 		return recordSize;
 	}
 
+	public int getOffset() {
+		return (page - 1) * pageSize;
+	}
+
 	public boolean isReady() {
 		return ready;
 	}

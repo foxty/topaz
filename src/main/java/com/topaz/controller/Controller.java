@@ -108,7 +108,7 @@ public class Controller {
 			log.error(e.toString(), e);
 			throw new ControllerException(e);
 		}
-		
+
 		wc.clearFlash();
 	}
 
@@ -163,6 +163,10 @@ public class Controller {
 		return value;
 	}
 
+	protected String vRegex(String pk, String regex) {
+		return vRegex(pk, regex, pk + "'s format shold follow /" + regex + "/!");
+	}
+
 	/**
 	 * Get request parameter by paramKey and validate by range of length.
 	 * Inclusion.
@@ -182,6 +186,11 @@ public class Controller {
 		return value;
 	}
 
+	protected String vRangeLength(String pk, int minLen, int maxLen) {
+		return vRangeLength(pk, minLen, maxLen, pk
+				+ "'s length should between " + minLen + " and " + maxLen + "!");
+	}
+
 	protected String vMinLength(String paramKey, int minlength, String errMsg) {
 		String value = WebContext.get().parameter(paramKey);
 		if (StringUtils.trimToEmpty(value).length() < minlength) {
@@ -189,6 +198,11 @@ public class Controller {
 			value = null;
 		}
 		return value;
+	}
+
+	protected String vMinLength(String pk, int minLen) {
+		return vMinLength(pk, minLen, pk + "'s length should longer than "
+				+ minLen + "!");
 	}
 
 	protected String vMaxLength(String paramKey, int maxlength, String errMsg) {
@@ -209,6 +223,10 @@ public class Controller {
 		return Integer.parseInt(value);
 	}
 
+	protected Integer vInt(String pk) {
+		return vInt(pk, pk + " should be a Integer!");
+	}
+
 	protected Float vFloat(String paramKey, String errMsg) {
 		String value = WebContext.get().parameter(paramKey);
 		if (!DataChecker.isFloat(value)) {
@@ -216,6 +234,10 @@ public class Controller {
 			return null;
 		}
 		return Float.parseFloat(value);
+	}
+
+	protected Float vFloat(String pk) {
+		return vFloat(pk, pk + " should be a Float number!");
 	}
 
 	protected Integer vIntInclude(String paramKey, int[] values, String errMsg) {
@@ -231,6 +253,10 @@ public class Controller {
 		return null;
 	}
 
+	protected Integer vIntInclude(String pk, int[] values) {
+		return vIntInclude(pk, values, pk + " should in " + values + "!");
+	}
+
 	protected String vStringInclude(String paramKey, String[] values,
 			String errMsg) {
 		String value = WebContext.get().parameter(paramKey);
@@ -243,6 +269,10 @@ public class Controller {
 		}
 	}
 
+	protected String vStringInclude(String pk, String[] values) {
+		return vStringInclude(pk, values, pk + " should in " + values + "!");
+	}
+
 	protected Date vDate(String paramKey, String format, String errMsg) {
 		String value = WebContext.get().parameter(paramKey);
 		if (!DataChecker.isDate(value, format)) {
@@ -250,6 +280,10 @@ public class Controller {
 			return null;
 		}
 		return TopazUtil.parseDate(value, format);
+	}
+	
+	protected Date vDate(String pk, String format) {
+		return vDate(pk, format, pk + " should be a Date as format " + format + "!");
 	}
 
 	protected String vEmail(String paramKey, String errMsg) {
@@ -260,6 +294,10 @@ public class Controller {
 		}
 		return value;
 	}
+	
+	protected String vEmail(String pk ) {
+		return vEmail(pk, pk + " should be a Email address!");
+	}
 
 	protected String vCellphone(String paramKey, String errMsg) {
 		String value = WebContext.get().parameter(paramKey);
@@ -268,6 +306,10 @@ public class Controller {
 			value = null;
 		}
 		return value;
+	}
+	
+	protected String vCellphone(String pk) {
+		return vCellphone(pk, pk + " should be a cellphone nubmer!");
 	}
 
 	protected void addError(String key, String msg) {
@@ -283,14 +325,16 @@ public class Controller {
 		return WebContext.get().getErrors().isEmpty();
 	}
 
-	protected int validateInt(String strInt, int defaultValue) {
-		int v = StringUtils.isNumeric(strInt) ? Integer.parseInt(strInt)
+	protected int validInt(String paramKey, int defaultValue) {
+		String value = WebContext.get().parameter(paramKey);
+		int v = StringUtils.isNumeric(value) ? Integer.parseInt(value)
 				: defaultValue;
 		return v;
 	}
 
-	protected long validateLong(String strLong, long defaultValue) {
-		long v = StringUtils.isNumeric(strLong) ? Long.parseLong(strLong)
+	protected long validLong(String paramKey, long defaultValue) {
+		String value = WebContext.get().parameter(paramKey);
+		long v = StringUtils.isNumeric(value) ? Long.parseLong(value)
 				: defaultValue;
 		return v;
 	}
