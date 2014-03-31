@@ -248,7 +248,7 @@ public class BaseModel implements Serializable {
 	// Update methods
 	final public boolean update() {
 		if (getId() == null || getId().longValue() == 0L) {
-			throw new DaoException("No id specified, this entity is not accociate with DB record!");
+			throw new DaoException("No id specified, this entity is not accociate with DB!");
 		}
 		Map<String, PropertyMapping> mapping = PROP_MAPPINGS.get(this.getClass());
 
