@@ -81,7 +81,6 @@ public class BaseModel implements Serializable {
 		return result;
 	}
 
-	@Deprecated
 	public static void setRelations(Class<? extends BaseModel> owner, TableRelation relation,
 			Class<? extends BaseModel>... classes) {
 		prepareModel(owner);
@@ -170,9 +169,9 @@ public class BaseModel implements Serializable {
 		valueSql.replace(valueSql.length() - 1, valueSql.length(), ")");
 		insertSql.append(valueSql);
 
-		result = (Boolean) DaoManager.getInstance().accessDB(new IAccessDB() {
+		result = (Boolean) DaoManager.getInstance().accessDB(new IConnVisitor() {
 
-			public Object useDB(Connection conn) {
+			public Object visit(Connection conn) {
 				Boolean result = false;
 				PreparedStatement statement = null;
 				ResultSet resultSet = null;
@@ -227,9 +226,9 @@ public class BaseModel implements Serializable {
 			final List<Object> sqlParams) {
 
 		DaoManager mgr = DaoManager.getInstance();
-		List<Map<String, Object>> result = mgr.accessDB(new IAccessDB() {
+		List<Map<String, Object>> result = mgr.accessDB(new IConnVisitor() {
 
-			public Object useDB(Connection conn) throws SQLException {
+			public Object visit(Connection conn) throws SQLException {
 				QueryRunner runner = new QueryRunner();
 				MapListHandler h = new MapListHandler();
 				return runner.query(conn, sql, h, sqlParams
@@ -243,6 +242,11 @@ public class BaseModel implements Serializable {
 		prepareModel(clazz);
 		SQLBuilder qb = find(clazz);
 		return qb.where("id", id).fetchFirst();
+	}
+	
+	// Load related entities. 
+	final public <T> T load(Class<? extends BaseModel> otherEntity) {
+		return null;
 	}
 
 	// Update methods

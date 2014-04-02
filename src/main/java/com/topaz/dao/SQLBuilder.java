@@ -24,6 +24,7 @@ import com.topaz.common.TopazUtil;
 public class SQLBuilder {
 
 	private static Log log = LogFactory.getLog(SQLBuilder.class);
+	private final static TopazRowProcesser ROW_PROCESSER = new TopazRowProcesser();
 
 	public final static String EQ = " = ";
 	public final static String LT = " < ";
@@ -70,8 +71,7 @@ public class SQLBuilder {
 		case SELECT:
 			sql.append("SELECT ");
 			for (PropertyMapping pm : mappings.values()) {
-				sql.append(pm.getColumnName()).append(" AS ").append(
-						pm.getPropertyName()).append(",");
+				sql.append(pm.getColumnName()).append(",");
 			}
 			sql.deleteCharAt(sql.length() - 1);
 			sql.append(" FROM ").append(this.tableName);
@@ -115,7 +115,7 @@ public class SQLBuilder {
 		sqlParams.add(value);
 		return this;
 	}
-
+	
 	public SQLBuilder or(String prop, Object value) {
 		return or(prop, EQ, value);
 	}
@@ -170,11 +170,11 @@ public class SQLBuilder {
 			throw new DaoException("Fetch is only supported by SELECT query!");
 		log.debug("Fetch  - " + sql);
 		DaoManager mgr = DaoManager.getInstance();
-		List<T> result = (List<T>) mgr.accessDB(new IAccessDB() {
+		List<T> result = (List<T>) mgr.accessDB(new IConnVisitor() {
 
-			public Object useDB(Connection conn) throws SQLException {
+			public Object visit(Connection conn) throws SQLException {
 				QueryRunner runner = new QueryRunner();
-				ResultSetHandler<List<T>> h = new BeanListHandler<T>(clazz);
+				ResultSetHandler<List<T>> h = new BeanListHandler<T>(clazz, ROW_PROCESSER);
 				return runner.query(conn, sql.toString(), h, sqlParams
 						.toArray());
 			}
@@ -194,9 +194,9 @@ public class SQLBuilder {
 		sql.replace(7, sql.indexOf("FROM"), " COUNT(id) ");
 		log.debug("Fetch Count - " + sql);
 		DaoManager mgr = DaoManager.getInstance();
-		re = (Long) mgr.accessDB(new IAccessDB() {
+		re = (Long) mgr.accessDB(new IConnVisitor() {
 
-			public Object useDB(Connection conn) throws SQLException {
+			public Object visit(Connection conn) throws SQLException {
 				QueryRunner runner = new QueryRunner();
 				ResultSetHandler h = new ScalarHandler(1);
 				return (Long) runner.query(conn, sql.toString(), h, sqlParams
@@ -264,9 +264,9 @@ public class SQLBuilder {
 		log.debug("Update sql = " + sql.toString());
 		int result = 0;
 		DaoManager daoMgr = DaoManager.getInstance();
-		result = (Integer) daoMgr.accessDB(new IAccessDB() {
+		result = (Integer) daoMgr.accessDB(new IConnVisitor() {
 
-			public Object useDB(Connection conn) throws SQLException {
+			public Object visit(Connection conn) throws SQLException {
 				QueryRunner qr = new QueryRunner();
 				return qr.update(conn, sql.toString(), sqlParams.toArray());
 

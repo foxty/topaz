@@ -72,11 +72,11 @@ public class DaoManager {
 		return (LOCAL_CONN.get() != null);
 	}
 
-	public <T> T accessDB(IAccessDB inter) {
+	public <T> T accessDB(IConnVisitor inter) {
 		Connection conn = prepareConnection();
 		Object result = null;
 		try {
-			result = inter.useDB(conn);
+			result = inter.visit(conn);
 		} catch (SQLException e) {
 			log.error(e.getMessage(), e);
 			throw new DaoException(e);
@@ -128,13 +128,13 @@ public class DaoManager {
 		}
 	}
 
-	public boolean useTransaction(IUseTransaction inter) {
+	public boolean useTransaction(ITransVisitor inter) {
 		// Start transaction set transaction flag
 		Connection conn = prepareConnection();
 		LOCAL_CONN.set(conn);
 		try {
 			conn.setAutoCommit(false);
-			boolean re = inter.transaction();
+			boolean re = inter.visit();
 			if (re)
 				conn.commit();
 			else
