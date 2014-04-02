@@ -1,9 +1,9 @@
 package com.topaz.dao;
 
-public interface IUseTransaction {
+public interface ITransVisitor {
 	/**
 	 * 
 	 * @return true-commit, false-rollback.
 	 */
-	boolean transaction();
+	boolean visit();
 }

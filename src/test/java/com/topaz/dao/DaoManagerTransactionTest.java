@@ -26,11 +26,11 @@ public class DaoManagerTransactionTest {
 	@Test
 	public void testConnectionConsistency() {
 		DaoManager mgr = DaoManager.getInstance();
-		mgr.useTransaction(new IUseTransaction() {
-			public boolean transaction() {
+		mgr.useTransaction(new ITransVisitor() {
+			public boolean visit() {
 				Connection conn1 = (Connection) DaoManager.getInstance()
-						.accessDB(new IAccessDB() {
-							public Object useDB(Connection conn)
+						.accessDB(new IConnVisitor() {
+							public Object visit(Connection conn)
 									throws SQLException {
 								return conn;
 							}
@@ -38,8 +38,8 @@ public class DaoManagerTransactionTest {
 						});
 
 				Connection conn2 = (Connection) DaoManager.getInstance()
-						.accessDB(new IAccessDB() {
-							public Object useDB(Connection conn)
+						.accessDB(new IConnVisitor() {
+							public Object visit(Connection conn)
 									throws SQLException {
 								return conn;
 							}
@@ -62,13 +62,13 @@ public class DaoManagerTransactionTest {
 	public void testAutoCommitRecovery() {
 		final DaoManager mgr = DaoManager.getInstance();
 		final int numActive1 = mgr.getNumActive();
-		mgr.useTransaction(new IUseTransaction() {
+		mgr.useTransaction(new ITransVisitor() {
 
-			public boolean transaction() {
+			public boolean visit() {
 
 				Connection conn1 = (Connection) DaoManager.getInstance()
-						.accessDB(new IAccessDB() {
-							public Object useDB(Connection conn)
+						.accessDB(new IConnVisitor() {
+							public Object visit(Connection conn)
 									throws SQLException {
 								return conn;
 							}
