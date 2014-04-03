@@ -6,6 +6,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 import java.util.zip.CRC32;
@@ -132,6 +133,22 @@ public class TopazUtil {
 			log.error(e.getMessage(), e);
 		}
 		return re;
+	}
+
+	/**
+	 * Truncate hh:mm:ss.si part with 0, leave year/month/day part
+	 * 
+	 * @param d
+	 * @return
+	 */
+	public static Date trucTime(Date d) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(d);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		return cal.getTime();
 	}
 
 	public static String genUUID() {
