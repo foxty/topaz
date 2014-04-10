@@ -65,10 +65,11 @@ public class SQLBuilder {
 			sql.append("UPDATE ").append(this.baseTable).append(" SET ");
 			break;
 		case SELECT:
+			Map<String, PropMapping> mapping = BaseModel.MODEL_PROPS.get(baseClazz);
 			sql.append("SELECT ");
-			/*for (PropMapping pm : mappings.values()) {
+			for (PropMapping pm : mapping.values()) {
 				if (pm.isColumn()) sql.append(pm.getTargetName()).append(",");
-			}*/
+			}
 			sql.deleteCharAt(sql.length() - 1);
 			sql.append(" FROM ").append(this.baseTable);
 			break;
