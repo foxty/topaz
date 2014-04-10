@@ -27,19 +27,15 @@ import com.topaz.common.TopazUtil;
 public class BaseModel implements Serializable {
 
 	private static Log log = LogFactory.getLog(BaseModel.class);
-	private static Map<Class<?>, String> TABLE_NAMES = new HashMap<Class<?>, String>();
-	private static Map<Class<?>, Map<String, PropertyMapping>> PROP_MAPPINGS = new HashMap<Class<?>, Map<String, PropertyMapping>>();
-	private static Map<Class<? extends BaseModel>, Map<Class<? extends BaseModel>, TableRelation>> TABLE_RELATIONS =
-			new HashMap<Class<? extends BaseModel>, Map<Class<? extends BaseModel>, TableRelation>>();
+	static Map<Class<?>, Map<String, PropMapping>> MODEL_PROPS = new HashMap<Class<?>, Map<String, PropMapping>>();
 
 	// Primary Key for model
-	@Column protected Integer id;
+	@Prop protected Integer id;
 
 	protected static void prepareModel(Class<?> clazz) {
-		boolean isReady = TABLE_NAMES.containsKey(clazz) && PROP_MAPPINGS.containsKey(clazz);
+		boolean isReady = MODEL_PROPS.containsKey(clazz);
 		if (!isReady) {
-			TABLE_NAMES.put(clazz, TopazUtil.camel2flat(clazz.getSimpleName()));
-			PROP_MAPPINGS.put(clazz, extractPropMethods(clazz));
+			MODEL_PROPS.put(clazz, extractPropMethods(clazz));
 		}
 	}
 
@@ -48,57 +44,42 @@ public class BaseModel implements Serializable {
 	 * 
 	 * @return
 	 */
-	private static Map<String, PropertyMapping> extractPropMethods(Class<?> clazz) {
-		Map<String, PropertyMapping> result = new HashMap<String, PropertyMapping>();
+	private static Map<String, PropMapping> extractPropMethods(Class<?> clazz) {
+		Map<String, PropMapping> result = new HashMap<String, PropMapping>();
 		Field[] parentFields = BaseModel.class.getDeclaredFields();
 		Field[] subFields = clazz.getDeclaredFields();
 		Field[] all = new Field[parentFields.length + subFields.length];
 		System.arraycopy(parentFields, 0, all, 0, parentFields.length);
 		System.arraycopy(subFields, 0, all, parentFields.length, subFields.length);
 		for (Field f : all) {
-			Column c = f.getAnnotation(Column.class);
-			if (c != null) {
+			Prop prop = f.getAnnotation(Prop.class);
+			if (prop != null) {
 				String propName = f.getName();
-				String columnName = ("".equals(c.name()) ? TopazUtil.camel2flat(propName) : c
-						.name());
 				String readMethodName = (f.getType() == boolean.class
 						|| f.getType() == Boolean.class ? "is" : "get")
 						+ StringUtils.capitalize(propName);
 				String writeMethodName = "set" + StringUtils.capitalize(propName);
+
 				Method readMethod = null;
 				Method writeMethod = null;
 				try {
 					readMethod = clazz.getMethod(readMethodName, new Class[] {});
 					writeMethod = clazz.getMethod(writeMethodName, f.getType());
 				} catch (Exception e) {
-					log.error(e.getMessage(), e);
 					throw new DaoException(e);
 				}
-				result.put(propName, new PropertyMapping(columnName, propName, readMethod,
+				result.put(propName, new PropMapping(f.getType(), prop, propName,
+						readMethod,
 						writeMethod));
 			}
 		}
 		return result;
 	}
 
-	public static void setRelations(Class<? extends BaseModel> owner, TableRelation relation,
-			Class<? extends BaseModel>... classes) {
-		prepareModel(owner);
-		for (Class<? extends BaseModel> c : classes) {
-			prepareModel(c);
-			Map<Class<? extends BaseModel>, TableRelation> re = TABLE_RELATIONS.get(owner);
-			if (re == null) {
-				re = new HashMap<Class<? extends BaseModel>, TableRelation>();
-				TABLE_RELATIONS.put(owner, re);
-			}
-			re.put(c, relation);
-		}
-	}
-
 	// ==================================== instance methods
 
-	public Map<String, PropertyMapping> propsMapping() {
-		return PROP_MAPPINGS.get(this.getClass());
+	public Map<String, PropMapping> propsMapping() {
+		return MODEL_PROPS.get(this.getClass());
 	}
 
 	public BaseModel() {
@@ -110,13 +91,13 @@ public class BaseModel implements Serializable {
 		Class<?> curClazz = this.getClass();
 		prepareModel(curClazz);
 
-		Map<String, PropertyMapping> mapping = PROP_MAPPINGS.get(curClazz);
+		Map<String, PropMapping> mapping = MODEL_PROPS.get(curClazz);
 		if (props != null && !props.isEmpty()) {
 			for (Map.Entry<String, Object> entry : props.entrySet()) {
 				String p = entry.getKey();
 				Object v = entry.getValue();
 
-				PropertyMapping pm = mapping.get(p);
+				PropMapping pm = mapping.get(p);
 				try {
 					pm.getWriteMethod().invoke(this, v);
 				} catch (Exception e) {
@@ -142,7 +123,7 @@ public class BaseModel implements Serializable {
 			return update();
 		}
 		Class<?> clazz = this.getClass();
-		Map<String, PropertyMapping> mapping = PROP_MAPPINGS.get(clazz);
+		Map<String, PropMapping> mapping = MODEL_PROPS.get(clazz);
 
 		final StringBuffer insertSql = new StringBuffer("INSERT INTO ");
 		final StringBuffer valueSql = new StringBuffer(" VALUES(");
@@ -150,8 +131,9 @@ public class BaseModel implements Serializable {
 
 		String tblName = TopazUtil.camel2flat(clazz.getSimpleName());
 		insertSql.append(tblName).append(" (");
-		for (Map.Entry<String, PropertyMapping> entry : mapping.entrySet()) {
-			PropertyMapping pm = entry.getValue();
+		for (Map.Entry<String, PropMapping> entry : mapping.entrySet()) {
+			PropMapping pm = entry.getValue();
+			if (pm.isTable()) continue;
 			Object propValue;
 			try {
 				propValue = pm.getReadMethod().invoke(this);
@@ -160,7 +142,7 @@ public class BaseModel implements Serializable {
 				throw new DaoException(e);
 			}
 			if (propValue != null) {
-				insertSql.append(pm.getColumnName()).append(",");
+				insertSql.append(pm.getTargetName()).append(",");
 				valueSql.append("?,");
 				params.add(propValue);
 			}
@@ -210,9 +192,10 @@ public class BaseModel implements Serializable {
 
 	// Read methods
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	final static public SQLBuilder find(Class clazz) {
 		prepareModel(clazz);
-		Map<String, PropertyMapping> mappings = PROP_MAPPINGS.get(clazz);
+		Map<String, PropMapping> mappings = MODEL_PROPS.get(clazz);
 		return new SQLBuilder(clazz, mappings, SQLBuilderType.SELECT);
 	}
 
@@ -243,8 +226,8 @@ public class BaseModel implements Serializable {
 		SQLBuilder qb = find(clazz);
 		return qb.where("id", id).fetchFirst();
 	}
-	
-	// Load related entities. 
+
+	// Load related entities.
 	final public <T> T load(Class<? extends BaseModel> otherEntity) {
 		return null;
 	}
@@ -254,15 +237,15 @@ public class BaseModel implements Serializable {
 		if (getId() == null || getId().longValue() == 0L) {
 			throw new DaoException("No id specified, this entity is not accociate with DB!");
 		}
-		Map<String, PropertyMapping> mapping = PROP_MAPPINGS.get(this.getClass());
+		Map<String, PropMapping> mapping = MODEL_PROPS.get(this.getClass());
 
-		PropertyMapping idMapping = mapping.get("id");
+		PropMapping idMapping = mapping.get("id");
 		List<String> columns = new ArrayList<String>();
 		List<Object> values = new ArrayList<Object>();
 
-		for (Entry<String, PropertyMapping> entry : mapping.entrySet()) {
-			PropertyMapping pm = entry.getValue();
-			if (pm == idMapping) continue;
+		for (Entry<String, PropMapping> entry : mapping.entrySet()) {
+			PropMapping pm = entry.getValue();
+			if (pm == idMapping || pm.isTable()) continue;
 			Object newValue;
 			try {
 				newValue = pm.getReadMethod().invoke(this);
@@ -270,7 +253,7 @@ public class BaseModel implements Serializable {
 				log.error(e.getMessage(), e);
 				throw new DaoException(e);
 			}
-			columns.add(pm.getColumnName());
+			columns.add(pm.getTargetName());
 			values.add(newValue);
 		}
 		SQLBuilder sb = new SQLBuilder(this.getClass(), mapping, SQLBuilderType.UPDATE);
@@ -280,7 +263,7 @@ public class BaseModel implements Serializable {
 
 	final public boolean increase(String prop) {
 		Class<? extends BaseModel> clazz = this.getClass();
-		SQLBuilder sb = new SQLBuilder(clazz, PROP_MAPPINGS.get(clazz), SQLBuilderType.UPDATE);
+		SQLBuilder sb = new SQLBuilder(clazz, MODEL_PROPS.get(clazz), SQLBuilderType.UPDATE);
 		sb.inc(prop, 1).where("id", getId());
 		return sb.update() > 0;
 	}
@@ -288,27 +271,42 @@ public class BaseModel implements Serializable {
 	// Deletion methods
 	final static public SQLBuilder delete(Class<? extends BaseModel> clazz) {
 		prepareModel(clazz);
-		Map<String, PropertyMapping> mappings = PROP_MAPPINGS.get(clazz);
+		Map<String, PropMapping> mappings = MODEL_PROPS.get(clazz);
 		SQLBuilder sb = new SQLBuilder(clazz, mappings, SQLBuilderType.DELETE);
 		return sb;
 	}
 }
 
-class PropertyMapping {
-	private String columnName;
+class PropMapping {
+	private Class<?> type;
+	private Prop prop;
 	private String propertyName;
 	private Method readMethod;
 	private Method writeMethod;
 
-	public PropertyMapping(String cName, String pName, Method rMethod, Method wMethod) {
-		columnName = cName;
+	public PropMapping(Class<?> type, Prop prop, String pName, Method rMethod, Method wMethod) {
+		this.type = type;
+		this.prop = prop;
 		propertyName = pName;
 		readMethod = rMethod;
 		writeMethod = wMethod;
 	}
 
-	public String getColumnName() {
-		return columnName;
+	public Class<?> getType() {
+		return type;
+	}
+
+	boolean isColumn() {
+		return prop.type() == Prop.Type.Column;
+	}
+
+	boolean isTable() {
+		return prop.type() == Prop.Type.Table;
+	}
+
+	public String getTargetName() {
+		return StringUtils.isBlank(prop.targetName()) ? TopazUtil.camel2flat(propertyName) : prop
+				.targetName();
 	}
 
 	public String getPropertyName() {
@@ -324,7 +322,7 @@ class PropertyMapping {
 	}
 
 	public String toString() {
-		return "[PropertyMapping: columnName=" + columnName + ", readMethod=" + readMethod
+		return "[ColumnMapping: targetName=" + getTargetName() + ", readMethod=" + readMethod
 				+ ", writeMethod=" + writeMethod + "]";
 	}
 }
