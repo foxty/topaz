@@ -15,6 +15,7 @@ public @interface Prop {
 		HasOne, HasMany, BelongsTo
 	}
 	Type type() default Prop.Type.Column;
-	Relation relation() default Prop.Relation.HasOne;
-	String targetName() default "";
+	Relation relation() default Prop.Relation.HasOne; 	//Only used while type=Table
+	String targetName() default "";						//Column name or Table name
+	String byKey() default ""; 							//Only useful while type==Table, define foreign key column name
 }

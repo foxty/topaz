@@ -45,9 +45,10 @@ public class TopazResultSetHandler<T> implements ResultSetHandler<List<T>> {
 		int c = rsmd.getColumnCount();
 		List<String> cNames = new ArrayList<String>(c);
 		for (int i = 0; i < c; i++) {
-			String cName = rsmd.getColumnLabel(i + 1);
+			int cIndex = i + 1;
+			String cName = rsmd.getColumnLabel(cIndex);
 			if (StringUtils.isBlank(cName)) {
-				cName = rsmd.getColumnName(i);
+				cName = rsmd.getColumnName(cIndex);
 			}
 			cNames.add(cName);
 		}

@@ -31,26 +31,29 @@ public class SQLBuilder {
 	public final static String GE = " >= ";
 	public final static String LIKE = " like ";
 
-	@SuppressWarnings("rawtypes") private Class baseClazz;
-	private String baseTable;
-	private List<Object> sqlParams = new ArrayList<Object>();
+	@SuppressWarnings("rawtypes") private Class baseModelClazz;
+	private final String baseTableName;
+	private String[] with;
+
 	private SQLBuilderType type;
 	private StringBuffer sql = new StringBuffer();
+	private List<Object> sqlParams = new ArrayList<Object>();
 
 	private boolean limited = false;
 
-	public SQLBuilder(Class<? extends BaseModel> clazz, Map<String, PropMapping> mappings,
-			SQLBuilderType type) {
-		this.baseClazz = clazz;
-		this.baseTable = TopazUtil.camel2flat(clazz.getSimpleName());
+	public SQLBuilder(Class<? extends BaseModel> clazz, SQLBuilderType type, String... with) {
+		this.baseModelClazz = clazz;
+		baseTableName = TopazUtil.camel2flat(baseModelClazz.getSimpleName());
 		this.type = type;
+		this.with = with;
 
 		buildSQL();
 	}
 
 	public SQLBuilder(Class<? extends BaseModel> clazz, String sql, List<Object> sqlParams,
 			SQLBuilderType type) {
-		this.baseClazz = clazz;
+		this.baseModelClazz = clazz;
+		baseTableName = TopazUtil.camel2flat(baseModelClazz.getSimpleName());
 		this.sql.append(sql);
 		this.sqlParams.addAll(sqlParams);
 		this.type = type;
@@ -59,22 +62,45 @@ public class SQLBuilder {
 	private void buildSQL() {
 		switch (this.type) {
 		case INSERT:
-			sql.append("INSERT INTO ").append(this.baseTable).append(" ( ");
+			sql.append("INSERT INTO ").append(baseTableName).append(" ( ");
 			break;
 		case UPDATE:
-			sql.append("UPDATE ").append(this.baseTable).append(" SET ");
+			sql.append("UPDATE ").append(baseTableName).append(" SET ");
 			break;
 		case SELECT:
-			Map<String, PropMapping> mapping = BaseModel.MODEL_PROPS.get(baseClazz);
-			sql.append("SELECT ");
-			for (PropMapping pm : mapping.values()) {
-				if (pm.isColumn()) sql.append(pm.getTargetName()).append(",");
+			Map<String, PropMapping> baseMapping = BaseModel.MODEL_PROPS.get(baseModelClazz);
+			sql.append("SELECT " + baseTableName + ".* ");
+			String fromSeg = " FROM " + baseTableName;
+
+			for (String w : with) {
+				PropMapping tblProp = baseMapping.get(w);
+				if (tblProp.isTable()) {
+					Map<String, PropMapping> subMapping = BaseModel.MODEL_PROPS.get(tblProp
+							.getType());
+					for (PropMapping pm : subMapping.values()) {
+						String cName = pm.getTargetName();
+						String colFullName = w + "." + cName;
+						sql.append("," + colFullName + " AS '" + colFullName + "'");
+					}
+
+					switch (tblProp.getRelation()) {
+					case HasOne:
+						fromSeg += (" JOIN " + w + " ON "
+								+ baseTableName + ".id=" + w + "." + tblProp.getByKey());
+						break;
+					case HasMany:
+						throw new DaoException("Not support HasMany!");
+					case BelongsTo:
+						fromSeg += (" JOIN " + w + " ON "
+								+ baseTableName + "." + tblProp.getByKey() + "=" + w + ".id");
+						break;
+					}
+				}
 			}
-			sql.deleteCharAt(sql.length() - 1);
-			sql.append(" FROM ").append(this.baseTable);
+			sql.append(fromSeg);
 			break;
 		case DELETE:
-			sql.append("DELETE FROM ").append(this.baseTable);
+			sql.append("DELETE FROM ").append(baseTableName);
 			break;
 		default:
 			throw new DaoException("Unrecognized SQLBuilderType " + this.type);
@@ -82,7 +108,7 @@ public class SQLBuilder {
 	}
 
 	private PropMapping findProp(String prop) {
-		Map<String, PropMapping> mapping = BaseModel.MODEL_PROPS.get(baseClazz);
+		Map<String, PropMapping> mapping = BaseModel.MODEL_PROPS.get(baseModelClazz);
 		PropMapping pm = mapping.get(prop);
 		if (pm == null) {
 			throw new DaoException("No column mapping found for property "
@@ -91,36 +117,60 @@ public class SQLBuilder {
 		return pm;
 	}
 
-	public SQLBuilder where(String prop, Object value) {
-		return where(prop, EQ, value);
+	private PropMapping findProp(String with, String prop) {
+		Map<String, PropMapping> mapping = BaseModel.MODEL_PROPS.get(baseModelClazz);
+		PropMapping tblPm = mapping.get(with);
+		mapping = BaseModel.MODEL_PROPS.get(tblPm.getType());
+		PropMapping pm = mapping.get(prop);
+		if (pm == null) {
+			throw new DaoException("No column mapping found for property " + with + "." +
+					prop + "!");
+		}
+		return pm;
 	}
 
-	public SQLBuilder where(String prop, String op, Object value) {
-		PropMapping pm = findProp(prop);
-		sql.append(" WHERE ").append(pm.getTargetName()).append(op)
+	public SQLBuilder where(String propName, Object value) {
+		PropMapping pm = findProp(propName);
+		sql.append(" WHERE ").append(baseTableName).append(".").append(pm.getTargetName())
+				.append(EQ).append("? ");
+		sqlParams.add(value);
+		return this;
+	}
+
+	public SQLBuilder where(String with, String propName, Object value) {
+		PropMapping pm = findProp(with, propName);
+		sql.append(" WHERE ").append(with + ".").append(pm.getTargetName()).append(EQ)
 				.append("? ");
 		sqlParams.add(value);
 		return this;
 	}
 
 	public SQLBuilder and(String prop, Object value) {
-		return and(prop, EQ, value);
+		PropMapping pm = findProp(prop);
+		sql.append(" AND ").append(pm.getTargetName()).append(EQ).append("? ");
+		sqlParams.add(value);
+		return this;
 	}
 
-	public SQLBuilder and(String prop, String op, Object value) {
-		PropMapping pm = findProp(prop);
-		sql.append(" AND ").append(pm.getTargetName()).append(op).append("? ");
+	public SQLBuilder and(String with, String propName, Object value) {
+		PropMapping pm = findProp(with, propName);
+		sql.append(" AND ").append(with + ".").append(pm.getTargetName()).append(EQ)
+				.append("? ");
 		sqlParams.add(value);
 		return this;
 	}
 
 	public SQLBuilder or(String prop, Object value) {
-		return or(prop, EQ, value);
+		PropMapping pm = findProp(prop);
+		sql.append(" OR ").append(pm.getTargetName()).append(EQ).append("? ");
+		sqlParams.add(value);
+		return this;
 	}
 
-	public SQLBuilder or(String prop, String op, Object value) {
-		PropMapping pm = findProp(prop);
-		sql.append(" OR ").append(pm.getTargetName()).append(op).append("? ");
+	public SQLBuilder or(String with, String propName, Object value) {
+		PropMapping pm = findProp(with, propName);
+		sql.append(" OR ").append(with + ".").append(pm.getTargetName()).append(EQ)
+				.append("? ");
 		sqlParams.add(value);
 		return this;
 	}
@@ -131,6 +181,17 @@ public class SQLBuilder {
 		PropMapping pm = findProp(prop);
 		if (null != pm) {
 			sql.append(" ORDER BY ").append(pm.getTargetName());
+			sql.append(ascending ? " asc " : " desc ");
+		}
+		return this;
+	}
+
+	public SQLBuilder orderBy(String with, String propName, boolean ascending) {
+		if (this.type != SQLBuilderType.SELECT)
+			throw new DaoException("Orderby is only supported by SELECT query!");
+		PropMapping pm = findProp(with, propName);
+		if (null != pm) {
+			sql.append(" ORDER BY ").append(with + ".").append(pm.getTargetName());
 			sql.append(ascending ? " asc " : " desc ");
 		}
 		return this;
@@ -174,7 +235,7 @@ public class SQLBuilder {
 				QueryRunner runner = new QueryRunner();
 				// ResultSetHandler<List<T>> h = new BeanListHandler<T>(clazz,
 				// ROW_PROCESSER);
-				TopazResultSetHandler<T> h = new TopazResultSetHandler<T>(baseClazz);
+				TopazResultSetHandler<T> h = new TopazResultSetHandler<T>(baseModelClazz);
 				return runner.query(conn, sql.toString(), h, sqlParams
 						.toArray());
 			}
