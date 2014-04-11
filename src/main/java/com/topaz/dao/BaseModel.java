@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.topaz.common.TopazUtil;
+import com.topaz.dao.Prop.Relation;
 
 @SuppressWarnings("serial")
 public class BaseModel implements Serializable {
@@ -193,10 +194,9 @@ public class BaseModel implements Serializable {
 	// Read methods
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	final static public SQLBuilder find(Class clazz) {
+	final static public SQLBuilder find(Class clazz, String ... with) {
 		prepareModel(clazz);
-		Map<String, PropMapping> mappings = MODEL_PROPS.get(clazz);
-		return new SQLBuilder(clazz, mappings, SQLBuilderType.SELECT);
+		return new SQLBuilder(clazz, SQLBuilderType.SELECT, with);
 	}
 
 	final static public SQLBuilder findBySql(Class<? extends BaseModel> clazz, String sql,
@@ -256,14 +256,14 @@ public class BaseModel implements Serializable {
 			columns.add(pm.getTargetName());
 			values.add(newValue);
 		}
-		SQLBuilder sb = new SQLBuilder(this.getClass(), mapping, SQLBuilderType.UPDATE);
+		SQLBuilder sb = new SQLBuilder(this.getClass(), SQLBuilderType.UPDATE);
 		sb.set(columns, values).where("id", getId());
 		return sb.update() > 0;
 	}
 
 	final public boolean increase(String prop) {
 		Class<? extends BaseModel> clazz = this.getClass();
-		SQLBuilder sb = new SQLBuilder(clazz, MODEL_PROPS.get(clazz), SQLBuilderType.UPDATE);
+		SQLBuilder sb = new SQLBuilder(clazz, SQLBuilderType.UPDATE);
 		sb.inc(prop, 1).where("id", getId());
 		return sb.update() > 0;
 	}
@@ -271,8 +271,7 @@ public class BaseModel implements Serializable {
 	// Deletion methods
 	final static public SQLBuilder delete(Class<? extends BaseModel> clazz) {
 		prepareModel(clazz);
-		Map<String, PropMapping> mappings = MODEL_PROPS.get(clazz);
-		SQLBuilder sb = new SQLBuilder(clazz, mappings, SQLBuilderType.DELETE);
+		SQLBuilder sb = new SQLBuilder(clazz, SQLBuilderType.DELETE);
 		return sb;
 	}
 }
@@ -304,9 +303,30 @@ class PropMapping {
 		return prop.type() == Prop.Type.Table;
 	}
 
+	public Relation getRelation() {
+		return prop.relation();
+	}
+
+	public String getByKey() {
+		if (StringUtils.isBlank(prop.byKey())) {
+			return TopazUtil.camel2flat(type.getSimpleName()) + "_id";
+		} else {
+			return prop.byKey();
+		}
+	}
+
+	/**
+	 * Return target column name or table name
+	 * 
+	 * @return
+	 */
 	public String getTargetName() {
-		return StringUtils.isBlank(prop.targetName()) ? TopazUtil.camel2flat(propertyName) : prop
-				.targetName();
+		if (StringUtils.isBlank(prop.targetName())) {
+			return TopazUtil.camel2flat(isColumn() ? propertyName : type.getSimpleName());
+		} else {
+			return prop.targetName();
+		}
+
 	}
 
 	public String getPropertyName() {
