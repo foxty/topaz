@@ -155,7 +155,7 @@ public class Controller {
 	 * @param errMsg
 	 */
 	protected String vRegex(String paramKey, String regex, String errMsg) {
-		String value = WebContext.get().parameter(paramKey);
+		String value = WebContext.get().param(paramKey);
 		if (!DataChecker.regexTest(regex, value)) {
 			addError(paramKey, errMsg);
 			value = null;
@@ -178,7 +178,7 @@ public class Controller {
 	 */
 	protected String vRangeLength(String paramKey, int minLength,
 			int maxLength, String errMsg) {
-		String value = WebContext.get().parameter(paramKey);
+		String value = WebContext.get().param(paramKey);
 		if (!DataChecker.isSafeString(value, minLength, maxLength, null)) {
 			addError(paramKey, errMsg);
 			value = null;
@@ -192,7 +192,7 @@ public class Controller {
 	}
 
 	protected String vMinLength(String paramKey, int minlength, String errMsg) {
-		String value = WebContext.get().parameter(paramKey);
+		String value = WebContext.get().param(paramKey);
 		if (StringUtils.trimToEmpty(value).length() < minlength) {
 			addError(paramKey, errMsg);
 			value = null;
@@ -206,7 +206,7 @@ public class Controller {
 	}
 
 	protected String vMaxLength(String paramKey, int maxlength, String errMsg) {
-		String value = WebContext.get().parameter(paramKey);
+		String value = WebContext.get().param(paramKey);
 		if (StringUtils.trimToEmpty(value).length() > maxlength) {
 			addError(paramKey, errMsg);
 			value = null;
@@ -215,7 +215,7 @@ public class Controller {
 	}
 
 	protected Integer vInt(String paramKey, String errMsg) {
-		String value = WebContext.get().parameter(paramKey);
+		String value = WebContext.get().param(paramKey);
 		if (!DataChecker.isInt(value)) {
 			addError(paramKey, errMsg);
 			return null;
@@ -228,7 +228,7 @@ public class Controller {
 	}
 
 	protected Float vFloat(String paramKey, String errMsg) {
-		String value = WebContext.get().parameter(paramKey);
+		String value = WebContext.get().param(paramKey);
 		if (!DataChecker.isFloat(value)) {
 			addError(paramKey, errMsg);
 			return null;
@@ -241,7 +241,7 @@ public class Controller {
 	}
 
 	protected Integer vIntInclude(String paramKey, int[] values, String errMsg) {
-		String value = WebContext.get().parameter(paramKey);
+		String value = WebContext.get().param(paramKey);
 		if (DataChecker.isInt(value)) {
 			int re = Integer.parseInt(value);
 			Arrays.sort(values);
@@ -259,7 +259,7 @@ public class Controller {
 
 	protected String vStringInclude(String paramKey, String[] values,
 			String errMsg) {
-		String value = WebContext.get().parameter(paramKey);
+		String value = WebContext.get().param(paramKey);
 		Arrays.sort(values);
 		if (Arrays.binarySearch(values, value) > 0) {
 			return value;
@@ -274,7 +274,7 @@ public class Controller {
 	}
 
 	protected Date vDate(String paramKey, String format, String errMsg) {
-		String value = WebContext.get().parameter(paramKey);
+		String value = WebContext.get().param(paramKey);
 		if (!DataChecker.isDate(value, format)) {
 			addError(paramKey, errMsg);
 			return null;
@@ -287,7 +287,7 @@ public class Controller {
 	}
 
 	protected String vEmail(String paramKey, String errMsg) {
-		String value = WebContext.get().parameter(paramKey);
+		String value = WebContext.get().param(paramKey);
 		if (!DataChecker.isEmail(value)) {
 			addError(paramKey, errMsg);
 			value = null;
@@ -300,7 +300,7 @@ public class Controller {
 	}
 
 	protected String vCellphone(String paramKey, String errMsg) {
-		String value = WebContext.get().parameter(paramKey);
+		String value = WebContext.get().param(paramKey);
 		if (!DataChecker.isCellphone(value)) {
 			addError(paramKey, errMsg);
 			value = null;
@@ -326,14 +326,14 @@ public class Controller {
 	}
 
 	protected int validInt(String paramKey, int defaultValue) {
-		String value = WebContext.get().parameter(paramKey);
+		String value = WebContext.get().param(paramKey);
 		int v = StringUtils.isNumeric(value) ? Integer.parseInt(value)
 				: defaultValue;
 		return v;
 	}
 
 	protected long validLong(String paramKey, long defaultValue) {
-		String value = WebContext.get().parameter(paramKey);
+		String value = WebContext.get().param(paramKey);
 		long v = StringUtils.isNumeric(value) ? Long.parseLong(value)
 				: defaultValue;
 		return v;

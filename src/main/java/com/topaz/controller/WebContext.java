@@ -153,7 +153,7 @@ public class WebContext {
 	 * @param key
 	 * @return String
 	 */
-	public String parameter(String key) {
+	public String param(String key) {
 		String p = request.getParameter(key);
 		if (xssFilterOn) {
 			p = DataChecker.filterHTML(p);
@@ -168,7 +168,7 @@ public class WebContext {
 	 * @return Object
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T attribute(String key) {
+	public <T> T attr(String key) {
 		Object attr = this.request.getAttribute(key);
 		if (attr instanceof String && xssFilterOn) {
 			attr = DataChecker.filterHTML((String) attr);
@@ -182,7 +182,7 @@ public class WebContext {
 	 * @param key
 	 * @param value
 	 */
-	public void attribute(String key, Object value) {
+	public void attr(String key, Object value) {
 		this.request.setAttribute(key, value);
 	}
 
