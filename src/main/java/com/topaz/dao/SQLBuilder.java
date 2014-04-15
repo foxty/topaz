@@ -82,17 +82,18 @@ public class SQLBuilder {
 						String colFullName = w + "." + cName;
 						sql.append("," + colFullName + " AS '" + colFullName + "'");
 					}
-
+					String tblName = tblProp.getTargetName();
+					String byKey = tblProp.getByKey();
 					switch (tblProp.getRelation()) {
 					case HasOne:
-						fromSeg += (" JOIN " + w + " ON "
-								+ baseTableName + ".id=" + w + "." + tblProp.getByKey());
+						fromSeg += (" JOIN " + tblName + " " + w + " ON "
+								+ baseTableName + ".id=" + w + "." + byKey);
 						break;
 					case HasMany:
 						throw new DaoException("Not support HasMany!");
 					case BelongsTo:
-						fromSeg += (" JOIN " + w + " ON "
-								+ baseTableName + "." + tblProp.getByKey() + "=" + w + ".id");
+						fromSeg += (" JOIN " + tblName + " " + w + " ON "
+								+ baseTableName + "." + byKey + "=" + w + ".id");
 						break;
 					}
 				}
@@ -147,7 +148,8 @@ public class SQLBuilder {
 
 	public SQLBuilder and(String prop, Object value) {
 		PropMapping pm = findProp(prop);
-		sql.append(" AND ").append(pm.getTargetName()).append(EQ).append("? ");
+		sql.append(" AND ").append(baseTableName).append(".").append(pm.getTargetName()).append(EQ)
+				.append("? ");
 		sqlParams.add(value);
 		return this;
 	}
@@ -162,7 +164,8 @@ public class SQLBuilder {
 
 	public SQLBuilder or(String prop, Object value) {
 		PropMapping pm = findProp(prop);
-		sql.append(" OR ").append(pm.getTargetName()).append(EQ).append("? ");
+		sql.append(" OR ").append(baseTableName).append(".").append(pm.getTargetName()).append(EQ)
+				.append("? ");
 		sqlParams.add(value);
 		return this;
 	}
@@ -180,7 +183,7 @@ public class SQLBuilder {
 			throw new DaoException("Orderby is only supported by SELECT query!");
 		PropMapping pm = findProp(prop);
 		if (null != pm) {
-			sql.append(" ORDER BY ").append(pm.getTargetName());
+			sql.append(" ORDER BY ").append(baseTableName).append(".").append(pm.getTargetName());
 			sql.append(ascending ? " asc " : " desc ");
 		}
 		return this;

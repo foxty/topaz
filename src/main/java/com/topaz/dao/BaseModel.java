@@ -170,8 +170,7 @@ public class BaseModel implements Serializable {
 						id = resultSet.getInt(1);
 					}
 					return result;
-				} catch (SQLException e) {
-					log.error(e.getMessage(), e);
+				} catch (SQLException e) {				
 					throw new DaoException(e);
 				} finally {
 					try {

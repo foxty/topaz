@@ -72,6 +72,7 @@ public class DaoManager {
 		return (LOCAL_CONN.get() != null);
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T> T accessDB(IConnVisitor inter) {
 		Connection conn = prepareConnection();
 		Object result = null;
