@@ -26,7 +26,7 @@ public class DaoManagerTransactionTest {
 	@Test
 	public void testConnectionConsistency() {
 		DaoManager mgr = DaoManager.getInstance();
-		mgr.useTransaction(new ITransVisitor() {
+		mgr.transaction(new ITransVisitor() {
 			public boolean visit() {
 				Connection conn1 = (Connection) DaoManager.getInstance()
 						.accessDB(new IConnVisitor() {
@@ -62,7 +62,7 @@ public class DaoManagerTransactionTest {
 	public void testAutoCommitRecovery() {
 		final DaoManager mgr = DaoManager.getInstance();
 		final int numActive1 = mgr.getNumActive();
-		mgr.useTransaction(new ITransVisitor() {
+		mgr.transaction(new ITransVisitor() {
 
 			public boolean visit() {
 

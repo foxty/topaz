@@ -26,7 +26,7 @@ import com.topaz.common.Config;
 public class DaoManager {
 
 	private static Log log = LogFactory.getLog(DaoManager.class);
-	private final static DaoManager instance = new DaoManager();
+	private final static DaoManager INST = new DaoManager();
 	private final static ThreadLocal<Connection> LOCAL_CONN = new ThreadLocal<Connection>();
 	private final GenericObjectPool<Connection> connectionPool;
 	private final PoolingDataSource ds;
@@ -57,7 +57,7 @@ public class DaoManager {
 	}
 
 	public static DaoManager getInstance() {
-		return instance;
+		return INST;
 	}
 
 	public DataSource getDataSource() {
@@ -129,7 +129,7 @@ public class DaoManager {
 		}
 	}
 
-	public boolean useTransaction(ITransVisitor inter) {
+	public boolean transaction(ITransVisitor inter) {
 		// Start transaction set transaction flag
 		Connection conn = prepareConnection();
 		LOCAL_CONN.set(conn);
