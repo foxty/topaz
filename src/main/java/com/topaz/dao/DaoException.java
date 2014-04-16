@@ -1,6 +1,8 @@
 package com.topaz.dao;
 
-public class DaoException extends RuntimeException {
+import com.topaz.common.TopazException;
+
+public class DaoException extends TopazException {
 
 	/**
 	 */

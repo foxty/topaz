@@ -2,8 +2,7 @@ package com.topaz.dao;
 
 public interface ITransVisitor {
 	/**
-	 * 
-	 * @return true-commit, false-rollback.
+	 * throw exceptions to rollback transaction
 	 */
-	boolean visit();
+	void visit();
 }
