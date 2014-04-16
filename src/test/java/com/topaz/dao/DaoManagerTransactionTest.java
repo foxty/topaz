@@ -27,7 +27,7 @@ public class DaoManagerTransactionTest {
 	public void testConnectionConsistency() {
 		DaoManager mgr = DaoManager.getInstance();
 		mgr.transaction(new ITransVisitor() {
-			public boolean visit() {
+			public void visit() {
 				Connection conn1 = (Connection) DaoManager.getInstance()
 						.accessDB(new IConnVisitor() {
 							public Object visit(Connection conn)
@@ -53,7 +53,6 @@ public class DaoManagerTransactionTest {
 				}
 				Assert.assertEquals(conn1, conn2);
 				Assert.assertEquals(false, autoCommit);
-				return true;
 			}
 		});
 	}
@@ -64,8 +63,7 @@ public class DaoManagerTransactionTest {
 		final int numActive1 = mgr.getNumActive();
 		mgr.transaction(new ITransVisitor() {
 
-			public boolean visit() {
-
+			public void visit() {
 				Connection conn1 = (Connection) DaoManager.getInstance()
 						.accessDB(new IConnVisitor() {
 							public Object visit(Connection conn)
@@ -83,7 +81,6 @@ public class DaoManagerTransactionTest {
 				Assert.assertEquals(false, autoCommit);
 				int numActive2 = mgr.getNumActive();
 				Assert.assertEquals(numActive1 + 1, numActive2);
-				return true;
 			}
 		});
 		int numActive3 = mgr.getNumActive();

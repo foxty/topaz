@@ -7,12 +7,14 @@
  */
 package com.topaz.controller;
 
+import com.topaz.common.TopazException;
+
 /**
  * @author gzd1x2
  * 
  * 
  */
-public class ControllerException extends RuntimeException {
+public class ControllerException extends TopazException {
 	/**
 	 */
 	private static final long serialVersionUID = 1L;

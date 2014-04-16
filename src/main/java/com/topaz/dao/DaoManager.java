@@ -93,8 +93,7 @@ public class DaoManager {
 			try {
 				logPoolStatus();
 				curConn = ds.getConnection();
-			} catch (SQLException e) {
-				log.error(e.getMessage(), e);
+			} catch (SQLException e) {				
 				throw new DaoException(e);
 			}
 		}
@@ -105,8 +104,7 @@ public class DaoManager {
 		if (!isInTransaction()) {
 			try {
 				DbUtils.close(conn);
-			} catch (SQLException e) {
-				log.error(e.getMessage(), e);
+			} catch (SQLException e) {				
 				throw new DaoException(e);
 			}
 		} else {
@@ -129,33 +127,26 @@ public class DaoManager {
 		}
 	}
 
-	public boolean transaction(ITransVisitor inter) {
+	public void transaction(ITransVisitor inter) {
 		// Start transaction set transaction flag
 		Connection conn = prepareConnection();
 		LOCAL_CONN.set(conn);
 		try {
 			conn.setAutoCommit(false);
-			boolean re = inter.visit();
-			if (re)
-				conn.commit();
-			else
-				conn.rollback();
-
-			return re;
+			inter.visit();			
+			conn.commit();
 		} catch (Exception e) {
 			// Roll back
 			try {
 				conn.rollback();
-			} catch (SQLException e1) {
-				log.error(e1.getMessage(), e1);
+			} catch (SQLException e1) {				
 				throw new DaoException(e1);
 			}
 
 			// Re throw exception
 			if (e instanceof DaoException) {
 				throw (DaoException) e;
-			} else {
-				log.error(e.getMessage(), e);
+			} else {				
 				throw new DaoException(e);
 			}
 		} finally {
@@ -163,8 +154,7 @@ public class DaoManager {
 			LOCAL_CONN.set(null);
 			try {
 				conn.setAutoCommit(true);
-			} catch (SQLException e) {
-				log.error(e.getMessage(), e);
+			} catch (SQLException e) {				
 				throw new DaoException(e);
 			}
 			closeConnection(conn);
