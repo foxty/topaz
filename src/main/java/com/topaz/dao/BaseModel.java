@@ -117,19 +117,34 @@ public class BaseModel implements Serializable {
 		this.id = id;
 	}
 	
+	final public void set(String prop, Object newValue) {
+		Map<String, PropMapping> mapping = MODEL_PROPS.get(this.getClass());
+		PropMapping pm = mapping.get(prop);
+		if (null != pm) {
+			try {
+				pm.getWriteMethod().invoke(this, newValue);
+			} catch (Exception e) {
+				throw new DaoException(e);
+			}
+		} else {
+			throw new DaoException("No property for " + prop);
+		}
+	}
+
 	/**
-	 *  Save model and throw exception if failed.
-	 *  
-	 *  @throws DaoException
+	 * Save model and throw exception if failed.
+	 * 
+	 * @throws DaoException
 	 */
 	public void save() {
-		if(!saved()) {
+		if (!saved()) {
 			throw new DaoException("Save model failed for " + this);
 		}
 	}
 
 	/**
 	 * Save model and return true/false
+	 * 
 	 * @return boolean
 	 * @throws DaoException
 	 */
@@ -153,7 +168,7 @@ public class BaseModel implements Serializable {
 			Object propValue;
 			try {
 				propValue = pm.getReadMethod().invoke(this);
-			} catch (Exception e) {				
+			} catch (Exception e) {
 				throw new DaoException(e);
 			}
 			if (propValue != null) {
@@ -207,15 +222,15 @@ public class BaseModel implements Serializable {
 	// Read methods
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	final static public SQLBuilder find(Class clazz, String ... with) {
+	final static public ModelSelectBuilder find(Class clazz, String... with) {
 		prepareModel(clazz);
-		return new SQLBuilder(clazz, SQLBuilderType.SELECT, with);
+		return new ModelSelectBuilder(clazz, with);
 	}
 
-	final static public SQLBuilder findBySql(Class<? extends BaseModel> clazz, String sql,
+	final static public ModelSelectBuilder findBySql(Class<? extends BaseModel> clazz, String sql,
 			List<Object> sqlParams) {
 		prepareModel(clazz);
-		return new SQLBuilder(clazz, sql, sqlParams, SQLBuilderType.SELECT);
+		return new ModelSelectBuilder(clazz, sql, sqlParams);
 	}
 
 	final static public List<Map<String, Object>> findBySql(final String sql,
@@ -236,17 +251,13 @@ public class BaseModel implements Serializable {
 
 	final static public <T> T findById(Class<T> clazz, int id) {
 		prepareModel(clazz);
-		SQLBuilder qb = find(clazz);
-		return qb.where("id", id).fetchFirst();
+		ModelSelectBuilder ms = find(clazz).where("id", id);
+		return ms.fetchFirst();
 	}
 
-	// Load related entities.
-	final public <T> T load(Class<? extends BaseModel> otherEntity) {
-		return null;
-	}
-	
 	/**
 	 * Update model and return the status
+	 * 
 	 * @return boolean
 	 * @throws DaoException
 	 */
@@ -254,11 +265,10 @@ public class BaseModel implements Serializable {
 		if (getId() == null || getId().longValue() == 0L) {
 			throw new DaoException("No id specified, this entity is not accociate with DB!");
 		}
-		Map<String, PropMapping> mapping = MODEL_PROPS.get(this.getClass());
+		ModelUpdateBuilder ub = new ModelUpdateBuilder(this.getClass());
 
+		Map<String, PropMapping> mapping = MODEL_PROPS.get(this.getClass());
 		PropMapping idMapping = mapping.get("id");
-		List<String> columns = new ArrayList<String>();
-		List<Object> values = new ArrayList<Object>();
 
 		for (Entry<String, PropMapping> entry : mapping.entrySet()) {
 			PropMapping pm = entry.getValue();
@@ -267,42 +277,41 @@ public class BaseModel implements Serializable {
 			try {
 				newValue = pm.getReadMethod().invoke(this);
 			} catch (Exception e) {
-				log.error(e.getMessage(), e);
 				throw new DaoException(e);
 			}
-			columns.add(pm.getTargetName());
-			values.add(newValue);
+			ub.set(pm.getPropertyName(), newValue);
 		}
-		SQLBuilder sb = new SQLBuilder(this.getClass(), SQLBuilderType.UPDATE);
-		sb.set(columns, values).where("id", getId());
-		return sb.update() > 0;
+
+		ub.where("id", getId());
+		return ub.update() > 0;
 	}
 
 	/**
-	 *  Update methods and throw exception if failed
-	 *  @throws DaoException
+	 * Update methods and throw exception if failed
+	 * 
+	 * @throws DaoException
 	 */
 	final public void update() {
-		if(!updated()) {
+		if (!updated()) {
 			throw new DaoException("Update model failed for " + this);
 		}
 	}
 
 	final public boolean increase(String prop) {
-		Class<? extends BaseModel> clazz = this.getClass();
-		SQLBuilder sb = new SQLBuilder(clazz, SQLBuilderType.UPDATE);
+		ModelUpdateBuilder sb = new ModelUpdateBuilder(this.getClass());
 		sb.inc(prop, 1).where("id", getId());
 		return sb.update() > 0;
 	}
 
 	/**
-	 *  Deletion methods
+	 * Deletion methods
+	 * 
 	 * @param clazz
 	 * @return SQLBuilder
 	 */
-	final static public SQLBuilder delete(Class<? extends BaseModel> clazz) {
+	final static public ModelDeleteBuilder delete(Class<? extends BaseModel> clazz) {
 		prepareModel(clazz);
-		SQLBuilder sb = new SQLBuilder(clazz, SQLBuilderType.DELETE);
+		ModelDeleteBuilder sb = new ModelDeleteBuilder(clazz);
 		return sb;
 	}
 }
