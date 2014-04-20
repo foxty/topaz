@@ -53,7 +53,6 @@ public class FinalInterceptor implements IInterceptor {
 							+ methodName);
 				}
 				DaoManager.getInstance().transaction(new ITransVisitor() {
-					@Override
 					public void visit() {
 						invokeTargetMethod();
 					}
