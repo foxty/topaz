@@ -3,8 +3,6 @@ package com.topaz.controller.interceptor;
 import java.util.Iterator;
 import java.util.List;
 
-import com.topaz.controller.WebContext;
-
 public class InterceptorChain {
 
 	private List<IInterceptor> interceptors;
