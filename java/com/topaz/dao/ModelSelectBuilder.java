@@ -51,6 +51,7 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 				Map<String, PropMapping> subMapping = BaseModel.MODEL_PROPS.get(tblProp
 						.getType());
 				for (PropMapping pm : subMapping.values()) {
+					if (pm.isTable()) continue;
 					String cName = pm.getTargetName();
 					String colFullName = w + "." + cName;
 					sql.append("," + colFullName + " AS '" + colFullName + "'");
