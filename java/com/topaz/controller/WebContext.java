@@ -22,8 +22,9 @@ import com.topaz.common.DataChecker;
 
 public class WebContext {
 
-	public final static String ACCEPT_JSON = "application/json";
-	public final static String ACCEPT_XML = "application/xml";
+	static public enum Accept {
+		JSON, XML, HTML, JSONP;
+	}
 
 	public final static String FLASH = "flash";
 
@@ -232,14 +233,22 @@ public class WebContext {
 			flashMap.clear();
 	}
 
-	public boolean isAcceptJSON() {
+	public Accept getAccept() {
+		Accept acc = Accept.HTML;
 		String reqAccept = this.request.getHeader("Accept");
-		return reqAccept.contains(ACCEPT_JSON);
+		if (reqAccept.contains("application/json"))
+			acc = Accept.JSON;
+		if (reqAccept.contains("application/xml"))
+			acc = Accept.XML;
+		return acc;
+	}
+
+	public boolean isAcceptJSON() {
+		return getAccept() == Accept.JSON;
 	}
 
 	public boolean isAcceptXML() {
-		String reqAccept = this.request.getHeader("Accept");
-		return reqAccept.contains(ACCEPT_XML);
+		return getAccept() == Accept.XML;
 	}
 
 }
