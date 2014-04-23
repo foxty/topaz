@@ -148,6 +148,14 @@ public class WebContext {
 		return this.request.getMethod().equalsIgnoreCase("POST");
 	}
 
+	public String header(String key) {
+		return request.getHeader(key);
+	}
+
+	public void header(String k, String v) {
+		response.setHeader(k, v);
+	}
+
 	/**
 	 * 获取request的参数
 	 * 
@@ -249,6 +257,10 @@ public class WebContext {
 
 	public boolean isAcceptXML() {
 		return getAccept() == Accept.XML;
+	}
+
+	public boolean isAJAX() {
+		return StringUtils.equals("XMLHttpRequest", header("X-Requested-With"));
 	}
 
 }
