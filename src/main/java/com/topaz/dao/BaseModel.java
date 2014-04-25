@@ -234,7 +234,7 @@ public class BaseModel implements Serializable {
 	}
 
 	final static public List<Map<String, Object>> findBySql(final String sql,
-			final List<Object> sqlParams) {
+			final Object ... sqlParams ) {
 
 		DaoManager mgr = DaoManager.getInstance();
 		List<Map<String, Object>> result = mgr.accessDB(new IConnVisitor() {
@@ -242,8 +242,7 @@ public class BaseModel implements Serializable {
 			public Object visit(Connection conn) throws SQLException {
 				QueryRunner runner = new QueryRunner();
 				MapListHandler h = new MapListHandler();
-				return runner.query(conn, sql, h, sqlParams
-						.toArray());
+				return runner.query(conn, sql, h, sqlParams);
 			}
 		});
 		return result;
