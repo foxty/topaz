@@ -105,7 +105,6 @@ public class Controller {
 		try {
 			rd.include(request, response);
 		} catch (Exception e) {
-			log.error(e.toString(), e);
 			throw new ControllerException(e);
 		}
 
