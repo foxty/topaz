@@ -30,11 +30,15 @@ import com.topaz.common.TopazUtil;
  */
 public class Controller {
 	private static String WEB_ERRORS = "errors";
-	private static String DEF_LAYOUT = "layout.ftl";
 	private static String LAYOUT_CHILDREN = "children";
-
 	private static Log log = LogFactory.getLog(Controller.class);
 
+	private String layout = "layout.ftl";
+	
+	final protected void setLayout(String layout) {
+		this.layout = layout;
+	}
+	
 	/**
 	 * Test a path is a absolute path or relative path.
 	 * 
@@ -45,13 +49,13 @@ public class Controller {
 		return resPath != null
 				&& (resPath.startsWith("/") || resPath.startsWith("\\"));
 	}
-
-	public void render(String resName) {
-		render(DEF_LAYOUT, resName);
-	}
-
+	
 	protected void renderWithoutLayout(String resName) {
 		render(null, resName);
+	}
+
+	public void render(String resName) {
+		render(layout, resName);
 	}
 
 	protected void render(String layoutName, String resourceName) {
@@ -86,9 +90,9 @@ public class Controller {
 			if (layoutFile.exists()) {
 				targetRes = wc.getViewBase() + layoutName;
 			} else {
-				targetRes = wc.getViewBase() + DEF_LAYOUT;
+				targetRes = wc.getViewBase() + layout;
 				log.warn("Layout " + layoutName
-						+ " not exist, now using default layout" + DEF_LAYOUT);
+						+ " not exist, now using default layout" + layout);
 			}
 			request.setAttribute(LAYOUT_CHILDREN, wc.getViewBase() + resPath);
 		}
