@@ -45,9 +45,10 @@ public class ModelUpdateBuilder extends ModelSQLBuilder<ModelUpdateBuilder> {
 	 * @param step
 	 * @return
 	 */
-	public ModelUpdateBuilder inc(String columnName, int step) {
-		sql.append(columnName).append(" = ").append(columnName).append(" + ")
-				.append(step);
+	public ModelUpdateBuilder inc(String propName, int step) {
+		PropMapping pm = findProp(propName);
+		sql.append(pm.getTargetName()).append(" = ").append(pm.getTargetName())
+				.append(" + ").append(step);
 		return this;
 	}
 
