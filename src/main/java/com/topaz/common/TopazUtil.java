@@ -2,6 +2,7 @@ package com.topaz.common;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
@@ -63,22 +64,33 @@ public class TopazUtil {
 		return result.toString();
 	}
 
-	/**
-	 * Customized MD5 algorithm
-	 * 
-	 * @param str
-	 * @return MD5 String
-	 */
-	public static String md5(String str) {
+	@Deprecated
+	public static String MD5(String str) {
+		return digest("MD5", str);
+	}
+
+	public static String SHA1(String str) {
+		return digest("SHA-1", str);
+	}
+
+	public static String SHA256(String str) {
+		return digest("SHA-256", str);
+	}
+
+	public static String SHA512(String str) {
+		return digest("SHA-512", str);
+	}
+
+	public static String digest(String algo, String origStr) {
 		MessageDigest digest = null;
 		try {
-			digest = MessageDigest.getInstance("MD5");
+			digest = MessageDigest.getInstance(algo);
 		} catch (NoSuchAlgorithmException e) {
 			throw new TopazException(e);
 		}
-		digest.update(str.getBytes());
+		digest.update(origStr.getBytes(Charset.forName("ASCII")));
 		byte[] bytes = digest.digest();
-		StringBuffer sb = new StringBuffer(32);
+		StringBuffer sb = new StringBuffer();
 		for (byte b : bytes) {
 			String s = Integer.toHexString(Math.abs(b));
 			sb.append(s.length() == 1 ? "0" + s : s);
@@ -149,6 +161,30 @@ public class TopazUtil {
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 		return cal.getTime();
+	}
+
+	/**
+	 * Get milliseconds diff between two times, use d1.getTime()- d2.getTime(), use 0
+	 * if date is null.
+	 * 
+	 * @param d1
+	 * @param d2
+	 * @return
+	 */
+	public static long timeDiffInMilli(Date d1, Date d2) {
+		long t1 = d1 == null ? 0 : d1.getTime();
+		long t2 = d2 == null ? 0 : d2.getTime();
+		return t1 -t2;
+	}
+	
+	public static long timeDiffInSec(Date d1, Date d2) {
+		long milliDiff = timeDiffInMilli(d1, d2);
+		return milliDiff/1000;
+	}
+	
+	public static long timeDiffInHour(Date d1, Date d2) {
+		long milliDiff = timeDiffInMilli(d2, d2);
+		return milliDiff/1000/3600;
 	}
 
 	public static String genUUID() {

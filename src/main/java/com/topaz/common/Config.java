@@ -73,7 +73,7 @@ public class Config {
 		return (String) props.get(key);
 	}
 
-	private int getIntItem(String key, int defaultValue) {
+	public int getInt(String key, int defaultValue) {
 		int result = defaultValue;
 		String v = getConfig(key);
 		try {
@@ -85,33 +85,25 @@ public class Config {
 		}
 		return result;
 	}
-	
-	private String getStringItem(String key, String defValue) {
+
+	public String getString(String key, String defValue) {
 		String v = getConfig(key);
-		if(v == null || v.isEmpty()) {
+		if (v == null || v.isEmpty()) {
+			log.error("Error while get config item [" + key
+					+ "], use default value " + defValue);
 			v = defValue;
 		}
 		return v;
 	}
 
-	private long getLongItem(String key, long defValue) {
-		long result = defValue;
-		String v = getConfig(key);
-		try {
-			result = Integer.parseInt(v);
-		} catch (Exception e) {
-			log.error("Error while get config item [" + key
-					+ "], use default value " + defValue);
-			result = defValue;
-		}
-		return result;
-	}
-
-	private boolean getBooleanItem(String key, boolean defValue) {
+	public boolean getBoolean(String key, boolean defValue) {
 		boolean re = defValue;
 		String v = getConfig(key);
 		if (booleanValues.contains(v)) {
 			re = Boolean.valueOf(v);
+		} else {
+			log.error("Error while get config item [" + key
+					+ "], use default value " + defValue);
 		}
 		return re;
 	}
@@ -120,7 +112,7 @@ public class Config {
 	 * Database Connection Configurations
 	 */
 	public String getDbDriver() {
-		return getStringItem("ds.Driver", "com.mysql.jdbc.Driver");
+		return getString("ds.Driver", "com.mysql.jdbc.Driver");
 	}
 
 	public String getDbUrl() {
@@ -136,18 +128,18 @@ public class Config {
 	}
 
 	public int getDbPoolMinIdle() {
-		return getIntItem("ds.MinIdle", 2);
+		return getInt("ds.MinIdle", 2);
 	}
 
 	public int getDbPoolMaxIdle() {
-		return getIntItem("ds.MaxIdle", 5);
+		return getInt("ds.MaxIdle", 5);
 	}
 
 	public int getDbPoolMaxActive() {
-		return getIntItem("ds.MaxActive", 20);
+		return getInt("ds.MaxActive", 20);
 	}
 
 	public int getDbPoolMaxWait() {
-		return getIntItem("ds.MaxWait", 10000);
+		return getInt("ds.MaxWait", 10000);
 	}
 }

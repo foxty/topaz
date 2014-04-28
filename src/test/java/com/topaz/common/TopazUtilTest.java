@@ -24,8 +24,14 @@ public class TopazUtilTest {
 	}
 
 	@Test
-	public void testMd5() {
-		assertEquals("700150683c2e4f502a6a3f7d281f7f72", TopazUtil.md5("abc"));
+	public void testMD5() {
+		assertEquals("700150683c2e4f502a6a3f7d281f7f72", TopazUtil.MD5("abc"));
+	}
+	
+	@Test
+	public void testSHA1() {
+		assertEquals("57673e3647067f6a463e257178503e6c64302863", TopazUtil.SHA1("abc"));
+		assertEquals("366f620b7124536d7b391841113b732956537f76", TopazUtil.SHA1("foxty哈"));
 	}
 
 	@Test
