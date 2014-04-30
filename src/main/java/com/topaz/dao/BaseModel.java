@@ -51,7 +51,8 @@ public class BaseModel implements Serializable {
 		Field[] subFields = clazz.getDeclaredFields();
 		Field[] all = new Field[parentFields.length + subFields.length];
 		System.arraycopy(parentFields, 0, all, 0, parentFields.length);
-		System.arraycopy(subFields, 0, all, parentFields.length, subFields.length);
+		System.arraycopy(subFields, 0, all, parentFields.length,
+				subFields.length);
 		for (Field f : all) {
 			Prop prop = f.getAnnotation(Prop.class);
 			if (prop != null) {
@@ -59,19 +60,20 @@ public class BaseModel implements Serializable {
 				String readMethodName = (f.getType() == boolean.class
 						|| f.getType() == Boolean.class ? "is" : "get")
 						+ StringUtils.capitalize(propName);
-				String writeMethodName = "set" + StringUtils.capitalize(propName);
+				String writeMethodName = "set"
+						+ StringUtils.capitalize(propName);
 
 				Method readMethod = null;
 				Method writeMethod = null;
 				try {
-					readMethod = clazz.getMethod(readMethodName, new Class[] {});
+					readMethod = clazz
+							.getMethod(readMethodName, new Class[] {});
 					writeMethod = clazz.getMethod(writeMethodName, f.getType());
 				} catch (Exception e) {
 					throw new DaoException(e);
 				}
-				result.put(propName, new PropMapping(f.getType(), prop, propName,
-						readMethod,
-						writeMethod));
+				result.put(propName, new PropMapping(f.getType(), prop,
+						propName, readMethod, writeMethod));
 			}
 		}
 		return result;
@@ -116,7 +118,7 @@ public class BaseModel implements Serializable {
 	public void setId(Integer id) {
 		this.id = id;
 	}
-	
+
 	final public void set(String prop, Object newValue) {
 		Map<String, PropMapping> mapping = MODEL_PROPS.get(this.getClass());
 		PropMapping pm = mapping.get(prop);
@@ -164,7 +166,8 @@ public class BaseModel implements Serializable {
 		insertSql.append(tblName).append(" (");
 		for (Map.Entry<String, PropMapping> entry : mapping.entrySet()) {
 			PropMapping pm = entry.getValue();
-			if (pm.isTable()) continue;
+			if (pm.isTable())
+				continue;
 			Object propValue;
 			try {
 				propValue = pm.getReadMethod().invoke(this);
@@ -181,42 +184,50 @@ public class BaseModel implements Serializable {
 		valueSql.replace(valueSql.length() - 1, valueSql.length(), ")");
 		insertSql.append(valueSql);
 
-		result = (Boolean) DaoManager.getInstance().accessDB(new IConnVisitor() {
+		result = (Boolean) DaoManager.getInstance().accessDB(
+				new IConnVisitor() {
 
-			public Object visit(Connection conn) {
-				Boolean result = false;
-				PreparedStatement statement = null;
-				ResultSet resultSet = null;
-				try {
-					statement = conn.prepareStatement(insertSql.toString(),
-							Statement.RETURN_GENERATED_KEYS);
-					for (int i = 0; i < params.size(); i++) {
-						statement.setObject(i + 1, params.get(i));
+					public Object visit(Connection conn) {
+						Boolean result = false;
+						PreparedStatement statement = null;
+						ResultSet resultSet = null;
+						try {
+							statement = conn.prepareStatement(
+									insertSql.toString(),
+									Statement.RETURN_GENERATED_KEYS);
+							for (int i = 0; i < params.size(); i++) {
+								statement.setObject(i + 1, params.get(i));
+							}
+							result = statement.executeUpdate() == 1;
+							resultSet = statement.getGeneratedKeys();
+							if (resultSet.next()) {
+								id = resultSet.getInt(1);
+							}
+							return result;
+						} catch (SQLException e) {
+							throw new DaoException(e);
+						} finally {
+							try {
+								DbUtils.close(resultSet);
+							} catch (SQLException e) {
+								log.error(e.getMessage(), e);
+							}
+							try {
+								DbUtils.close(statement);
+							} catch (SQLException e) {
+								log.error(e.getMessage(), e);
+							}
+						}
 					}
-					result = statement.executeUpdate() == 1;
-					resultSet = statement.getGeneratedKeys();
-					if (resultSet.next()) {
-						id = resultSet.getInt(1);
-					}
-					return result;
-				} catch (SQLException e) {
-					throw new DaoException(e);
-				} finally {
-					try {
-						DbUtils.close(resultSet);
-					} catch (SQLException e) {
-						log.error(e.getMessage(), e);
-					}
-					try {
-						DbUtils.close(statement);
-					} catch (SQLException e) {
-						log.error(e.getMessage(), e);
-					}
-				}
-			}
 
-		});
+				});
 		return result;
+	}
+
+	public boolean deleted() {
+		ModelDeleteBuilder db = new ModelDeleteBuilder(this.getClass());
+		db.where("id", id);
+		return db.update() > 0;
 	}
 
 	// Read methods
@@ -227,14 +238,14 @@ public class BaseModel implements Serializable {
 		return new ModelSelectBuilder(clazz, with);
 	}
 
-	final static public ModelSelectBuilder findBySql(Class<? extends BaseModel> clazz, String sql,
-			List<Object> sqlParams) {
+	final static public ModelSelectBuilder findBySql(
+			Class<? extends BaseModel> clazz, String sql, List<Object> sqlParams) {
 		prepareModel(clazz);
 		return new ModelSelectBuilder(clazz, sql, sqlParams);
 	}
 
 	final static public List<Map<String, Object>> findBySql(final String sql,
-			final Object ... sqlParams ) {
+			final Object... sqlParams) {
 
 		DaoManager mgr = DaoManager.getInstance();
 		List<Map<String, Object>> result = mgr.accessDB(new IConnVisitor() {
@@ -248,7 +259,7 @@ public class BaseModel implements Serializable {
 		return result;
 	}
 
-	final static public <T> T findById(Class<T> clazz, int id, String ... withs) {
+	final static public <T> T findById(Class<T> clazz, int id, String... withs) {
 		prepareModel(clazz);
 		ModelSelectBuilder ms = find(clazz, withs).where("id", id);
 		return ms.fetchFirst();
@@ -262,7 +273,8 @@ public class BaseModel implements Serializable {
 	 */
 	final public boolean updated() {
 		if (getId() == null || getId().longValue() == 0L) {
-			throw new DaoException("No id specified, this entity is not accociate with DB!");
+			throw new DaoException(
+					"No id specified, this entity is not accociate with DB!");
 		}
 		ModelUpdateBuilder ub = new ModelUpdateBuilder(this.getClass());
 
@@ -271,7 +283,8 @@ public class BaseModel implements Serializable {
 
 		for (Entry<String, PropMapping> entry : mapping.entrySet()) {
 			PropMapping pm = entry.getValue();
-			if (pm == idMapping || pm.isTable()) continue;
+			if (pm == idMapping || pm.isTable())
+				continue;
 			Object newValue;
 			try {
 				newValue = pm.getReadMethod().invoke(this);
@@ -308,7 +321,8 @@ public class BaseModel implements Serializable {
 	 * @param clazz
 	 * @return SQLBuilder
 	 */
-	final static public ModelDeleteBuilder delete(Class<? extends BaseModel> clazz) {
+	final static public ModelDeleteBuilder delete(
+			Class<? extends BaseModel> clazz) {
 		prepareModel(clazz);
 		ModelDeleteBuilder sb = new ModelDeleteBuilder(clazz);
 		return sb;
@@ -322,7 +336,8 @@ class PropMapping {
 	private Method readMethod;
 	private Method writeMethod;
 
-	public PropMapping(Class<?> type, Prop prop, String pName, Method rMethod, Method wMethod) {
+	public PropMapping(Class<?> type, Prop prop, String pName, Method rMethod,
+			Method wMethod) {
 		this.type = type;
 		this.prop = prop;
 		propertyName = pName;
@@ -361,7 +376,8 @@ class PropMapping {
 	 */
 	public String getTargetName() {
 		if (StringUtils.isBlank(prop.targetName())) {
-			return TopazUtil.camel2flat(isColumn() ? propertyName : type.getSimpleName());
+			return TopazUtil.camel2flat(isColumn() ? propertyName : type
+					.getSimpleName());
 		} else {
 			return prop.targetName();
 		}
@@ -381,7 +397,8 @@ class PropMapping {
 	}
 
 	public String toString() {
-		return "[ColumnMapping: targetName=" + getTargetName() + ", readMethod=" + readMethod
-				+ ", writeMethod=" + writeMethod + "]";
+		return "[ColumnMapping: targetName=" + getTargetName()
+				+ ", readMethod=" + readMethod + ", writeMethod=" + writeMethod
+				+ "]";
 	}
 }
