@@ -130,22 +130,24 @@ public class WebContext {
 		return moduleName + "/" + controllerName + "/" + methodName;
 	}
 
-	/**
-	 * 判断当前请求是否是GET
-	 * 
-	 * @return boolean
-	 */
 	public boolean isGet() {
 		return this.request.getMethod().equalsIgnoreCase("GET");
 	}
 
-	/**
-	 * 判断当前请求是否是POST
-	 * 
-	 * @return boolean
-	 */
 	public boolean isPost() {
 		return this.request.getMethod().equalsIgnoreCase("POST");
+	}
+	
+	public boolean isPUT() {
+		return this.request.getMethod().equalsIgnoreCase("PUT");
+	}
+	
+	public boolean isHEAD() {
+		return this.request.getMethod().equalsIgnoreCase("HEAD");
+	}
+	
+	public boolean isDELETE() {
+		return this.request.getMethod().equalsIgnoreCase("DELETE");
 	}
 
 	public String header(String key) {

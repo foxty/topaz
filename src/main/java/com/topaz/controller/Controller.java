@@ -10,8 +10,6 @@ package com.topaz.controller;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.Date;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
@@ -22,8 +20,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.alibaba.fastjson.JSON;
-import com.topaz.common.DataChecker;
-import com.topaz.common.TopazUtil;
 
 /**
  * @author Isaac Tian
@@ -34,11 +30,11 @@ public class Controller {
 	private static Log log = LogFactory.getLog(Controller.class);
 
 	private String layout = "layout.ftl";
-	
+
 	final protected void setLayout(String layout) {
 		this.layout = layout;
 	}
-	
+
 	/**
 	 * Test a path is a absolute path or relative path.
 	 * 
@@ -49,7 +45,7 @@ public class Controller {
 		return resPath != null
 				&& (resPath.startsWith("/") || resPath.startsWith("\\"));
 	}
-	
+
 	protected void renderWithoutLayout(String resName) {
 		render(null, resName);
 	}
@@ -150,169 +146,12 @@ public class Controller {
 		}
 	}
 
-	/**
-	 * Get request parameter by paramKey and validate by regex.
-	 * 
-	 * @param paramKey
-	 * @param regex
-	 * @param errMsg
-	 */
-	protected String vRegex(String paramKey, String regex, String errMsg) {
-		String value = WebContext.get().param(paramKey);
-		if (!DataChecker.regexTest(regex, value)) {
-			addError(paramKey, errMsg);
-			value = null;
-		}
-		return value;
-	}
-
-	protected String vRegex(String pk, String regex) {
-		return vRegex(pk, regex, pk + "'s format shold follow /" + regex + "/!");
-	}
-
-	/**
-	 * Get request parameter by paramKey and validate by range of length.
-	 * Inclusion.
-	 * 
-	 * @param paramKey
-	 * @param minLength
-	 * @param maxLength
-	 * @param errMsg
-	 */
-	protected String vRangeLength(String paramKey, int minLength,
-			int maxLength, String errMsg) {
-		String value = WebContext.get().param(paramKey);
-		if (!DataChecker.isSafeString(value, minLength, maxLength, null)) {
-			addError(paramKey, errMsg);
-			value = null;
-		}
-		return value;
-	}
-
-	protected String vRangeLength(String pk, int minLen, int maxLen) {
-		return vRangeLength(pk, minLen, maxLen, pk
-				+ "'s length should between " + minLen + " and " + maxLen + "!");
-	}
-
-	protected String vMinLength(String paramKey, int minlength, String errMsg) {
-		String value = WebContext.get().param(paramKey);
-		if (StringUtils.trimToEmpty(value).length() < minlength) {
-			addError(paramKey, errMsg);
-			value = null;
-		}
-		return value;
-	}
-
-	protected String vMinLength(String pk, int minLen) {
-		return vMinLength(pk, minLen, pk + "'s length should longer than "
-				+ minLen + "!");
-	}
-
-	protected String vMaxLength(String paramKey, int maxlength, String errMsg) {
-		String value = WebContext.get().param(paramKey);
-		if (StringUtils.trimToEmpty(value).length() > maxlength) {
-			addError(paramKey, errMsg);
-			value = null;
-		}
-		return value;
-	}
-
-	protected Integer vInt(String paramKey, String errMsg) {
-		String value = WebContext.get().param(paramKey);
-		if (!DataChecker.isInt(value)) {
-			addError(paramKey, errMsg);
-			return null;
-		}
-		return Integer.parseInt(value);
-	}
-
-	protected Integer vInt(String pk) {
-		return vInt(pk, pk + " should be a Integer!");
-	}
-
-	protected Float vFloat(String paramKey, String errMsg) {
-		String value = WebContext.get().param(paramKey);
-		if (!DataChecker.isFloat(value)) {
-			addError(paramKey, errMsg);
-			return null;
-		}
-		return Float.parseFloat(value);
-	}
-
-	protected Float vFloat(String pk) {
-		return vFloat(pk, pk + " should be a Float number!");
-	}
-
-	protected Integer vIntInclude(String paramKey, int[] values, String errMsg) {
-		String value = WebContext.get().param(paramKey);
-		if (DataChecker.isInt(value)) {
-			int re = Integer.parseInt(value);
-			Arrays.sort(values);
-			if (Arrays.binarySearch(values, re) > 0) {
-				return re;
-			}
-		}
-		addError(paramKey, errMsg);
-		return null;
-	}
-
-	protected Integer vIntInclude(String pk, int[] values) {
-		return vIntInclude(pk, values, pk + " should in " + values + "!");
-	}
-
-	protected String vStringInclude(String paramKey, String[] values,
-			String errMsg) {
-		String value = WebContext.get().param(paramKey);
-		Arrays.sort(values);
-		if (Arrays.binarySearch(values, value) > 0) {
-			return value;
-		} else {
-			addError(paramKey, errMsg);
-			return null;
-		}
-	}
-
-	protected String vStringInclude(String pk, String[] values) {
-		return vStringInclude(pk, values, pk + " should in " + values + "!");
-	}
-
-	protected Date vDate(String paramKey, String format, String errMsg) {
-		String value = WebContext.get().param(paramKey);
-		if (!DataChecker.isDate(value, format)) {
-			addError(paramKey, errMsg);
-			return null;
-		}
-		return TopazUtil.parseDate(value, format);
+	protected Validation v(String paramKey, String errMsg) {
+		return new Validation(paramKey, errMsg);
 	}
 	
-	protected Date vDate(String pk, String format) {
-		return vDate(pk, format, pk + " should be a Date as format " + format + "!");
-	}
-
-	protected String vEmail(String paramKey, String errMsg) {
-		String value = WebContext.get().param(paramKey);
-		if (!DataChecker.isEmail(value)) {
-			addError(paramKey, errMsg);
-			value = null;
-		}
-		return value;
-	}
-	
-	protected String vEmail(String pk ) {
-		return vEmail(pk, pk + " should be a Email address!");
-	}
-
-	protected String vCellphone(String paramKey, String errMsg) {
-		String value = WebContext.get().param(paramKey);
-		if (!DataChecker.isCellphone(value)) {
-			addError(paramKey, errMsg);
-			value = null;
-		}
-		return value;
-	}
-	
-	protected String vCellphone(String pk) {
-		return vCellphone(pk, pk + " should be a cellphone nubmer!");
+	protected Validation v(String paramKey) {
+		return new Validation(paramKey, paramKey + " is not a valid value!");
 	}
 
 	protected void addError(String key, String msg) {
