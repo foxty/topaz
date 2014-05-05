@@ -10,6 +10,7 @@ import com.topaz.common.TopazException;
 import com.topaz.controller.Controller;
 import com.topaz.controller.ControllerException;
 import com.topaz.controller.WebContext;
+import com.topaz.controller.anno.Allow;
 import com.topaz.dao.DaoManager;
 import com.topaz.dao.ITransVisitor;
 import com.topaz.dao.Transactional;
@@ -47,6 +48,30 @@ public class FinalInterceptor implements IInterceptor {
 		}
 
 		if (founded) {
+			if (targetMethod.isAnnotationPresent(Allow.class)) {
+				Allow allow = targetMethod.getAnnotation(Allow.class);
+				boolean isAllowed = false;
+				switch (allow.value()) {
+				case GET:
+					isAllowed = wc.isGet();
+					break;
+				case POST:
+					isAllowed = wc.isPost();
+					break;
+				case PUT:
+					isAllowed = wc.isPUT();
+					break;
+				case HEAD:
+					isAllowed = wc.isHEAD();
+					break;
+				case DELETE:
+					isAllowed = wc.isDELETE();
+					break;
+				}
+				if (!isAllowed)
+					throw new ControllerException("Request method " + wc.getRequest().getMethod()
+							+ " is not allowd!");
+			}
 			if (targetMethod.isAnnotationPresent(Transactional.class)) {
 				if (log.isDebugEnabled()) {
 					log.debug("Use transaction on method " + wc.getControllerName() + "."
