@@ -53,6 +53,19 @@ public class ModelUpdateBuilder extends ModelSQLBuilder<ModelUpdateBuilder> {
 	}
 
 	/**
+	 * Decrease target property by step, only support in UPDATE.
+	 * @param propName
+	 * @param step
+	 * @return
+	 */
+	public ModelUpdateBuilder dec(String propName, int step) {
+		PropMapping pm = findProp(propName);
+		sql.append(pm.getTargetName()).append(" = ").append(pm.getTargetName())
+				.append(" - ").append(step);
+		return this;
+	}
+
+	/**
 	 * Update target table via INSERT, UPDATE, DELETE
 	 * 
 	 * @return

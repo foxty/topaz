@@ -315,6 +315,12 @@ public class BaseModel implements Serializable {
 		return sb.update() > 0;
 	}
 
+	final public boolean decrease(String prop) {
+		ModelUpdateBuilder sb = new ModelUpdateBuilder(this.getClass());
+		sb.dec(prop, 1).where("id", getId());
+		return sb.update() > 0;
+	}
+
 	/**
 	 * Deletion methods
 	 * 
