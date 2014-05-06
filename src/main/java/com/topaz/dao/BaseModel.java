@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -239,9 +240,9 @@ public class BaseModel implements Serializable {
 	}
 
 	final static public ModelSelectBuilder findBySql(
-			Class<? extends BaseModel> clazz, String sql, List<Object> sqlParams) {
+			Class<? extends BaseModel> clazz, String sql, Object... sqlParams) {
 		prepareModel(clazz);
-		return new ModelSelectBuilder(clazz, sql, sqlParams);
+		return new ModelSelectBuilder(clazz, sql, Arrays.asList(sqlParams));
 	}
 
 	final static public List<Map<String, Object>> findBySql(final String sql,
