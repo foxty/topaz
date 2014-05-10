@@ -48,13 +48,13 @@ public class BaseModel implements Serializable {
 	 */
 	private static Map<String, PropMapping> extractPropMethods(Class<?> clazz) {
 		Map<String, PropMapping> result = new HashMap<String, PropMapping>();
-		Field[] parentFields = BaseModel.class.getDeclaredFields();
-		Field[] subFields = clazz.getDeclaredFields();
-		Field[] all = new Field[parentFields.length + subFields.length];
-		System.arraycopy(parentFields, 0, all, 0, parentFields.length);
-		System.arraycopy(subFields, 0, all, parentFields.length,
-				subFields.length);
-		for (Field f : all) {
+		List<Field> allFields = new ArrayList<Field>();
+		Class<?> curClazz = clazz;
+		while (curClazz != null) {
+			allFields.addAll(Arrays.asList(curClazz.getDeclaredFields()));
+			curClazz = curClazz.getSuperclass();
+		}
+		for (Field f : allFields) {
 			Prop prop = f.getAnnotation(Prop.class);
 			if (prop != null) {
 				String propName = f.getName();
@@ -73,7 +73,7 @@ public class BaseModel implements Serializable {
 				} catch (Exception e) {
 					throw new DaoException(e);
 				}
-				result.put(propName, new PropMapping(f.getType(), prop,
+				result.put(propName, new PropMapping(clazz, f.getType(), prop,
 						propName, readMethod, writeMethod));
 			}
 		}
@@ -322,6 +322,12 @@ public class BaseModel implements Serializable {
 		return sb.update() > 0;
 	}
 
+	public static ModelUpdateBuilder update(Class<? extends BaseModel> clazz) {
+		prepareModel(clazz);
+		ModelUpdateBuilder ub = new ModelUpdateBuilder(clazz);
+		return ub;
+	}
+
 	/**
 	 * Deletion methods
 	 * 
@@ -337,23 +343,25 @@ public class BaseModel implements Serializable {
 }
 
 class PropMapping {
-	private Class<?> type;
+	private Class<?> baseType;
+	private Class<?> targetType;
 	private Prop prop;
 	private String propertyName;
 	private Method readMethod;
 	private Method writeMethod;
 
-	public PropMapping(Class<?> type, Prop prop, String pName, Method rMethod,
-			Method wMethod) {
-		this.type = type;
+	public PropMapping(Class<?> baseType, Class<?> type, Prop prop,
+			String pName, Method rMethod, Method wMethod) {
+		this.baseType = baseType;
+		this.targetType = type;
 		this.prop = prop;
 		propertyName = pName;
 		readMethod = rMethod;
 		writeMethod = wMethod;
 	}
 
-	public Class<?> getType() {
-		return type;
+	public Class<?> getTargetType() {
+		return targetType;
 	}
 
 	boolean isColumn() {
@@ -370,7 +378,9 @@ class PropMapping {
 
 	public String getByKey() {
 		if (StringUtils.isBlank(prop.byKey())) {
-			return TopazUtil.camel2flat(type.getSimpleName()) + "_id";
+			String typeName = (getRelation() == Relation.HasOne ? baseType
+					.getSimpleName() : targetType.getSimpleName());
+			return TopazUtil.camel2flat(typeName) + "_id";
 		} else {
 			return prop.byKey();
 		}
@@ -383,7 +393,7 @@ class PropMapping {
 	 */
 	public String getTargetName() {
 		if (StringUtils.isBlank(prop.targetName())) {
-			return TopazUtil.camel2flat(isColumn() ? propertyName : type
+			return TopazUtil.camel2flat(isColumn() ? propertyName : targetType
 					.getSimpleName());
 		} else {
 			return prop.targetName();

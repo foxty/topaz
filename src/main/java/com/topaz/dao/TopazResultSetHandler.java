@@ -78,7 +78,7 @@ public class TopazResultSetHandler<T> implements ResultSetHandler<List<T>> {
 				try {
 					subObj = method.invoke(bean);
 					if (subObj == null) {
-						subObj = this.newInstance(pm.getType());
+						subObj = this.newInstance(pm.getTargetType());
 						this.callSetter(bean, pm, subObj);
 					}
 				} catch (Exception e) {
@@ -88,14 +88,14 @@ public class TopazResultSetHandler<T> implements ResultSetHandler<List<T>> {
 				// Find the sub object
 				bean = subObj;
 				cName = arr[1];
-				props = BaseModel.MODEL_PROPS.get(pm.getType());
+				props = BaseModel.MODEL_PROPS.get(pm.getTargetType());
 			}
 		}
 		
 		String pName = TopazUtil.flat2camel(cName);
 		if (props.containsKey(pName)) {
 			PropMapping pm = props.get(pName);
-			Object cValue = processColumnValue(rs, pos, pm.getType());
+			Object cValue = processColumnValue(rs, pos, pm.getTargetType());
 			callSetter(bean, pm, cValue);
 		}
 	}

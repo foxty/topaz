@@ -47,9 +47,9 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 		for (String w : with) {
 			PropMapping tblProp = baseMapping.get(w);
 			if (tblProp.isTable()) {
-				BaseModel.prepareModel(tblProp.getType());
+				BaseModel.prepareModel(tblProp.getTargetType());
 				Map<String, PropMapping> subMapping = BaseModel.MODEL_PROPS.get(tblProp
-						.getType());
+						.getTargetType());
 				for (PropMapping pm : subMapping.values()) {
 					if (pm.isTable()) continue;
 					String cName = pm.getTargetName();
@@ -78,7 +78,7 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 	private PropMapping findProp(String with, String prop) {
 		Map<String, PropMapping> mapping = BaseModel.MODEL_PROPS.get(baseModelClazz);
 		PropMapping tblPm = mapping.get(with);
-		mapping = BaseModel.MODEL_PROPS.get(tblPm.getType());
+		mapping = BaseModel.MODEL_PROPS.get(tblPm.getTargetType());
 		PropMapping pm = mapping.get(prop);
 		if (pm == null) {
 			throw new DaoException("No column mapping found for property " + with + "." +
