@@ -2,6 +2,7 @@ package com.topaz.dao;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.lang.StringUtils;
@@ -20,6 +21,13 @@ public class ModelUpdateBuilder extends ModelSQLBuilder<ModelUpdateBuilder> {
 	public ModelUpdateBuilder(Class<? extends BaseModel> clazz) {
 		super(clazz);
 		buildSQL();
+	}
+
+	public ModelUpdateBuilder(Class<? extends BaseModel> clazz, String sql,
+			List<Object> params) {
+		super(clazz);
+		this.sql.append(sql);
+		this.sqlParams.addAll(params);
 	}
 
 	@Override
@@ -54,6 +62,7 @@ public class ModelUpdateBuilder extends ModelSQLBuilder<ModelUpdateBuilder> {
 
 	/**
 	 * Decrease target property by step, only support in UPDATE.
+	 * 
 	 * @param propName
 	 * @param step
 	 * @return

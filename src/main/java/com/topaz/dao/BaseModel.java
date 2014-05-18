@@ -328,6 +328,13 @@ public class BaseModel implements Serializable {
 		return ub;
 	}
 
+	public static int updateBySql(Class<? extends BaseModel> clazz, String sql,
+			List<Object> objects) {
+		prepareModel(clazz);
+		ModelUpdateBuilder ub = new ModelUpdateBuilder(clazz, sql, objects);
+		return ub.update();
+	}
+
 	/**
 	 * Deletion methods
 	 * 
