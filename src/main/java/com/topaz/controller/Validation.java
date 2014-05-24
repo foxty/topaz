@@ -18,7 +18,7 @@ public class Validation {
 	public Validation(String propKey, String errMsg) {
 		this.valid = true;
 		this.key = propKey;
-		this.value = WebContext.get().param(propKey);
+		this.value = StringUtils.trim(WebContext.get().param(propKey));
 		this.notBlank = StringUtils.isNotBlank(value);
 		this.target = value;
 		this.errMsg = errMsg;
