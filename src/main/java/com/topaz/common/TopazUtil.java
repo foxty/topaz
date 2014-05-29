@@ -183,7 +183,7 @@ public class TopazUtil {
 	}
 	
 	public static long timeDiffInHour(Date d1, Date d2) {
-		long milliDiff = timeDiffInMilli(d2, d2);
+		long milliDiff = timeDiffInMilli(d1, d2);
 		return milliDiff/1000/3600;
 	}
 
