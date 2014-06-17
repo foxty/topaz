@@ -27,7 +27,7 @@ public class DaoManager {
 
 	private static Log log = LogFactory.getLog(DaoManager.class);
 	private final static DaoManager INST = new DaoManager();
-	private final static ThreadLocal<Connection> LOCAL_CONN = new ThreadLocal<Connection>();
+	private final static ThreadLocal<Connection> LOCAL_TRANS_CONN = new ThreadLocal<Connection>();
 	private final GenericObjectPool<Connection> connectionPool;
 	private final PoolingDataSource ds;
 
@@ -69,11 +69,11 @@ public class DaoManager {
 	}
 
 	private boolean isInTransaction() {
-		return (LOCAL_CONN.get() != null);
+		return (LOCAL_TRANS_CONN.get() != null);
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> T accessDB(IConnVisitor inter) {
+	public <T> T useConnection(IConnVisitor inter) {
 		Connection conn = prepareConnection();
 		Object result = null;
 		try {
@@ -88,7 +88,7 @@ public class DaoManager {
 	}
 
 	private Connection prepareConnection() {
-		Connection curConn = LOCAL_CONN.get();
+		Connection curConn = LOCAL_TRANS_CONN.get();
 		if (curConn == null) {
 			try {
 				logPoolStatus();
@@ -127,10 +127,16 @@ public class DaoManager {
 		}
 	}
 
-	public void transaction(ITransVisitor inter) {
-		// Start transaction set transaction flag
+	public void useTransaction(ITransVisitor inter) {
+		// If already in transaction, then just call target method and return
+		if(isInTransaction()) {
+			inter.visit();
+			return;
+		}
+		
+		// Start new transaction and set transaction conn
 		Connection conn = prepareConnection();
-		LOCAL_CONN.set(conn);
+		LOCAL_TRANS_CONN.set(conn);
 		try {
 			conn.setAutoCommit(false);
 			inter.visit();			
@@ -150,8 +156,8 @@ public class DaoManager {
 				throw new DaoException(e);
 			}
 		} finally {
-			// End transaction set flat to null
-			LOCAL_CONN.set(null);
+			// End transaction set thread local conn to null
+			LOCAL_TRANS_CONN.set(null);
 			try {
 				conn.setAutoCommit(true);
 			} catch (SQLException e) {				

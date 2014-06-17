@@ -170,7 +170,7 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 	public <T> List<T> fetch() {
 		log.debug("Fetch  - " + sql);
 		DaoManager mgr = DaoManager.getInstance();
-		List<T> result = (List<T>) mgr.accessDB(new IConnVisitor() {
+		List<T> result = (List<T>) mgr.useConnection(new IConnVisitor() {
 
 			public Object visit(Connection conn) throws SQLException {
 				QueryRunner runner = new QueryRunner();
@@ -192,7 +192,7 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 		sql.replace(7, sql.indexOf("FROM"), " COUNT(id) ");
 		log.debug("Fetch Count - " + sql);
 		DaoManager mgr = DaoManager.getInstance();
-		re = (Long) mgr.accessDB(new IConnVisitor() {
+		re = (Long) mgr.useConnection(new IConnVisitor() {
 
 			public Object visit(Connection conn) throws SQLException {
 				QueryRunner runner = new QueryRunner();

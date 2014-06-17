@@ -25,26 +25,24 @@ public class DaoManagerTransactionTest {
 
 	@Test
 	public void testConnectionConsistency() {
-		DaoManager mgr = DaoManager.getInstance();
-		mgr.transaction(new ITransVisitor() {
+		final DaoManager mgr = DaoManager.getInstance();
+		mgr.useTransaction(new ITransVisitor() {
 			public void visit() {
-				Connection conn1 = (Connection) DaoManager.getInstance()
-						.accessDB(new IConnVisitor() {
-							public Object visit(Connection conn)
-									throws SQLException {
-								return conn;
-							}
+				Connection conn1 = (Connection) mgr.useConnection(new IConnVisitor() {
+					public Object visit(Connection conn)
+							throws SQLException {
+						return conn;
+					}
 
-						});
+				});
 
-				Connection conn2 = (Connection) DaoManager.getInstance()
-						.accessDB(new IConnVisitor() {
-							public Object visit(Connection conn)
-									throws SQLException {
-								return conn;
-							}
+				Connection conn2 = (Connection) mgr.useConnection(new IConnVisitor() {
+					public Object visit(Connection conn)
+							throws SQLException {
+						return conn;
+					}
 
-						});
+				});
 				boolean autoCommit = true;
 				try {
 					autoCommit = conn1.getAutoCommit();
@@ -61,16 +59,15 @@ public class DaoManagerTransactionTest {
 	public void testAutoCommitRecovery() {
 		final DaoManager mgr = DaoManager.getInstance();
 		final int numActive1 = mgr.getNumActive();
-		mgr.transaction(new ITransVisitor() {
+		mgr.useTransaction(new ITransVisitor() {
 
 			public void visit() {
-				Connection conn1 = (Connection) DaoManager.getInstance()
-						.accessDB(new IConnVisitor() {
-							public Object visit(Connection conn)
-									throws SQLException {
-								return conn;
-							}
-						});
+				Connection conn1 = (Connection) mgr.useConnection(new IConnVisitor() {
+					public Object visit(Connection conn)
+							throws SQLException {
+						return conn;
+					}
+				});
 
 				boolean autoCommit = true;
 				try {
@@ -85,5 +82,39 @@ public class DaoManagerTransactionTest {
 		});
 		int numActive3 = mgr.getNumActive();
 		Assert.assertEquals(numActive1, numActive3);
+	}
+
+	@Test
+	public void testTransactionInTransaction() {
+		final DaoManager mgr = DaoManager.getInstance();
+		mgr.useTransaction(new ITransVisitor() {
+			public void visit() {
+				final Connection conn1 = (Connection) mgr.useConnection(new IConnVisitor() {
+					public Object visit(Connection conn)
+							throws SQLException {
+						return conn;
+					}
+				});
+
+				mgr.useTransaction(new ITransVisitor() {
+					public void visit() {
+						Connection conn2 = (Connection) mgr.useConnection(new IConnVisitor() {
+							public Object visit(Connection conn)
+									throws SQLException {
+								return conn;
+							}
+						});
+
+						Assert.assertEquals(conn1, conn2);
+					};
+				});
+
+				try {
+					Assert.assertFalse(conn1.getAutoCommit());
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 }
