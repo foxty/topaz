@@ -185,7 +185,7 @@ public class BaseModel implements Serializable {
 		valueSql.replace(valueSql.length() - 1, valueSql.length(), ")");
 		insertSql.append(valueSql);
 
-		result = (Boolean) DaoManager.getInstance().accessDB(
+		result = (Boolean) DaoManager.getInstance().useConnection(
 				new IConnVisitor() {
 
 					public Object visit(Connection conn) {
@@ -249,7 +249,7 @@ public class BaseModel implements Serializable {
 			final Object... sqlParams) {
 
 		DaoManager mgr = DaoManager.getInstance();
-		List<Map<String, Object>> result = mgr.accessDB(new IConnVisitor() {
+		List<Map<String, Object>> result = mgr.useConnection(new IConnVisitor() {
 
 			public Object visit(Connection conn) throws SQLException {
 				QueryRunner runner = new QueryRunner();

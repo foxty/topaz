@@ -77,7 +77,7 @@ public class FinalInterceptor implements IInterceptor {
 					log.debug("Use transaction on method " + wc.getControllerName() + "."
 							+ methodName);
 				}
-				DaoManager.getInstance().transaction(new ITransVisitor() {
+				DaoManager.getInstance().useTransaction(new ITransVisitor() {
 					public void visit() {
 						invokeTargetMethod();
 					}

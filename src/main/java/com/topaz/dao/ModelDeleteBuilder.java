@@ -34,7 +34,7 @@ public class ModelDeleteBuilder extends ModelSQLBuilder<ModelDeleteBuilder> {
 		log.debug("Delte = " + sql.toString());
 		int result = 0;
 		DaoManager daoMgr = DaoManager.getInstance();
-		result = (Integer) daoMgr.accessDB(new IConnVisitor() {
+		result = (Integer) daoMgr.useConnection(new IConnVisitor() {
 
 			public Object visit(Connection conn) throws SQLException {
 				QueryRunner qr = new QueryRunner();
