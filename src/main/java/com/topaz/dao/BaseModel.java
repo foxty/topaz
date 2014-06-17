@@ -225,14 +225,9 @@ public class BaseModel implements Serializable {
 		return result;
 	}
 
-	public boolean deleted() {
-		ModelDeleteBuilder db = new ModelDeleteBuilder(this.getClass());
-		db.where("id", id);
-		return db.update() > 0;
-	}
-
-	// Read methods
-
+	/**
+	 * Read methods
+	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	final static public ModelSelectBuilder find(Class clazz, String... with) {
 		prepareModel(clazz);
@@ -266,6 +261,26 @@ public class BaseModel implements Serializable {
 		return ms.fetchFirst();
 	}
 
+	final public void refresh() {
+		BaseModel newModel = find(this.getClass()).where("id", id).fetchFirst();
+		if (newModel == null) {
+			throw new DaoException(
+					"id is not exist, , this entity is not accociate with DB!");
+		}
+		Map<String, PropMapping> props = MODEL_PROPS.get(this.getClass());
+		for (PropMapping pm : props.values()) {
+			Method rm = pm.getReadMethod();
+			Method wm = pm.getWriteMethod();
+			Object v;
+			try {
+				v = rm.invoke(newModel);
+				wm.invoke(this, v);
+			} catch (Exception e) {
+				throw new DaoException("Refresh model failed!", e);
+			}
+		}
+	}
+
 	/**
 	 * Update model and return the status
 	 * 
@@ -275,7 +290,7 @@ public class BaseModel implements Serializable {
 	final public boolean updated() {
 		if (getId() == null || getId().longValue() == 0L) {
 			throw new DaoException(
-					"No id specified, this entity is not accociate with DB!");
+					"id is not exist, this entity is not accociate with DB!");
 		}
 		ModelUpdateBuilder ub = new ModelUpdateBuilder(this.getClass());
 
@@ -347,6 +362,13 @@ public class BaseModel implements Serializable {
 		ModelDeleteBuilder sb = new ModelDeleteBuilder(clazz);
 		return sb;
 	}
+
+	public boolean deleted() {
+		ModelDeleteBuilder db = new ModelDeleteBuilder(this.getClass());
+		db.where("id", id);
+		return db.update() > 0;
+	}
+
 }
 
 class PropMapping {

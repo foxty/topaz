@@ -14,7 +14,7 @@ import com.topaz.common.TopazUtil;
 abstract public class ModelSQLBuilder<T> {
 
 	public static enum OP {
-		EQ(" = "), NE(" != "), LT(" < "), GT(" > "), LE(" <= "), GE(" >= "), IN(" in "), LK(" like ");
+		EQ(" = "), NE(" != "), LT(" < "), GT(" > "), LE(" <= "), GE(" >= "), IN(" in "), LK(" like "), IS(" is ");
 
 		private String value;
 
