@@ -86,6 +86,18 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 		}
 		return pm;
 	}
+	
+	public ModelSelectBuilder c(String with, String prop, Object value) {
+		return c(with, prop, OP.EQ, value);
+	}
+	
+	public ModelSelectBuilder c(String with, String prop, OP op, Object value) {
+		PropMapping pm = findProp(with, prop);
+		sql.append(" " + with + ".").append(pm.getTargetName()).append(op.getValue())
+				.append("? ");
+		sqlParams.add(value);
+		return this;
+	}
 
 	public ModelSelectBuilder where(String with, String propName, Object value) {
 		return where(with, propName, OP.EQ, value);
@@ -100,27 +112,21 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 		return this;
 	}
 
-	public ModelSelectBuilder and(String with, String propName, Object value) {
-		return and(with, propName, OP.EQ, value);
+	public ModelSelectBuilder and(String with, String prop, Object value) {
+		return and(with, prop, OP.EQ, value);
 	}
 
-	public ModelSelectBuilder and(String with, String propName, OP op, Object value) {
-		PropMapping pm = findProp(with, propName);
-		sql.append(" AND ").append(with + ".").append(pm.getTargetName()).append(op.getValue())
-				.append("? ");
-		sqlParams.add(value);
+	public ModelSelectBuilder and(String with, String prop, OP op, Object value) {
+		and().c(with, prop, op, value);
 		return this;
 	}
 
-	public ModelSelectBuilder or(String with, String propName, Object value) {
-		return or(with, propName, OP.EQ, value);
+	public ModelSelectBuilder or(String with, String prop, Object value) {
+		return or(with, prop, OP.EQ, value);
 	}
 
-	public ModelSelectBuilder or(String with, String propName, OP op, Object value) {
-		PropMapping pm = findProp(with, propName);
-		sql.append(" OR ").append(with + ".").append(pm.getTargetName()).append(op.getValue())
-				.append("? ");
-		sqlParams.add(value);
+	public ModelSelectBuilder or(String with, String prop, OP op, Object value) {
+		or().c(with, prop, op, value);
 		return this;
 	}
 

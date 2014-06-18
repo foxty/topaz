@@ -11,10 +11,12 @@ import com.topaz.common.TopazUtil;
  * 
  * @author foxty
  */
-abstract public class ModelSQLBuilder<T> {
+@SuppressWarnings({ "unchecked", "rawtypes" })
+abstract public class ModelSQLBuilder<T extends ModelSQLBuilder> {
 
 	public static enum OP {
-		EQ(" = "), NE(" != "), LT(" < "), GT(" > "), LE(" <= "), GE(" >= "), IN(" in "), LK(" like "), IS(" is ");
+		EQ(" = "), NE(" != "), LT(" < "), GT(" > "), LE(" <= "), GE(" >= "), IN(" in "), LK(
+				" like "), IS(" is ");
 
 		private String value;
 
@@ -28,7 +30,7 @@ abstract public class ModelSQLBuilder<T> {
 
 	}
 
-	@SuppressWarnings("rawtypes") protected Class baseModelClazz;
+	protected Class baseModelClazz;
 	protected final String baseTableName;
 
 	protected StringBuffer sql = new StringBuffer();
@@ -58,6 +60,38 @@ abstract public class ModelSQLBuilder<T> {
 		return pm;
 	}
 
+	public T c(String prop, Object value) {
+		return c(prop, OP.EQ, value);
+	}
+
+	public T c(String prop, OP op, Object value) {
+		PropMapping pm = findProp(prop);
+		sql.append(" " + baseTableName + ".").append(pm.getTargetName())
+				.append(op.getValue()).append("? ");
+		sqlParams.add(value);
+		return (T) this;
+	}
+
+	public T and() {
+		sql.append(" AND ");
+		return (T) this;
+	}
+
+	public T or() {
+		sql.append(" OR ");
+		return (T) this;
+	}
+
+	public T bracketStart() {
+		sql.append(" ( ");
+		return (T) this;
+	}
+
+	public T bracketEnd() {
+		sql.append(" ) ");
+		return (T) this;
+	}
+
 	public T where(String propName, Object value) {
 		return where(propName, OP.EQ, value);
 	}
@@ -75,11 +109,7 @@ abstract public class ModelSQLBuilder<T> {
 	}
 
 	public T and(String prop, OP op, Object value) {
-		PropMapping pm = findProp(prop);
-		sql.append(" AND ").append(baseTableName).append(".").append(pm.getTargetName())
-				.append(op.getValue())
-				.append("? ");
-		sqlParams.add(value);
+		and().c(prop, op, value);
 		return (T) this;
 	}
 
@@ -88,11 +118,7 @@ abstract public class ModelSQLBuilder<T> {
 	}
 
 	public T or(String prop, OP op, Object value) {
-		PropMapping pm = findProp(prop);
-		sql.append(" OR ").append(baseTableName).append(".").append(pm.getTargetName())
-				.append(op.getValue())
-				.append("? ");
-		sqlParams.add(value);
+		or().c(prop, op, value);
 		return (T) this;
 	}
 
