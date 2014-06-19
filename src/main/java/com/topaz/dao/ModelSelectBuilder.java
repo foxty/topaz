@@ -86,11 +86,11 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 		}
 		return pm;
 	}
-	
+
 	public ModelSelectBuilder c(String with, String prop, Object value) {
 		return c(with, prop, OP.EQ, value);
 	}
-	
+
 	public ModelSelectBuilder c(String with, String prop, OP op, Object value) {
 		PropMapping pm = findProp(with, prop);
 		sql.append(" " + with + ".").append(pm.getTargetName()).append(op.getValue())
@@ -195,15 +195,16 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 	 */
 	public long fetchCount() {
 		Long re = 0L;
-		sql.replace(7, sql.indexOf("FROM"), " COUNT(id) ");
-		log.debug("Fetch Count - " + sql);
+		final StringBuffer countSql = new StringBuffer(sql.toString());
+		countSql.replace(7, sql.indexOf("FROM"), " COUNT(id) ");
+		log.debug("Fetch Count - " + countSql);
 		DaoManager mgr = DaoManager.getInstance();
 		re = (Long) mgr.useConnection(new IConnVisitor() {
 
 			public Object visit(Connection conn) throws SQLException {
 				QueryRunner runner = new QueryRunner();
 				ResultSetHandler<Long> h = new ScalarHandler<Long>(1);
-				return (Long) runner.query(conn, sql.toString(), h, sqlParams
+				return (Long) runner.query(conn, countSql.toString(), h, sqlParams
 						.toArray());
 
 			}

@@ -255,7 +255,7 @@ public class BaseModel implements Serializable {
 		return result;
 	}
 
-	final static public <T> T findById(Class<T> clazz, int id, String... withs) {
+	final static public <T> T findById(Class<T> clazz, Integer id, String... withs) {
 		prepareModel(clazz);
 		ModelSelectBuilder ms = find(clazz, withs).where("id", id);
 		return ms.fetchFirst();

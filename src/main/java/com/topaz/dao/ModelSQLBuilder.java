@@ -55,6 +55,7 @@ abstract public class ModelSQLBuilder<T extends ModelSQLBuilder> {
 		PropMapping pm = mapping.get(prop);
 		if (pm == null) {
 			throw new DaoException("No column mapping found for property "
+					+ baseModelClazz.getName() + "."
 					+ prop + "!");
 		}
 		return pm;

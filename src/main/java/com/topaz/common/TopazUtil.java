@@ -153,7 +153,7 @@ public class TopazUtil {
 	 * @param d
 	 * @return
 	 */
-	public static Date trucTime(Date d) {
+	public static Date truncTime(Date d) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(d);
 		cal.set(Calendar.HOUR_OF_DAY, 0);
@@ -161,6 +161,15 @@ public class TopazUtil {
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 		return cal.getTime();
+	}
+	
+	public static Date endOfMonth(Date d) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(d);
+		cal.add(Calendar.MONTH, 1);
+		cal.set(Calendar.DAY_OF_MONTH, 0);
+		Date endOfMonth = cal.getTime();
+		return endOfMonth;
 	}
 
 	/**
