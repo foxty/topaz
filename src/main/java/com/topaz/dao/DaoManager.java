@@ -36,7 +36,7 @@ public class DaoManager {
 		try {
 			Class.forName(c.getDbDriver());
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		connectionPool = new GenericObjectPool<Connection>(null);
 		connectionPool.setMaxIdle(c.getDbPoolMaxIdle());
