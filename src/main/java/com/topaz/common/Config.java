@@ -32,6 +32,9 @@ public class Config {
 	}
 
 	public static Config getInstance() {
+		if (instance == null) {
+			throw new TopazException("Configuratoin file haven't initialized!!");
+		}
 		return instance;
 	}
 
@@ -70,40 +73,36 @@ public class Config {
 			log.info("Config file changed, reloading... ");
 			loadConfig();
 		}
-		return (String) props.get(key);
+		String value = (String) props.get(key);
+		return value;
 	}
 
-	public int getInt(String key, int defaultValue) {
-		int result = defaultValue;
+	public int getInt(String key) {
+		int result = 0;
 		String v = getConfig(key);
 		try {
 			result = Integer.parseInt(v);
 		} catch (Exception e) {
-			log.error("Error while get config item [" + key
-					+ "], use default value " + defaultValue);
-			result = defaultValue;
+			log.error("Error while get config item [" + key + "]");
 		}
 		return result;
 	}
 
-	public String getString(String key, String defValue) {
+	public String getString(String key) {
 		String v = getConfig(key);
 		if (v == null || v.isEmpty()) {
-			log.error("Error while get config item [" + key
-					+ "], use default value " + defValue);
-			v = defValue;
+			log.error("Error while get config item [" + key + "]");
 		}
 		return v;
 	}
 
-	public boolean getBoolean(String key, boolean defValue) {
-		boolean re = defValue;
+	public boolean getBoolean(String key) {
+		boolean re = false;
 		String v = getConfig(key);
 		if (booleanValues.contains(v)) {
 			re = Boolean.valueOf(v);
 		} else {
-			log.error("Error while get config item [" + key
-					+ "], use default value " + defValue);
+			log.error("Error while get config item [" + key + "]");
 		}
 		return re;
 	}
@@ -112,7 +111,7 @@ public class Config {
 	 * Database Connection Configurations
 	 */
 	public String getDbDriver() {
-		return getString("ds.Driver", "com.mysql.jdbc.Driver");
+		return getString("ds.Driver");
 	}
 
 	public String getDbUrl() {
@@ -128,18 +127,18 @@ public class Config {
 	}
 
 	public int getDbPoolMinIdle() {
-		return getInt("ds.MinIdle", 2);
+		return getInt("ds.MinIdle");
 	}
 
 	public int getDbPoolMaxIdle() {
-		return getInt("ds.MaxIdle", 5);
+		return getInt("ds.MaxIdle");
 	}
 
 	public int getDbPoolMaxActive() {
-		return getInt("ds.MaxActive", 20);
+		return getInt("ds.MaxActive");
 	}
 
 	public int getDbPoolMaxWait() {
-		return getInt("ds.MaxWait", 10000);
+		return getInt("ds.MaxWait");
 	}
 }
