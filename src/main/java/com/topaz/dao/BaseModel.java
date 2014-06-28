@@ -258,11 +258,11 @@ public class BaseModel implements Serializable {
 	final static public <T> T findById(Class<T> clazz, Integer id, String... withs) {
 		prepareModel(clazz);
 		ModelSelectBuilder ms = find(clazz, withs).where("id", id);
-		return ms.fetchFirst();
+		return ms.first();
 	}
 
 	final public void refresh() {
-		BaseModel newModel = find(this.getClass()).where("id", id).fetchFirst();
+		BaseModel newModel = find(this.getClass()).where("id", id).first();
 		if (newModel == null) {
 			throw new DaoException(
 					"id is not exist, , this entity is not accociate with DB!");
