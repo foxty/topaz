@@ -31,7 +31,8 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 		buildSQL();
 	}
 
-	public ModelSelectBuilder(Class<? extends BaseModel> clazz, String sql, List<Object> sqlParams) {
+	public ModelSelectBuilder(Class<? extends BaseModel> clazz, String sql,
+			List<Object> sqlParams) {
 		super(clazz);
 		this.sql.append(sql);
 		this.sqlParams.addAll(sqlParams);
@@ -40,7 +41,8 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 	@Override
 	public void buildSQL() {
 
-		Map<String, PropMapping> baseMapping = BaseModel.MODEL_PROPS.get(baseModelClazz);
+		Map<String, PropMapping> baseMapping = BaseModel.MODEL_PROPS
+				.get(baseModelClazz);
 		sql.append("SELECT " + baseTableName + ".* ");
 		String fromSeg = " FROM " + baseTableName;
 
@@ -48,10 +50,11 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 			PropMapping tblProp = baseMapping.get(w);
 			if (tblProp.isTable()) {
 				BaseModel.prepareModel(tblProp.getTargetType());
-				Map<String, PropMapping> subMapping = BaseModel.MODEL_PROPS.get(tblProp
-						.getTargetType());
+				Map<String, PropMapping> subMapping = BaseModel.MODEL_PROPS
+						.get(tblProp.getTargetType());
 				for (PropMapping pm : subMapping.values()) {
-					if (pm.isTable()) continue;
+					if (pm.isTable())
+						continue;
 					String cName = pm.getTargetName();
 					String colFullName = w + "." + cName;
 					sql.append("," + colFullName + " AS '" + colFullName + "'");
@@ -76,13 +79,14 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 	}
 
 	private PropMapping findProp(String with, String prop) {
-		Map<String, PropMapping> mapping = BaseModel.MODEL_PROPS.get(baseModelClazz);
+		Map<String, PropMapping> mapping = BaseModel.MODEL_PROPS
+				.get(baseModelClazz);
 		PropMapping tblPm = mapping.get(with);
 		mapping = BaseModel.MODEL_PROPS.get(tblPm.getTargetType());
 		PropMapping pm = mapping.get(prop);
 		if (pm == null) {
-			throw new DaoException("No column mapping found for property " + with + "." +
-					prop + "!");
+			throw new DaoException("No column mapping found for property "
+					+ with + "." + prop + "!");
 		}
 		return pm;
 	}
@@ -93,8 +97,8 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 
 	public ModelSelectBuilder c(String with, String prop, OP op, Object value) {
 		PropMapping pm = findProp(with, prop);
-		sql.append(" " + with + ".").append(pm.getTargetName()).append(op.getValue())
-				.append("? ");
+		sql.append(" " + with + ".").append(pm.getTargetName())
+				.append(op.getValue()).append("? ");
 		sqlParams.add(value);
 		return this;
 	}
@@ -103,11 +107,11 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 		return where(with, propName, OP.EQ, value);
 	}
 
-	public ModelSelectBuilder where(String with, String propName, OP op, Object value) {
+	public ModelSelectBuilder where(String with, String propName, OP op,
+			Object value) {
 		PropMapping pm = findProp(with, propName);
 		sql.append(" WHERE ").append(with + ".").append(pm.getTargetName())
-				.append(op.getValue())
-				.append("? ");
+				.append(op.getValue()).append("? ");
 		sqlParams.add(value);
 		return this;
 	}
@@ -133,16 +137,19 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 	public ModelSelectBuilder orderBy(String prop, boolean ascending) {
 		PropMapping pm = findProp(prop);
 		if (null != pm) {
-			sql.append(" ORDER BY ").append(baseTableName).append(".").append(pm.getTargetName());
+			sql.append(" ORDER BY ").append(baseTableName).append(".")
+					.append(pm.getTargetName());
 			sql.append(ascending ? " asc " : " desc ");
 		}
 		return this;
 	}
 
-	public ModelSelectBuilder orderBy(String with, String propName, boolean ascending) {
+	public ModelSelectBuilder orderBy(String with, String propName,
+			boolean ascending) {
 		PropMapping pm = findProp(with, propName);
 		if (null != pm) {
-			sql.append(" ORDER BY ").append(with + ".").append(pm.getTargetName());
+			sql.append(" ORDER BY ").append(with + ".")
+					.append(pm.getTargetName());
 			sql.append(ascending ? " asc " : " desc ");
 		}
 		return this;
@@ -159,7 +166,7 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 		return this;
 	}
 
-	public <T> T fetchFirst() {
+	public <T> T first() {
 		if (!limited) {
 			limit(0, 1);
 		}
@@ -180,23 +187,24 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 
 			public Object visit(Connection conn) throws SQLException {
 				QueryRunner runner = new QueryRunner();
-				TopazResultSetHandler<T> h = new TopazResultSetHandler<T>(baseModelClazz);
-				return runner.query(conn, sql.toString(), h, sqlParams
-						.toArray());
+				TopazResultSetHandler<T> h = new TopazResultSetHandler<T>(
+						baseModelClazz);
+				return runner.query(conn, sql.toString(), h,
+						sqlParams.toArray());
 			}
 		});
 		return result;
 	}
 
 	/**
-	 * Get number of objects via "select count(id)"
+	 * Get number of objects via "select count(1)"
 	 * 
 	 * @return Long
 	 */
-	public long fetchCount() {
+	public long count() {
 		Long re = 0L;
 		final StringBuffer countSql = new StringBuffer(sql.toString());
-		countSql.replace(7, sql.indexOf("FROM"), " COUNT(id) ");
+		countSql.replace(7, sql.indexOf("FROM"), " COUNT(1) ");
 		log.debug("Fetch Count - " + countSql);
 		DaoManager mgr = DaoManager.getInstance();
 		re = (Long) mgr.useConnection(new IConnVisitor() {
@@ -204,9 +212,8 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 			public Object visit(Connection conn) throws SQLException {
 				QueryRunner runner = new QueryRunner();
 				ResultSetHandler<Long> h = new ScalarHandler<Long>(1);
-				return (Long) runner.query(conn, countSql.toString(), h, sqlParams
-						.toArray());
-
+				return (Long) runner.query(conn, countSql.toString(), h,
+						sqlParams.toArray());
 			}
 		});
 		return re;

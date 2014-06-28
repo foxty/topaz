@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -137,15 +138,15 @@ public class WebContext {
 	public boolean isPost() {
 		return this.request.getMethod().equalsIgnoreCase("POST");
 	}
-	
+
 	public boolean isPUT() {
 		return this.request.getMethod().equalsIgnoreCase("PUT");
 	}
-	
+
 	public boolean isHEAD() {
 		return this.request.getMethod().equalsIgnoreCase("HEAD");
 	}
-	
+
 	public boolean isDELETE() {
 		return this.request.getMethod().equalsIgnoreCase("DELETE");
 	}
@@ -216,6 +217,38 @@ public class WebContext {
 	 */
 	public void session(String key, Object value) {
 		this.session.setAttribute(key, value);
+	}
+
+	/**
+	 * Get cookie object
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public String cookie(String name) {
+		Cookie cookie = null;
+		Cookie[] cookies = request.getCookies();
+		if (cookies != null) {
+			for (Cookie c : cookies) {
+				if (c.getName().equals(name)) {
+					cookie = c;
+				}
+			}
+		}
+		return cookie != null ? cookie.getValue() : null;
+	}
+
+	/**
+	 * Add cookie to response.
+	 * 
+	 * @param cookie
+	 */
+	public void cookie(String name, String value, String path, int maxAge,
+			boolean httpOnly) {
+		Cookie cookie = new Cookie(name, value);
+		cookie.setPath(path);
+		cookie.setMaxAge(maxAge);
+		response.addCookie(cookie);
 	}
 
 	public void flash(String key, Object value) {
