@@ -25,6 +25,9 @@ import com.alibaba.fastjson.JSON;
  * @author Isaac Tian
  */
 public class Controller {
+	private final static int MIN_PAGESIZE = 1;
+	private final static int DEF_PAGESIZE = 10;
+	private final static int MAX_PAGESIZE = Integer.MAX_VALUE;
 	private static String WEB_ERRORS = "errors";
 	private static String LAYOUT_CHILDREN = "children";
 	private static Log log = LogFactory.getLog(Controller.class);
@@ -44,6 +47,18 @@ public class Controller {
 	final private boolean isAbsolutePath(String resPath) {
 		return resPath != null
 				&& (resPath.startsWith("/") || resPath.startsWith("\\"));
+	}
+
+	protected Pagination genPagination() {
+		int pageSize = validInt("pageSize", DEF_PAGESIZE);
+		return genPagination(pageSize);
+	}
+
+	protected Pagination genPagination(int pageSize) {
+
+		pageSize = pageSize <= 0 ? DEF_PAGESIZE : pageSize;
+		int page = validInt("page", 1);
+		return new Pagination(pageSize, page);
 	}
 
 	protected void renderWithoutLayout(String resName) {
@@ -149,7 +164,7 @@ public class Controller {
 	protected Validation v(String paramKey, String errMsg) {
 		return new Validation(paramKey, errMsg);
 	}
-	
+
 	protected Validation v(String paramKey) {
 		return new Validation(paramKey, paramKey + " is not a valid value!");
 	}
