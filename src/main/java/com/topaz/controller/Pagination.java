@@ -10,7 +10,7 @@ public class Pagination {
 
 	public Pagination(int pageSize, int page) {
 		this.pageSize = pageSize;
-		this.page = page;
+		this.page = page <= 1 ? 1 : page;
 		this.ready = false;
 	}
 
@@ -50,8 +50,6 @@ public class Pagination {
 		this.recordSize = recordCount;
 		maxPage = (int) (recordCount / pageSize);
 		maxPage = (recordCount % pageSize == 0) ? maxPage : maxPage + 1;
-		page = page >= maxPage ? maxPage : page;
-		page = page <= 1 ? 1 : page;
 
 		ready = true;
 	}
