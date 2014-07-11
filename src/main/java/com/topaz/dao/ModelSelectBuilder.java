@@ -1,7 +1,9 @@
 package com.topaz.dao;
 
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +23,7 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 	private static Log log = LogFactory.getLog(ModelSelectBuilder.class);
 
 	private String[] with;
+	private List<PropMapping> hasMany;
 
 	private boolean limited = false;
 
@@ -49,6 +52,8 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 		for (String w : with) {
 			PropMapping tblProp = baseMapping.get(w);
 			if (tblProp.isTable()) {
+
+				// Get target type and column names
 				BaseModel.prepareModel(tblProp.getTargetType());
 				Map<String, PropMapping> subMapping = BaseModel.MODEL_PROPS
 						.get(tblProp.getTargetType());
@@ -61,13 +66,18 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 				}
 				String tblName = tblProp.getTargetName();
 				String byKey = tblProp.getByKey();
+
 				switch (tblProp.getRelation()) {
 				case HasOne:
 					fromSeg += (" JOIN " + tblName + " " + w + " ON "
 							+ baseTableName + ".id=" + w + "." + byKey);
 					break;
 				case HasMany:
-					throw new DaoException("Not support HasMany!");
+					if (hasMany == null) {
+						hasMany = new ArrayList<PropMapping>();
+					}
+					hasMany.add(tblProp);
+					break;
 				case BelongsTo:
 					fromSeg += (" JOIN " + tblName + " " + w + " ON "
 							+ baseTableName + "." + byKey + "=" + w + ".id");
@@ -166,7 +176,7 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 		return this;
 	}
 
-	public <T> T first() {
+	public <T extends BaseModel> T first() {
 		if (!limited) {
 			limit(0, 1);
 		}
@@ -180,7 +190,7 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 	 * @return List
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> List<T> fetch() {
+	public <T extends BaseModel> List<T> fetch() {
 		log.debug("Fetch  - " + sql);
 		DaoManager mgr = DaoManager.getInstance();
 		List<T> result = (List<T>) mgr.useConnection(new IConnVisitor() {
@@ -189,8 +199,32 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 				QueryRunner runner = new QueryRunner();
 				TopazResultSetHandler<T> h = new TopazResultSetHandler<T>(
 						baseModelClazz);
-				return runner.query(conn, sql.toString(), h,
+				List<T> result = runner.query(conn, sql.toString(), h,
 						sqlParams.toArray());
+
+				if (hasMany != null) {
+					for (T re : result) {
+						for (PropMapping pm : hasMany) {
+							String byKey = pm.getByKey();
+							String sql = "SELECT * FROM " + pm.getTargetName() + " WHERE " + byKey
+									+ "=?";
+							TopazResultSetHandler subHandler = new TopazResultSetHandler(
+									pm.getTargetType());
+							List<Object> subResult = runner.query(conn, sql, subHandler,
+									new Object[] { re.getId() });
+
+							Method write = pm.getWriteMethod();
+							try {
+								write.invoke(re, subResult);
+							} catch (Exception e) {
+								log.error(e.getMessage(), e);
+								throw new DaoException(e);
+							}
+						}
+					}
+				}
+
+				return result;
 			}
 		});
 		return result;
