@@ -255,7 +255,8 @@ public class BaseModel implements Serializable {
 		return result;
 	}
 
-	final static public <T> T findById(Class<T> clazz, Integer id, String... withs) {
+	final static public <T extends BaseModel> T findById(Class<T> clazz, Integer id,
+			String... withs) {
 		prepareModel(clazz);
 		ModelSelectBuilder ms = find(clazz, withs).where("id", id);
 		return ms.first();
@@ -407,8 +408,8 @@ class PropMapping {
 
 	public String getByKey() {
 		if (StringUtils.isBlank(prop.byKey())) {
-			String typeName = (getRelation() == Relation.HasOne ? baseType
-					.getSimpleName() : targetType.getSimpleName());
+			String typeName = (getRelation() == Relation.BelongsTo ? getTargetName() : baseType
+					.getSimpleName());
 			return TopazUtil.camel2flat(typeName) + "_id";
 		} else {
 			return prop.byKey();
