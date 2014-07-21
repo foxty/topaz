@@ -83,7 +83,7 @@ public class Config {
 		try {
 			result = Integer.parseInt(v);
 		} catch (Exception e) {
-			log.error("Error while get config item [" + key + "]");
+			log.error("Config item [" + key + "] not found.");
 		}
 		return result;
 	}
@@ -91,7 +91,7 @@ public class Config {
 	public String getString(String key) {
 		String v = getConfig(key);
 		if (v == null || v.isEmpty()) {
-			log.error("Error while get config item [" + key + "]");
+			log.error("Config item [" + key + "] not found.");
 		}
 		return v;
 	}
@@ -102,7 +102,7 @@ public class Config {
 		if (booleanValues.contains(v)) {
 			re = Boolean.valueOf(v);
 		} else {
-			log.error("Error while get config item [" + key + "]");
+			log.error("Config item [" + key + "] not found.");
 		}
 		return re;
 	}
