@@ -43,6 +43,7 @@ public class DaoManager {
 		connectionPool.setMinIdle(c.getDbPoolMinIdle());
 		connectionPool.setMaxActive(c.getDbPoolMaxActive());
 		connectionPool.setMaxWait(c.getDbPoolMaxWait());
+		connectionPool.setTestOnBorrow(true);
 
 		Properties props = new Properties();
 		props.setProperty("user", c.getDbUsername());
@@ -50,7 +51,7 @@ public class DaoManager {
 		props.setProperty("characterEncoding", "UTF-8");
 		ConnectionFactory connectionFactory = new DriverManagerConnectionFactory(
 				c.getDbUrl(), props);
-		PoolableConnectionFactory poolableConnectionFactory = new PoolableConnectionFactory(
+		new PoolableConnectionFactory(
 				connectionFactory, connectionPool, null, "SELECT 1", false,
 				true);
 		ds = new PoolingDataSource(connectionPool);
@@ -93,7 +94,7 @@ public class DaoManager {
 			try {
 				logPoolStatus();
 				curConn = ds.getConnection();
-			} catch (SQLException e) {				
+			} catch (SQLException e) {
 				throw new DaoException(e);
 			}
 		}
@@ -104,7 +105,7 @@ public class DaoManager {
 		if (!isInTransaction()) {
 			try {
 				DbUtils.close(conn);
-			} catch (SQLException e) {				
+			} catch (SQLException e) {
 				throw new DaoException(e);
 			}
 		} else {
@@ -129,30 +130,30 @@ public class DaoManager {
 
 	public void useTransaction(ITransVisitor inter) {
 		// If already in transaction, then just call target method and return
-		if(isInTransaction()) {
+		if (isInTransaction()) {
 			inter.visit();
 			return;
 		}
-		
+
 		// Start new transaction and set transaction conn
 		Connection conn = prepareConnection();
 		LOCAL_TRANS_CONN.set(conn);
 		try {
 			conn.setAutoCommit(false);
-			inter.visit();			
+			inter.visit();
 			conn.commit();
 		} catch (Exception e) {
 			// Roll back
 			try {
 				conn.rollback();
-			} catch (SQLException e1) {				
+			} catch (SQLException e1) {
 				throw new DaoException(e1);
 			}
 
 			// Re throw exception
 			if (e instanceof DaoException) {
 				throw (DaoException) e;
-			} else {				
+			} else {
 				throw new DaoException(e);
 			}
 		} finally {
@@ -160,7 +161,7 @@ public class DaoManager {
 			LOCAL_TRANS_CONN.set(null);
 			try {
 				conn.setAutoCommit(true);
-			} catch (SQLException e) {				
+			} catch (SQLException e) {
 				throw new DaoException(e);
 			}
 			closeConnection(conn);
