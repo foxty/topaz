@@ -30,31 +30,37 @@ public class DaoManager {
 	private final static ThreadLocal<Connection> LOCAL_TRANS_CONN = new ThreadLocal<Connection>();
 	private final GenericObjectPool<Connection> connectionPool;
 	private final PoolingDataSource ds;
-
+	
 	private DaoManager() {
 		Config c = Config.getInstance();
 		try {
 			Class.forName(c.getDbDriver());
+
+			connectionPool = new GenericObjectPool<Connection>(null);
+			connectionPool.setMaxIdle(c.getDbPoolMaxIdle());
+			connectionPool.setMinIdle(c.getDbPoolMinIdle());
+			connectionPool.setMaxActive(c.getDbPoolMaxActive());
+			connectionPool.setMaxWait(c.getDbPoolMaxWait());
+			connectionPool.setTestOnBorrow(true);
+
+			Properties props = new Properties();
+			props.setProperty("user", c.getDbUsername());
+			props.setProperty("password", c.getDbPassword());
+			props.setProperty("characterEncoding", "UTF-8");
+			ConnectionFactory connectionFactory = new DriverManagerConnectionFactory(
+					c.getDbUrl(), props);
+			new PoolableConnectionFactory(
+					connectionFactory, connectionPool, null, "SELECT 1", false,
+					true);
+			ds = new PoolingDataSource(connectionPool);
 		} catch (ClassNotFoundException e) {
 			log.error(e.getMessage(), e);
+			throw new DaoException(e);
+		} catch (Exception e) {
+			log.error("Dao manager init failed :" + e.getMessage(), e);
+			throw new DaoException(e);
 		}
-		connectionPool = new GenericObjectPool<Connection>(null);
-		connectionPool.setMaxIdle(c.getDbPoolMaxIdle());
-		connectionPool.setMinIdle(c.getDbPoolMinIdle());
-		connectionPool.setMaxActive(c.getDbPoolMaxActive());
-		connectionPool.setMaxWait(c.getDbPoolMaxWait());
-		connectionPool.setTestOnBorrow(true);
 
-		Properties props = new Properties();
-		props.setProperty("user", c.getDbUsername());
-		props.setProperty("password", c.getDbPassword());
-		props.setProperty("characterEncoding", "UTF-8");
-		ConnectionFactory connectionFactory = new DriverManagerConnectionFactory(
-				c.getDbUrl(), props);
-		new PoolableConnectionFactory(
-				connectionFactory, connectionPool, null, "SELECT 1", false,
-				true);
-		ds = new PoolingDataSource(connectionPool);
 	}
 
 	public static DaoManager getInstance() {
@@ -117,7 +123,7 @@ public class DaoManager {
 	public void logPoolStatus() {
 		if (log.isDebugEnabled()) {
 			StringBuffer re = new StringBuffer(
-					"[ConnectionPool status before get connection: NumActive/MaxActive=");
+					"[ConnectionPool Status: NumActive/MaxActive=");
 			re.append(connectionPool.getNumActive()).append("/")
 					.append(connectionPool.getMaxActive());
 			re.append(", MinIdle/NumIdle/MaxIdle=");
