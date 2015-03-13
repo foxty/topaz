@@ -1,2 +1,8 @@
 # topaz
-A tiny MVC framework, just like Rails.
+
+A TinyMVC Framework - for internal use
+
+- embedded mysql DAO
+- convention over configuration
+- freemarker
+- JSON support
