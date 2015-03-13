@@ -6,7 +6,7 @@ A TinyMVC Framework
 - Embedded MySQL DAO
 - Freemarker Support
 - JSON support
-- 
+
 # Examples
 
 - Controller
