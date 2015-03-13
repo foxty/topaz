@@ -1,8 +1,14 @@
 # topaz
 
-A TinyMVC Framework - for internal use
+A TinyMVC Framework
 
-- embedded mysql DAO
-- convention over configuration
-- freemarker
+- Convention over Configuration
+- Embedded MySQL DAO
+- Freemarker Support
 - JSON support
+- 
+# Examples
+
+- Controller
+
+- Data Model
