@@ -210,7 +210,7 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 									+ "=?";
 							TopazResultSetHandler subHandler = new TopazResultSetHandler(
 									pm.getTargetType());
-							List<Object> subResult = runner.query(conn, sql, subHandler,
+							List<Object> subResult = (List<Object>) runner.query(conn, sql, subHandler,
 									new Object[] { re.getId() });
 
 							Method write = pm.getWriteMethod();

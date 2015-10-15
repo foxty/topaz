@@ -15,7 +15,7 @@ public class DaoManagerTransactionTest {
 
 	@Before
 	public void setUp() throws Exception {
-		File cfgFile = new File("src/test/resources/config-test.properties");
+		File cfgFile = new File(ClassLoader.class.getResource("/topaz.properties").getFile());
 		Config.init(cfgFile);
 	}
 
@@ -29,16 +29,14 @@ public class DaoManagerTransactionTest {
 		mgr.useTransaction(new ITransVisitor() {
 			public void visit() {
 				Connection conn1 = (Connection) mgr.useConnection(new IConnVisitor() {
-					public Object visit(Connection conn)
-							throws SQLException {
+					public Object visit(Connection conn) throws SQLException {
 						return conn;
 					}
 
 				});
 
 				Connection conn2 = (Connection) mgr.useConnection(new IConnVisitor() {
-					public Object visit(Connection conn)
-							throws SQLException {
+					public Object visit(Connection conn) throws SQLException {
 						return conn;
 					}
 
@@ -63,8 +61,7 @@ public class DaoManagerTransactionTest {
 
 			public void visit() {
 				Connection conn1 = (Connection) mgr.useConnection(new IConnVisitor() {
-					public Object visit(Connection conn)
-							throws SQLException {
+					public Object visit(Connection conn) throws SQLException {
 						return conn;
 					}
 				});
@@ -90,8 +87,7 @@ public class DaoManagerTransactionTest {
 		mgr.useTransaction(new ITransVisitor() {
 			public void visit() {
 				final Connection conn1 = (Connection) mgr.useConnection(new IConnVisitor() {
-					public Object visit(Connection conn)
-							throws SQLException {
+					public Object visit(Connection conn) throws SQLException {
 						return conn;
 					}
 				});
@@ -99,8 +95,7 @@ public class DaoManagerTransactionTest {
 				mgr.useTransaction(new ITransVisitor() {
 					public void visit() {
 						Connection conn2 = (Connection) mgr.useConnection(new IConnVisitor() {
-							public Object visit(Connection conn)
-									throws SQLException {
+							public Object visit(Connection conn) throws SQLException {
 								return conn;
 							}
 						});

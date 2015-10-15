@@ -11,11 +11,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ConfigTest {
-	private static File CFG_FILE = new File("target/test-classes/config-test.properties");
-	
+	private static File CFG_FILE = new File(ClassLoader.class.getResource("/topaz.properties").getFile());
+
 	@BeforeClass
 	public static void setUpClass() {
-		
+
 	}
 
 	@Test
@@ -27,7 +27,7 @@ public class ConfigTest {
 		assertEquals("jdbc:mysql://localhost/mysql?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true",
 				c.getDbUrl());
 		assertEquals("root", c.getDbUsername());
-		assertEquals("123456", c.getDbPassword());
+		assertEquals("", c.getDbPassword());
 		assertEquals(5, c.getDbPoolMaxIdle());
 		assertEquals(2, c.getDbPoolMinIdle());
 		assertEquals(20, c.getDbPoolMaxActive());
@@ -35,11 +35,10 @@ public class ConfigTest {
 
 	}
 
-
 	@Test
 	public void testHotConf() {
 		Config.init(CFG_FILE);
-		Config.REFRESH_TIME = 5*1000;
+		Config.REFRESH_TIME = 5 * 1000;
 		Config c = Config.getInstance();
 		assertEquals("root", c.getDbUsername());
 
@@ -47,8 +46,7 @@ public class ConfigTest {
 		configItems.add("");
 		configItems.add("hotconfig=true");
 		try {
-			FileUtils.writeLines(CFG_FILE, configItems,
-					true);
+			FileUtils.writeLines(CFG_FILE, configItems, true);
 			Thread.sleep(6 * 1000);
 		} catch (Exception e) {
 			e.printStackTrace();
