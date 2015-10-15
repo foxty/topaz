@@ -24,6 +24,11 @@ public class Validation {
 		this.errMsg = errMsg;
 	}
 
+	public Validation trim() {
+		value = StringUtils.trim(value);
+		return this;
+	}
+
 	public Validation required() {
 		if (valid) {
 			valid &= StringUtils.isNotBlank(value);
