@@ -1,4 +1,11 @@
+# ignore maven build files
 target
+
+# ignore eclipse files
 .settings
 .classpath
 .project
+
+# ignore idea files
+.idea
+*.iml
