@@ -23,10 +23,10 @@ public class ConfigTest {
 		System.out.println(CFG_FILE.getAbsolutePath());
 		Config.init(CFG_FILE);
 		Config c = Config.getInstance();
-		assertEquals("com.mysql.jdbc.Driver", c.getDbDriver());
-		assertEquals("jdbc:mysql://localhost/mysql?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true",
+		assertEquals("org.h2.Driver", c.getDbDriver());
+		assertEquals("jdbc:h2:mem:testdb",
 				c.getDbUrl());
-		assertEquals("root", c.getDbUsername());
+		assertEquals("sa", c.getDbUsername());
 		assertEquals("", c.getDbPassword());
 		assertEquals(5, c.getDbPoolMaxIdle());
 		assertEquals(2, c.getDbPoolMinIdle());
@@ -40,9 +40,9 @@ public class ConfigTest {
 		Config.init(CFG_FILE);
 		Config.REFRESH_TIME = 5 * 1000;
 		Config c = Config.getInstance();
-		assertEquals("root", c.getDbUsername());
+		assertEquals("sa", c.getDbUsername());
 
-		List<String> configItems = new ArrayList<String>();
+		List<String> configItems = new ArrayList<>();
 		configItems.add("");
 		configItems.add("hotconfig=true");
 		try {
@@ -51,7 +51,7 @@ public class ConfigTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		assertEquals("root", c.getDbUsername());
+		assertEquals("sa", c.getDbUsername());
 		assertEquals("true", c.getConfig("hotconfig"));
 	}
 }

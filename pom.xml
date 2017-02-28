@@ -64,7 +64,7 @@
 					<allowTimestampedSnapshots>false</allowTimestampedSnapshots>
 					<tagNameFormat>v@{project.version}</tagNameFormat>
 				</configuration>
-				<dependencies>
+				<!--dependencies>
 					<dependency>
 						<groupId>org.apache.maven.scm</groupId>
 						<artifactId>maven-scm-api</artifactId>
@@ -75,7 +75,7 @@
 						<artifactId>maven-scm-provider-gitexe</artifactId>
 						<version>1.8.1</version>
 					</dependency>
-				</dependencies>
+				</dependencies-->
 			</plugin>
 		</plugins>
 	</build>
@@ -127,10 +127,10 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.27</version>
-			<scope>provided</scope>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>1.4.193</version><!--$NO-MVN-MAN-VER$ -->
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>
