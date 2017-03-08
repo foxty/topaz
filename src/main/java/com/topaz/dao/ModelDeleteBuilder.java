@@ -28,7 +28,7 @@ public class ModelDeleteBuilder extends ModelSQLBuilder<ModelDeleteBuilder> {
 	/**
 	 * Update target table via DELETE
 	 * 
-	 * @return
+	 * @return updated records count
 	 */
 	public int update() {
 		log.debug("Delte = " + sql.toString());

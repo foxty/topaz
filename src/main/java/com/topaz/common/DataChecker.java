@@ -7,26 +7,19 @@ import java.util.Date;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * <p>
- * 数据验证工具类
- * </p>
- * <p>
- * Name : DataChecker
- * </p>
- * 
+ *  DataChecker to check input data.
+ *
  * @author foxty
  * @version 1.0
  */
 public class DataChecker {
 
 	/**
-	 * 自定义验证方法,利用政则表达式验证字符串
+	 * Check input str with regex.
 	 * 
-	 * @param regex
-	 *            政则表达式
-	 * @param str
-	 *            输入字符串
-	 * @return boolean
+	 * @param regex regex string
+	 * @param str str need check
+	 * @return true if is matches the regex, false if not match
 	 */
 	public static boolean regexTest(String regex, String str) {
 		boolean result = false;
@@ -37,17 +30,13 @@ public class DataChecker {
 	}
 
 	/**
-	 * 字符串验证 验证输入字符串的长度范围以及是否包含非法字符
+	 * Check if input str in the length range wihtout any unsafe chars
 	 * 
-	 * @param src
-	 *            需要验证的字符串
-	 * @param minLength
-	 *            最少长度限制
-	 * @param maxLength
-	 *            最大长度限制
-	 * @param unSafeChars
-	 *            不允许包含的字符集合
-	 * @return boolean
+	 * @param str input string need check
+	 * @param minLength	minimum length
+	 * @param maxLength maximum length
+	 * @param unSafeChars unsafe cahrs
+	 * @return true if valid, otherwise false
 	 */
 	public static boolean isSafeString(String str, int minLength,
 			int maxLength, char[] unSafeChars) {
@@ -70,11 +59,10 @@ public class DataChecker {
 	}
 
 	/**
-	 * 验证输入字符串是否为整数类型
-	 * 
-	 * @param str
-	 *            输入字符串
-	 * @return boolean
+	 * Check if input str is integer
+	 *
+	 * @param str string need check
+	 * @return true if can convert to integer, otherwise false
 	 */
 	public static boolean isInt(String str) {
 		boolean result = false;
@@ -97,13 +85,11 @@ public class DataChecker {
 	}
 
 	/**
-	 * 验证日期格式
-	 * 
-	 * @param str
-	 *            输入日期字符串
-	 * @param model
-	 *            格式字符串 yyyy - 表示念,MM表示月,dd表示日
-	 * @return boolean
+	 * Check input str is a valid date string.
+	 *
+	 * @param str string need check
+	 * @param model refer SimpleDateFormat
+	 * @return true if its a date string, otherwise false
 	 */
 	public static boolean isDate(String str, String model) {
 		boolean result = false;
@@ -120,11 +106,10 @@ public class DataChecker {
 	}
 
 	/**
-	 * IP验证方法,验证输入的字符串是否为正确的IPv4
-	 * 
-	 * @param ip
-	 *            输入IP字符串
-	 * @return boolean
+	 * Check if input star is a valid IPv4 address.
+	 *
+	 * @param ip string need check
+	 * @return true if its a ipv4 address, otherwise false
 	 */
 	public static boolean isIpv4(String ip) {
 		boolean result = false;
@@ -143,10 +128,10 @@ public class DataChecker {
 	}
 
 	/**
-	 * 过滤HTML字符，将<替换成&lt; 将>替换成&rt;并且将换行转换称html
-	 * 
-	 * @param input
-	 * @return String
+	 * Escape html marks
+	 *
+	 * @param input string need filter
+	 * @return string with filter &lt; and &gt;
 	 */
 	public static String filterHTML(String input) {
 		String result = input;

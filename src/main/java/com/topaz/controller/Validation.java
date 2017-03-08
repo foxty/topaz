@@ -44,11 +44,11 @@ public class Validation {
 	}
 
 	/**
-	 * Exclusive
+	 * Check is current properties is in the length range(inclusive).
 	 * 
-	 * @param minLength
-	 * @param maxLength
-	 * @return
+	 * @param minLength minimum length
+	 * @param maxLength maximum length
+	 * @return current validation object
 	 */
 	public Validation vRangeLength(int minLength,
 			int maxLength) {
@@ -59,10 +59,10 @@ public class Validation {
 	}
 
 	/**
-	 * Inclusive
+	 * Check is current properties is longer than the input length (inclusive).
 	 * 
-	 * @param minlength
-	 * @return
+	 * @param minlength minimum length
+	 * @return current validation object
 	 */
 	public Validation vMinLength(int minlength) {
 		if (valid && notBlank) {
@@ -72,10 +72,10 @@ public class Validation {
 	}
 
 	/**
-	 * Inclusive
+	 * Check is current properties is shorter than the input length (inclusive).
 	 * 
-	 * @param maxlength
-	 * @return
+	 * @param maxlength maximum length
+	 * @return current validation object
 	 */
 	public Validation vMaxLength(int maxlength) {
 		if (valid && notBlank) {

@@ -177,7 +177,7 @@ public class TopazResultSetHandler<T> implements ResultSetHandler<List<T>> {
 
 	/**
 	 * Calls the setter method on the target object for the given property. If
-	 * no setter method exists for the property, this method does nothing.
+	 * app.properties setter method exists for the property, this method does nothing.
 	 * 
 	 * @param target
 	 *            The object to set the property on.

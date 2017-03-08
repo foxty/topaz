@@ -44,7 +44,7 @@ public class BaseModel implements Serializable {
 	/**
 	 * Extract properties read, write methods and column name
 	 * 
-	 * @return
+	 * @return Map - Map for all props
 	 */
 	private static Map<String, PropMapping> extractPropMethods(Class<?> clazz) {
 		Map<String, PropMapping> result = new HashMap<String, PropMapping>();
@@ -137,7 +137,7 @@ public class BaseModel implements Serializable {
 	/**
 	 * Save model and throw exception if failed.
 	 * 
-	 * @throws DaoException
+	 * @throws DaoException throw DaoException if failed.
 	 */
 	public void save() {
 		if (!saved()) {
@@ -146,10 +146,10 @@ public class BaseModel implements Serializable {
 	}
 
 	/**
-	 * Save model and return true/false
+	 * Save model and return true/false.
 	 * 
-	 * @return boolean
-	 * @throws DaoException
+	 * @return boolean success or not
+	 * @throws DaoException DaoException will throw if no id attached
 	 */
 	public boolean saved() {
 		boolean result = false;
@@ -227,6 +227,10 @@ public class BaseModel implements Serializable {
 
 	/**
 	 * Read methods
+	 * @param clazz class of model want to fetch
+	 * @param with  sub model
+	 *
+	 * @return builder itself
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	final static public ModelSelectBuilder find(Class clazz, String... with) {
@@ -283,10 +287,10 @@ public class BaseModel implements Serializable {
 	}
 
 	/**
-	 * Update model and return the status
+	 * Update model and return the status.
 	 * 
-	 * @return boolean
-	 * @throws DaoException
+	 * @return boolean success or not
+	 * @throws DaoException DaoException will throw if no id attached
 	 */
 	final public boolean updated() {
 		if (getId() == null || getId().longValue() == 0L) {
@@ -318,7 +322,7 @@ public class BaseModel implements Serializable {
 	/**
 	 * Update methods and throw exception if failed
 	 * 
-	 * @throws DaoException
+	 * @throws DaoException exception will throw if update failed.
 	 */
 	final public void update() {
 		if (!updated()) {
@@ -354,8 +358,8 @@ public class BaseModel implements Serializable {
 	/**
 	 * Deletion methods
 	 * 
-	 * @param clazz
-	 * @return SQLBuilder
+	 * @param clazz model class
+	 * @return SQLBuilder builder itself
 	 */
 	final static public ModelDeleteBuilder delete(
 			Class<? extends BaseModel> clazz) {

@@ -186,8 +186,9 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 
 	/**
 	 * Get list of objects from table
-	 * 
-	 * @return List
+	 *
+     * @param <T> type of the object
+	 * @return list of object
 	 */
 	@SuppressWarnings("unchecked")
 	public <T extends BaseModel> List<T> fetch() {
@@ -233,7 +234,7 @@ public class ModelSelectBuilder extends ModelSQLBuilder<ModelSelectBuilder> {
 	/**
 	 * Get number of objects via "select count(1)"
 	 * 
-	 * @return Long
+	 * @return Long count of records
 	 */
 	public long count() {
 		Long re = 0L;

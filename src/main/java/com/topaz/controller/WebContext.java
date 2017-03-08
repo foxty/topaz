@@ -160,10 +160,10 @@ public class WebContext {
 	}
 
 	/**
-	 * 获取request的参数
+	 * Get parameters in request.
 	 * 
-	 * @param key
-	 * @return String
+	 * @param key key of the parameter
+	 * @return value for the key
 	 */
 	public String param(String key) {
 		String p = request.getParameter(key);
@@ -174,10 +174,11 @@ public class WebContext {
 	}
 
 	/**
-	 * 获取当前request的属性
+	 * Get attribute in request.
 	 * 
-	 * @param key
-	 * @return Object
+	 * @param key key of the attribute
+	 * @param <T> type of the attribute
+	 * @return value for the key
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T attr(String key) {
@@ -189,20 +190,21 @@ public class WebContext {
 	}
 
 	/**
-	 * 设置对象至当前request中
+	 * Set attributes to request attributes.
 	 * 
-	 * @param key
-	 * @param value
+	 * @param key key of the attribute
+	 * @param value value of the attribute
 	 */
 	public void attr(String key, Object value) {
 		this.request.setAttribute(key, value);
 	}
 
 	/**
-	 * 获取session中对象
+	 * Get attribute value from session
 	 * 
-	 * @param key
-	 * @return Object
+	 * @param key key of the session attribute
+	 * @param <T> type of the session attribute
+	 * @return value for the key
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T session(String key) {
@@ -210,20 +212,20 @@ public class WebContext {
 	}
 
 	/**
-	 * 设置对象至当前session
+	 * Set object to current session
 	 * 
-	 * @param key
-	 * @param value
+	 * @param key key
+	 * @param value value
 	 */
 	public void session(String key, Object value) {
 		this.session.setAttribute(key, value);
 	}
 
 	/**
-	 * Get cookie object
+	 * Get cookie object.
 	 * 
-	 * @param name
-	 * @return
+	 * @param name name of the cookie
+	 * @return	value of cookies[name]
 	 */
 	public String cookie(String name) {
 		Cookie cookie = null;
@@ -241,7 +243,11 @@ public class WebContext {
 	/**
 	 * Add cookie to response.
 	 * 
-	 * @param cookie
+	 * @param name cookie's name
+	 * @param value cookie's value
+	 * @param path cookie's path
+	 * @param maxAge cookie's max age, -1 means forever
+	 * @param httpOnly flag of httpOnly
 	 */
 	public void cookie(String name, String value, String path, int maxAge,
 			boolean httpOnly) {

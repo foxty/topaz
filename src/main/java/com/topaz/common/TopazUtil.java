@@ -24,10 +24,12 @@ public class TopazUtil {
 	private static Log log = LogFactory.getLog(TopazUtil.class);
 
 	/**
-	 * e.g. AbcDefDAo -> abc_def
+	 * Convert input str to underscore split
+     *
+	 * e.g. AbcDefDAo to abc_def
 	 * 
-	 * @param className
-	 * @return
+	 * @param input input string
+	 * @return converted string
 	 */
 	public static String camel2flat(String input) {
 
@@ -46,10 +48,10 @@ public class TopazUtil {
 	}
 
 	/**
-	 * e.g. set_something -> setSomething
+	 * e.g. set_something to setSomething
 	 * 
-	 * @param className
-	 * @return
+	 * @param input input string
+	 * @return converted string
 	 */
 	public static String flat2camel(String input) {
 		StringBuffer result = new StringBuffer();
@@ -148,10 +150,10 @@ public class TopazUtil {
 	}
 
 	/**
-	 * Truncate hh:mm:ss.si part with 0, leave year/month/day part
+	 * Truncate hh:mm:ss.si part with 0, leave year/month/day not touched.
 	 * 
-	 * @param d
-	 * @return
+	 * @param d input date
+	 * @return Date without hours, minutes and seconds
 	 */
 	public static Date truncTime(Date d) {
 		Calendar cal = Calendar.getInstance();
@@ -176,9 +178,9 @@ public class TopazUtil {
 	 * Get milliseconds diff between two times, use d1.getTime()- d2.getTime(), use 0
 	 * if date is null.
 	 * 
-	 * @param d1
-	 * @param d2
-	 * @return
+	 * @param d1    first input datetime
+	 * @param d2    second input datetime
+	 * @return long milliseconds
 	 */
 	public static long timeDiffInMilli(Date d1, Date d2) {
 		long t1 = d1 == null ? 0 : d1.getTime();

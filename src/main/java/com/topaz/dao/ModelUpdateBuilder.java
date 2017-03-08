@@ -49,9 +49,9 @@ public class ModelUpdateBuilder extends ModelSQLBuilder<ModelUpdateBuilder> {
 	/**
 	 * Increase target property by step. Only supported in UPDATE.
 	 * 
-	 * @param prop
-	 * @param step
-	 * @return
+	 * @param propName property name
+	 * @param step	step use for increase
+	 * @return ModelUpdateBuilder builder itself
 	 */
 	public ModelUpdateBuilder inc(String propName, int step) {
 		PropMapping pm = findProp(propName);
@@ -63,9 +63,9 @@ public class ModelUpdateBuilder extends ModelSQLBuilder<ModelUpdateBuilder> {
 	/**
 	 * Decrease target property by step, only support in UPDATE.
 	 * 
-	 * @param propName
-	 * @param step
-	 * @return
+	 * @param propName property name
+	 * @param step step use for decrease
+	 * @return ModelUpdateBuilder build itself
 	 */
 	public ModelUpdateBuilder dec(String propName, int step) {
 		PropMapping pm = findProp(propName);
@@ -77,7 +77,7 @@ public class ModelUpdateBuilder extends ModelSQLBuilder<ModelUpdateBuilder> {
 	/**
 	 * Update target table via INSERT, UPDATE, DELETE
 	 * 
-	 * @return
+	 * @return int - how many records affected
 	 */
 	public int update() {
 		log.debug("Update sql = " + sql.toString());

@@ -1,20 +1,46 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.foxty</groupId>
+	<groupId>com.github.foxty</groupId>
 	<artifactId>topaz</artifactId>
 	<version>0.0.4-SNAPSHOT</version>
 
 	<scm>
-		<connection>scm:git:http://192.168.0.xxx/pixedx/rest-api.git</connection>
-		<developerConnection>scm:git:http://192.168.0.xxx/pixedx/rest-api.git</developerConnection>
+		<connection>scm:git:https://github.com/foxty/topaz.git</connection>
+		<developerConnection>scm:git:https://github.com/foxty/topaz.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 
+	<developers>
+		<developer>
+			<name>Isaac Tian</name>
+			<email>foxty@163.com</email>
+			<organization>foxty</organization>
+			<organizationUrl>http://www.github.com/foxty/topaz</organizationUrl>
+		</developer>
+	</developers>
+
 	<properties>
 		<jdk-version>8</jdk-version>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<encoding>UTF-8</encoding>
+		<version.maven-source-plugin>3.0.1</version.maven-source-plugin>
+		<version.maven-javadoc-plugin>2.9.1</version.maven-javadoc-plugin>
+		<version.maven-compiler-plugin>2.3.2</version.maven-compiler-plugin>
+		<version.buildnumber-maven-plugin>1.3</version.buildnumber-maven-plugin>
+        <version.maven-gpg-plugin>1.6</version.maven-gpg-plugin>
+        <version.maven-release-plugin>2.4.2</version.maven-release-plugin>
+        <version.commons-dbutils>1.5</version.commons-dbutils>
+        <version.commons-lang>2.6</version.commons-lang>
+        <version.commons-pool>1.6</version.commons-pool>
+        <version.fastjson>1.1.26</version.fastjson>
+        <version.commons-io>2.4</version.commons-io>
+        <version.commons-logging>1.1.1</version.commons-logging>
+        <version.commons-dbcp>1.4</version.commons-dbcp>
+        <version.junit>4.11</version.junit>
+        <version.servlet>3.0-alpha-1</version.servlet>
+        <version.h2db>1.4.193</version.h2db>
 	</properties>
+
 	<build>
 		<finalName>${project.artifactId}-${project.version}</finalName>
 		<resources>
@@ -23,41 +49,85 @@
 				<filtering>true</filtering>
 			</resource>
 		</resources>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>buildnumber-maven-plugin</artifactId>
+					<version>${version.buildnumber-maven-plugin}</version>
+					<executions>
+						<execution>
+							<phase>validate</phase>
+							<goals>
+								<goal>create</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<doCheck>false</doCheck>
+						<doUpdate>false</doUpdate>
+						<items>
+							<item>timestamp</item>
+						</items>
+						<shortRevisionLength>5</shortRevisionLength>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>${version.maven-source-plugin}</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>${version.maven-javadoc-plugin}</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<source>${jdk-version}</source>
 					<target>${jdk-version}</target>
-					<encoding>UTF-8</encoding>
+					<encoding>${encoding}</encoding>
 				</configuration>
-				<version>2.3.2</version>
+				<version>${version.maven-compiler-plugin}</version>
 			</plugin>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>buildnumber-maven-plugin</artifactId>
-				<version>1.3</version>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>${version.maven-gpg-plugin}</version>
 				<executions>
 					<execution>
-						<phase>validate</phase>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
 						<goals>
-							<goal>create</goal>
+							<goal>sign</goal>
 						</goals>
 					</execution>
 				</executions>
-				<configuration>
-					<doCheck>false</doCheck>
-					<doUpdate>false</doUpdate>
-					<items>
-						<item>timestamp</item>
-					</items>
-					<shortRevisionLength>5</shortRevisionLength>
-				</configuration>
 			</plugin>
 			<plugin>
 				<artifactId>maven-release-plugin</artifactId>
-				<version>2.4.2</version>
+				<version>${version.maven-release-plugin}</version>
 				<configuration>
 					<useReleaseProfile>false</useReleaseProfile>
 					<autoVersionSubmodules>true</autoVersionSubmodules>
@@ -77,60 +147,83 @@
 					</dependency>
 				</dependencies-->
 			</plugin>
+			<plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
+				<version>1.6.8</version>
+				<extensions>true</extensions>
+				<configuration>
+					<serverId>ossrh</serverId>
+					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+					<autoReleaseAfterClose>true</autoReleaseAfterClose>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
+
 	<dependencies>
 		<dependency>
 			<groupId>commons-dbutils</groupId>
 			<artifactId>commons-dbutils</artifactId>
-			<version>1.5</version>
+			<version>${version.commons-dbutils}</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
-			<version>2.6</version>
+			<version>${version.commons-lang}</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-pool</groupId>
 			<artifactId>commons-pool</artifactId>
-			<version>1.6</version>
+			<version>${version.commons-pool}</version>
   	</dependency>
 		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
-			<version>1.1.26</version>
+			<version>${version.fastjson}</version>
   	</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>2.4</version>
+			<version>${version.commons-io}</version>
   	</dependency>
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
-			<version>1.1.1</version>
+			<version>${version.commons-logging}</version>
   	</dependency>
 		<dependency>
 			<groupId>commons-dbcp</groupId>
 			<artifactId>commons-dbcp</artifactId>
-			<version>1.4</version>
+			<version>${version.commons-dbcp}</version>
   	</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.11</version>
+			<version>${version.junit}</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
-			<version>3.0-alpha-1</version>
+			<version>${version.servlet}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			<version>1.4.193</version><!--$NO-MVN-MAN-VER$ -->
+			<version>${version.h2db}</version><!--$NO-MVN-MAN-VER$ -->
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
 </project>
