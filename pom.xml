@@ -3,23 +3,60 @@
 	<groupId>com.github.foxty</groupId>
 	<artifactId>topaz</artifactId>
 	<version>0.0.5-SNAPSHOT</version>
-
-	<scm>
-		<url>https://github.com/foxty/topaz</url>
-		<connection>scm:git:git://github.com/foxty/topaz.git</connection>
-		<developerConnection>scm:git:git@github.com:foxty/topaz.git</developerConnection>
-	  <tag>HEAD</tag>
-  </scm>
-
-	<developers>
-		<developer>
-			<name>Isaac Tian</name>
-			<email>foxty@163.com</email>
-			<organization>foxty</organization>
-			<organizationUrl>http://www.github.com/foxty/topaz</organizationUrl>
-		</developer>
-	</developers>
-
+    <dependencies>
+        <dependency>
+            <groupId>commons-dbutils</groupId>
+            <artifactId>commons-dbutils</artifactId>
+            <version>${version.commons-dbutils}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>${version.commons-lang}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
+            <version>${version.commons-pool}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>${version.fastjson}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${version.commons-io}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${version.commons-logging}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+            <version>${version.commons-dbcp}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${version.junit}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>${version.servlet}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${version.h2db}</version><!--$NO-MVN-MAN-VER$ -->
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 	<properties>
 		<jdk-version>8</jdk-version>
 		<encoding>UTF-8</encoding>
@@ -42,6 +79,7 @@
         <version.h2db>1.4.193</version.h2db>
 	</properties>
 
+    <!-- Build Settings -->
 	<build>
 		<finalName>${project.artifactId}-${project.version}</finalName>
 		<resources>
@@ -151,61 +189,39 @@
 		</plugins>
 	</build>
 
-	<dependencies>
-		<dependency>
-			<groupId>commons-dbutils</groupId>
-			<artifactId>commons-dbutils</artifactId>
-			<version>${version.commons-dbutils}</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<version>${version.commons-lang}</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-pool</groupId>
-			<artifactId>commons-pool</artifactId>
-			<version>${version.commons-pool}</version>
-  	</dependency>
-		<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>fastjson</artifactId>
-			<version>${version.fastjson}</version>
-  	</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>${version.commons-io}</version>
-  	</dependency>
-		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>${version.commons-logging}</version>
-  	</dependency>
-		<dependency>
-			<groupId>commons-dbcp</groupId>
-			<artifactId>commons-dbcp</artifactId>
-			<version>${version.commons-dbcp}</version>
-  	</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>${version.junit}</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>${version.servlet}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<version>${version.h2db}</version><!--$NO-MVN-MAN-VER$ -->
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+    <!-- More Project Information -->
+    <name>topaz</name>
+    <description>A tiny MVC framework</description>
+    <url>https://github.com/foxty/topaz</url>
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <id>foxty</id>
+            <name>Isaac Tian</name>
+            <email>foxty@163.com</email>
+            <url>https://github.com/foxty</url>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>Asia/Chongqing</timezone>
+        </developer>
+    </developers>
 
+    <!-- Environment Settings -->
+    <scm>
+        <url>https://github.com/foxty/topaz</url>
+        <connection>scm:git:git://github.com/foxty/topaz.git</connection>
+        <developerConnection>scm:git:git@github.com:foxty/topaz.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 	<distributionManagement>
 		<snapshotRepository>
 			<id>ossrh</id>
