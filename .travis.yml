@@ -1,0 +1,31 @@
+# more details for build customization see http://docs.travis-ci.com/user/customizing-the-build/
+language: java
+
+# use the container based infrastructure on travis
+sudo: false
+
+jdk:
+  - oraclejdk8
+
+# enable cache to stop downloading all maven plugins every time
+cache:
+  directories:
+    - "$HOME/.m2/repository"
+
+# do some preparations before the install phase
+before_install:
+
+# No need to run mvn install, so skip this step
+install: false
+
+# run branch dependent build using a separate script
+# make sure, script is executable (http://blog.lesc.se/2011/11/how-to-change-file-premissions-in-git.html)
+
+after_success:
+
+# for configuration of maven deploy see http://knowm.org/configure-travis-ci-to-deploy-snapshots/
+env:
+  global:
+
+# don't configure any notifications and use defaults from travis
+# see http://docs.travis-ci.com/user/notifications/ (notifications for broken builds and when status changes)
