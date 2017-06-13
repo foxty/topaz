@@ -56,6 +56,17 @@
             <version>${version.h2db}</version><!--$NO-MVN-MAN-VER$ -->
             <scope>test</scope>
         </dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>${version.mockito}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.reflections</groupId>
+			<artifactId>reflections</artifactId>
+			<version>0.9.11</version>
+		</dependency>
     </dependencies>
 	<properties>
 		<jdk-version>8</jdk-version>
@@ -77,6 +88,7 @@
         <version.junit>4.11</version.junit>
         <version.servlet>3.0-alpha-1</version.servlet>
         <version.h2db>1.4.193</version.h2db>
+		<version.mockito>1.9.5</version.mockito>
 	</properties>
 
     <!-- Build Settings -->

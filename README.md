@@ -16,7 +16,7 @@ A TinyMVC Framework
 	<filter>
 		<display-name>CoreFilter</display-name>
 		<filter-name>CoreFilter</filter-name>
-		<filter-class>com.topaz.controller.CoreFilter</filter-class>
+		<filter-class>CoreFilter</filter-class>
 		<init-param>
 			<param-name>configFile</param-name>
 			<param-value>/var/kaigongbao/data/config/config.properties</param-value>
