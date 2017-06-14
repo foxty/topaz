@@ -8,14 +8,6 @@ import org.junit.Test;
 
 public class DataCheckerTest {
 
-	@Before
-	public void setUp() throws Exception {
-	}
-
-	@After
-	public void tearDown() throws Exception {
-	}
-
 	@Test
 	public void testRegexTest() {
 		assertTrue(DataChecker.regexTest("\\d{2}", "11"));
@@ -39,6 +31,15 @@ public class DataCheckerTest {
 		assertTrue(DataChecker.isInt("-111123123123123211"));
 		assertFalse(DataChecker.isInt("-11.11"));
 		assertFalse(DataChecker.isInt("-1aaa1"));
+	}
+
+	@Test
+	public void testIsFloat() {
+		assertTrue(DataChecker.isFloat("1.1"));
+		assertTrue(DataChecker.isFloat("0.111"));
+		assertTrue(DataChecker.isFloat(".123"));
+		assertFalse(DataChecker.isFloat("a"));
+		assertFalse(DataChecker.isFloat("0.0."));
 	}
 
 	@Test

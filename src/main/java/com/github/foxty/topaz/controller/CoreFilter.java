@@ -7,8 +7,9 @@ package com.github.foxty.topaz.controller;
 
 import com.github.foxty.topaz.common.Config;
 import com.github.foxty.topaz.controller.anno.Controller;
-import com.github.foxty.topaz.controller.anno.Endpoint;
+import com.github.foxty.topaz.controller.anno.EP;
 import com.github.foxty.topaz.controller.interceptor.IInterceptor;
+import com.sun.istack.internal.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,18 +31,19 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Isaac Tian
  */
 public class CoreFilter implements Filter {
-    private String contPackageName = "com.github.foxty.topaz.controller";
-    private String viewBase = "/WEB-INF/view";
+
+    private static Log log = LogFactory.getLog(CoreFilter.class);
+    public static final String DEFAULT_CONT_PACKAGE = "com.github.foxty.topaz.controller";
+    public static final String DEFAULT_VIEW_BASE = "/WEB-INF/view";
+
+    private String contPackageName = DEFAULT_CONT_PACKAGE;
+    private String viewBase = DEFAULT_VIEW_BASE;
     private String cfgFilePath;
     private boolean xssFilterOn = true;
 
-    private ConcurrentHashMap<String, Object> controllersCache = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, IInterceptor> interceptorsCache = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, EndpointInfo> endpointMap = new ConcurrentHashMap<>();
-
-    private ModuleNode rootNode = new ModuleNode("", null);
-
-    private static Log log = LogFactory.getLog(CoreFilter.class);
+    private ConcurrentHashMap<String, Object> controllerMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, IInterceptor> interceptorMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Endpoint> endpointMap = new ConcurrentHashMap<>();
 
     /*
      * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
@@ -131,19 +133,19 @@ public class CoreFilter implements Filter {
         // Init all interceptors
         List<IInterceptor> interceptors = new LinkedList<>();
         Class tmpClazz = contClazz;
-        while (tmpClazz != null) {
-            Class<? extends IInterceptor>[] inters = contAnno.interceptors();
-            if (inters != null) {
-                for (Class<? extends IInterceptor> clazz : inters) {
+        while (tmpClazz != Object.class) {
+            Class<? extends IInterceptor>[] interceptorClazzs = contAnno.interceptors();
+            if (interceptorClazzs != null) {
+                for (Class<? extends IInterceptor> interceptorClazz : interceptorClazzs) {
                     try {
-                        IInterceptor inter = interceptorsCache.get(clazz);
-                        if (null == clazz) {
-                            inter = clazz.newInstance();
-                            interceptorsCache.putIfAbsent(clazz.getName(), inter);
+                        IInterceptor inter = interceptorMap.get(interceptorClazz.getName());
+                        if (null == inter) {
+                            inter = interceptorClazz.newInstance();
+                            interceptorMap.putIfAbsent(interceptorClazz.getName(), inter);
                         }
                         interceptors.add(inter);
                     } catch (InstantiationException e) {
-                        log.error("Initialize " + clazz + " failed!");
+                        log.error("Initialize " + interceptorClazz + " failed!");
                     } catch (IllegalAccessException e) {
                         log.error(e.getMessage(), e);
                     }
@@ -156,25 +158,28 @@ public class CoreFilter implements Filter {
         Object c = null;
         try {
             c = contClazz.newInstance();
-            controllersCache.putIfAbsent(contClazz.getName(), c);
-            log.info("Init controller " + contClazz.getName());
+            controllerMap.putIfAbsent(contClazz.getName(), c);
         } catch (Exception e) {
             log.error(e);
             throw new ControllerException(e);
         }
 
-        String baseUri = contAnno.uri();
         // Create endpoints
+        int epcount = 0;
+        String baseUri = contAnno.uri();
         Method[] methods = contClazz.getMethods();
         for (Method m : methods) {
-            if (m.isAnnotationPresent(Endpoint.class)) {
-                EndpointInfo ep = new EndpointInfo(baseUri, interceptors, c, m);
-                EndpointInfo oldValue = endpointMap.putIfAbsent(ep.getEndpointUri(), ep);
+            if (m.isAnnotationPresent(EP.class)) {
+                Endpoint ep = new Endpoint(baseUri, interceptors, c, m);
+                Endpoint oldValue = endpointMap.putIfAbsent(ep.getEndpointUri(), ep);
                 if (null != oldValue) {
-                    throw new ControllerException("Endpoint confilict bwteen " + oldValue + " and " + ep);
+                    throw new ControllerException("EP confilict bwteen " + oldValue + " and " + ep);
                 }
+                epcount++;
             }
         }
+
+        log.info("Controller " + contClazz.getName() + " created with " + interceptors.size() + " interceptors, " + epcount + " endpoints.");
     }
 
     /**
@@ -201,66 +206,33 @@ public class CoreFilter implements Filter {
         log.debug("Current uri = " + uri);
 
         // if its REST style
-        if (uri.indexOf('.') <= 0 && uri.length() > 1) {
-            WebContext ctx = WebContext.create(req, resp, viewBase);
-            if (!xssFilterOn) {
-                ctx.xssFilterOff();
-            }
-
-            String[] uriArr = uri.split("[/;]");
-            // First path is root, so we start search from 1
-            ControllerNode cn = findControllerNode(rootNode, 1, uriArr);
-            BaseController c = null;
-            if (cn != null) {
-                ctx.setModuleName(cn.getParent().fullPath());
-                ctx.setControllerName(cn.getNodeName());
-                if (cn.getPos() + 1 < uriArr.length) {
-                    ctx.setMethodName(uriArr[cn.getPos() + 1]);
+        if (uri.indexOf('.') <= 0) {
+            // Search endpoint info by requested uri
+            Endpoint endpoint = searchEndpoint(uri);
+            if (null != endpoint) {
+                WebContext ctx = WebContext.create(req, resp, viewBase, endpoint);
+                if (!xssFilterOn) {
+                    ctx.xssFilterOff();
                 }
-                c = cn.getController();
+                endpoint.execute();
+                return;
             } else {
-                cn = rootNode.findControllerNode("root");
-                c = (cn != null ? cn.getController() : null);
-                ctx.setModuleName(rootNode.fullPath());
-                ctx.setControllerName("root");
-                // First path is root, so we use 1 as the method name
-                ctx.setMethodName(uriArr[1]);
+                log.warn("Can't find endpoint info for URI " + uri);
             }
-            request.setAttribute("requestResource", ctx.getRequestResource());
-
-            //execute(c);
-        } else {
-            chain.doFilter(request, response);
         }
+
+        // Execute the rest filter/servlet
+        chain.doFilter(request, response);
     }
 
-    private ControllerNode findControllerNode(ModuleNode node, int pos,
-                                              String[] pNames) {
-        if (pos >= pNames.length)
-            return null;
-        String pName = pNames[pos];
-        if (node.hasController(pName)) {
-            return node.findControllerNode(pName);
-        }
-        if (node.hasNode(pName)) {
-            return findControllerNode(node.findNode(pName), ++pos, pNames);
-        }
-        return null;
-    }
-
-    private void execute(EndpointInfo endpoint) {
-        WebContext ctx = WebContext.get();
-
-        // Send 404 error to client if both current controller doesn't exist
-        if (endpoint == null) {
-            try {
-                ctx.getResponse().sendError(404);
-            } catch (IOException e1) {
-            }
-            return;
-        }
-
-        // TODO: find endpoint and execute it.
+    /**
+     *
+     * @param uri
+     * @return
+     */
+    @Nullable
+    private Endpoint searchEndpoint(String uri) {
+        return endpointMap.get(uri);
     }
 
     public void destroy() {

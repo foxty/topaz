@@ -35,11 +35,9 @@ public class WebContext {
 	private Map<String, String> errors = new HashMap<String, String>();
 
 	private String contextPath;
-	private String moduleName;
-	private String controllerName = "root";
-	private String methodName = "index";
 	private String viewBase;
 	private boolean xssFilterOn = true;
+	private Endpoint endpoint;
 
 	private static ThreadLocal<WebContext> local = new ThreadLocal<WebContext>();
 
@@ -48,14 +46,14 @@ public class WebContext {
 	}
 
 	public static WebContext create(HttpServletRequest req,
-			HttpServletResponse resp, String viewBase) {
-		WebContext ctx = new WebContext(req, resp, viewBase);
+			HttpServletResponse resp, String viewBase, Endpoint endpoint) {
+		WebContext ctx = new WebContext(req, resp, viewBase, endpoint);
 		local.set(ctx);
 		return ctx;
 	}
 
 	private WebContext(HttpServletRequest req, HttpServletResponse resp,
-			String viewBase) {
+			String viewBase, Endpoint endpoint) {
 
 		this.request = req;
 		this.response = resp;
@@ -64,6 +62,7 @@ public class WebContext {
 		this.viewBase = StringUtils.isBlank(viewBase) ? "/view/" : (viewBase
 				.endsWith("/") ? viewBase : viewBase + "/");
 		this.contextPath = request.getContextPath();
+		this.endpoint = endpoint;
 	}
 
 	public void xssFilterOn() {
@@ -102,32 +101,8 @@ public class WebContext {
 		return contextPath;
 	}
 
-	public String getModuleName() {
-		return moduleName;
-	}
-
-	public void setModuleName(String name) {
-		moduleName = name;
-	}
-
-	public String getControllerName() {
-		return controllerName;
-	}
-
-	public void setControllerName(String cName) {
-		this.controllerName = cName;
-	}
-
-	public String getMethodName() {
-		return methodName;
-	}
-
-	public void setMethodName(String mName) {
-		this.methodName = mName;
-	}
-
-	public String getRequestResource() {
-		return moduleName + "/" + controllerName + "/" + methodName;
+	public Endpoint getEndpoint() {
+		return endpoint;
 	}
 
 	public boolean isGet() {

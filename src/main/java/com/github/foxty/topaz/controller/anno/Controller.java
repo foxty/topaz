@@ -17,6 +17,11 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface Controller {
 
+    /*
+    A URI is a sequence of characters from a
+   very limited set: the letters of the basic Latin alphabet, digits,
+   and a few special characters.
+     */
     String uri() default "/";
 
     Class<? extends IInterceptor>[] interceptors() default {};

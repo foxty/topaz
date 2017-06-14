@@ -31,16 +31,12 @@ public class ModelDeleteBuilder extends ModelSQLBuilder<ModelDeleteBuilder> {
 	 * @return updated records count
 	 */
 	public int update() {
-		log.debug("Delte = " + sql.toString());
+		log.debug("Delete = " + sql.toString());
 		int result = 0;
 		DaoManager daoMgr = DaoManager.getInstance();
-		result = (Integer) daoMgr.useConnection(new IConnVisitor() {
-
-			public Object visit(Connection conn) throws SQLException {
+		result = (Integer) daoMgr.useConnection((Connection conn)-> {
 				QueryRunner qr = new QueryRunner();
 				return qr.update(conn, sql.toString(), sqlParams.toArray());
-
-			}
 		});
 		return result;
 	}

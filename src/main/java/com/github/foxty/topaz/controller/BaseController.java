@@ -76,12 +76,7 @@ public class BaseController {
 		HttpServletResponse response = wc.getResponse();
 
 		request.setAttribute(WEB_ERRORS, wc.getErrors());
-		String resPath = isAbsolutePath(resourceName) ? resourceName : wc
-				.getModuleName()
-				+ "/"
-				+ wc.getControllerName()
-				+ "/"
-				+ resourceName;
+		String resPath = isAbsolutePath(resourceName) ? resourceName : "/" + resourceName;
 		File resFile = new File(wc.getApplication().getRealPath(
 				wc.getViewBase() + resPath));
 		if (!resFile.exists()) {

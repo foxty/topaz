@@ -4,20 +4,36 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import com.github.foxty.topaz.tool.Mocks;
+import org.apache.commons.pool.impl.GenericObjectPool;
 import org.junit.*;
+import static org.junit.Assert.*;
 
 import com.github.foxty.topaz.common.Config;
 
-public class DaoManagerTransactionTest {
+public class DaoManagerTest {
 
-	@Before
-	public void setUp() throws Exception {
+	static Config config;
+
+	@BeforeClass
+	public static void setUp() throws Exception {
 		File cfgFile = new File(ClassLoader.class.getResource("/topaz.properties").getFile());
 		Config.init(cfgFile);
+		config = Config.getInstance();
 	}
 
 	@After
 	public void tearDown() throws Exception {
+	}
+
+	@Test
+	public void testConnectionPool() throws Exception {
+		final DaoManager mgr = DaoManager.getInstance();
+		GenericObjectPool pool = Mocks.getPrivateFieldValue(mgr, "connectionPool");
+		assertEquals(config.getDbPoolMinIdle(), pool.getMinIdle());
+		assertEquals(config.getDbPoolMaxIdle(), pool.getMaxIdle());
+		assertEquals(config.getDbPoolMaxActive(), pool.getMaxActive());
+		assertEquals(config.getDbPoolMaxWait(), pool.getMaxWait());
 	}
 
 	@Test
