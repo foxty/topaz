@@ -84,10 +84,8 @@ public class Endpoint {
             if (log.isDebugEnabled()) {
                 log.debug("Wrap transaction on " + this.toString() + ".");
             }
-            DaoManager.getInstance().useTransaction(new ITransVisitor() {
-                public void visit() {
+            DaoManager.getInstance().useTransaction(() ->{
                     chain.proceed();
-                }
             });
         } else {
             chain.proceed();

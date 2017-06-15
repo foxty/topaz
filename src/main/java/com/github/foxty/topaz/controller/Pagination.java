@@ -6,11 +6,14 @@ public class Pagination {
 	private long recordSize;
 	private int pageSize;
 	private int page;
+	private int offset;
 	private int maxPage;
 
 	public Pagination(int pageSize, int page) {
-		this.pageSize = pageSize;
-		this.page = page <= 1 ? 1 : page;
+		this.pageSize = pageSize < 1 ? 1 : pageSize;
+		this.page = page < 1 ? 1 : page;
+		offset = (page - 1) * pageSize;
+		offset = offset < 0 ? 0 : offset;
 		this.ready = false;
 	}
 
@@ -35,7 +38,7 @@ public class Pagination {
 	}
 
 	public int getOffset() {
-		return (page - 1) * pageSize;
+		return offset;
 	}
 
 	public boolean isReady() {
@@ -50,7 +53,6 @@ public class Pagination {
 		this.recordSize = recordCount;
 		maxPage = (int) (recordCount / pageSize);
 		maxPage = (recordCount % pageSize == 0) ? maxPage : maxPage + 1;
-
 		ready = true;
 	}
 
