@@ -34,6 +34,10 @@ public class View {
         return this;
     }
 
+    public void setLayout(String layout) {
+        this.layout = layout;
+    }
+
     public String getLayout() {
         return layout;
     }

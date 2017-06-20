@@ -6,15 +6,26 @@ import com.github.foxty.topaz.common.DataChecker;
 import com.github.foxty.topaz.common.TopazUtil;
 import org.apache.commons.lang.StringUtils;
 
+/**
+ * Validation to valid input parameter.
+ */
 public class Validation {
-	boolean valid;
-	boolean notBlank;
+	private boolean valid;
+	private boolean notBlank;
 	private String key;
 	private String value;
 	private Object target;
 	private String errMsg;
 
-	public Validation(String propKey, String errMsg) {
+	public static Validation create(String propKey, String msg) {
+	    return new Validation(propKey, msg);
+    }
+
+    public static Validation create(String propKey) {
+	    return new Validation(propKey, propKey + " is not valid.");
+    }
+
+	private Validation(String propKey, String errMsg) {
 		this.valid = true;
 		this.key = propKey;
 		this.value = StringUtils.trim(WebContext.get().param(propKey));
@@ -50,7 +61,7 @@ public class Validation {
 	 * @return current validation object
 	 */
 	public Validation vRangeLength(int minLength,
-			int maxLength) {
+                                   int maxLength) {
 		if (valid && notBlank) {
 			valid &= DataChecker.isSafeString(value, minLength, maxLength, null);
 		}

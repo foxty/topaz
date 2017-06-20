@@ -89,6 +89,10 @@ public class WebContext {
 		return session;
 	}
 
+	public void addError(String key, String msg) {
+		WebContext.get().getErrors().put(key, msg);
+	}
+
 	public Map<String, String> getErrors() {
 		return errors;
 	}
@@ -266,7 +270,17 @@ public class WebContext {
 		return acc;
 	}
 
-	public boolean isAcceptJSON() {
+    /**
+     * 检查是否所有数据均通过验证
+     *
+     * @return boolean
+     */
+    protected boolean isInputValid() {
+        return getErrors().isEmpty();
+    }
+
+
+    public boolean isAcceptJSON() {
 		return getAccept() == Accept.JSON;
 	}
 

@@ -29,7 +29,7 @@ public class DaoManagerTest {
 	@Test
 	public void testConnectionPool() throws Exception {
 		final DaoManager mgr = DaoManager.getInstance();
-		GenericObjectPool pool = Mocks.getPrivateFieldValue(mgr, "connectionPool");
+		GenericObjectPool pool = Mocks.getPrivate(mgr, "connectionPool");
 		assertEquals(config.getDbPoolMinIdle(), pool.getMinIdle());
 		assertEquals(config.getDbPoolMaxIdle(), pool.getMaxIdle());
 		assertEquals(config.getDbPoolMaxActive(), pool.getMaxActive());

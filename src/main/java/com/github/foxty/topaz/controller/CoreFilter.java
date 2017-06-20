@@ -167,18 +167,18 @@ public class CoreFilter implements Filter {
         // Create endpoints
         int epcount = 0;
         String baseUri = contAnno.uri();
+        String layout = contAnno.layout();
         Method[] methods = contClazz.getMethods();
         for (Method m : methods) {
             if (m.isAnnotationPresent(EP.class)) {
-                Endpoint ep = new Endpoint(baseUri, interceptors, c, m);
+                Endpoint ep = new Endpoint(baseUri, interceptors, layout, c, m);
                 Endpoint oldValue = endpointMap.putIfAbsent(ep.getEndpointUri(), ep);
                 if (null != oldValue) {
-                    throw new ControllerException("EP confilict bwteen " + oldValue + " and " + ep);
+                    throw new ControllerException("EP URI conflict between " + oldValue + " and " + ep);
                 }
                 epcount++;
             }
         }
-
         log.info("Controller " + contClazz.getName() + " created with " + interceptors.size() + " interceptors, " + epcount + " endpoints.");
     }
 

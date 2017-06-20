@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 /**
  * Created by itian on 6/13/2017.
  */
-public class EndpointInfoTest {
+public class EndpointTest {
 
     @Test
     public void testGetEndpoint() throws Exception {
@@ -23,20 +23,19 @@ public class EndpointInfoTest {
         List<IInterceptor> interceptorList = new ArrayList<>();
         interceptorList.add(new TestInterceptor());
 
-        Endpoint endpoint1 = new Endpoint("/", interceptorList, tc, getMethod);
+        Endpoint endpoint1 = new Endpoint("/", interceptorList, "", tc, getMethod);
         assertEquals("/", endpoint1.getBaseUri());
         assertEquals("/", endpoint1.getEndpointUri());
 
-        List<IInterceptor> actualInterceptorList = Mocks.getPrivateFieldValue(endpoint1, "interceptorList");
+        List<IInterceptor> actualInterceptorList = Mocks.getPrivate(endpoint1, "interceptorList");
         assertNotEquals(interceptorList, actualInterceptorList);
 
-        HttpMethod method = Mocks.getPrivateFieldValue(endpoint1, "allowHttpMethod");
+        HttpMethod method = Mocks.getPrivate(endpoint1, "allowHttpMethod");
         assertEquals(HttpMethod.GET, method);
 
-        boolean isTransactional = Mocks.getPrivateFieldValue(endpoint1, "isTransactional");
+        boolean isTransactional = Mocks.getPrivate(endpoint1, "isTransactional");
         assertFalse(isTransactional);
     }
-
 
     @Test
     public void testPostEndpoint() throws Exception {
@@ -46,19 +45,17 @@ public class EndpointInfoTest {
         List<IInterceptor> interceptorList = new ArrayList<>();
         interceptorList.add(new TestInterceptor());
 
-        Endpoint endpoint = new Endpoint("/", interceptorList, tc, getMethod);
+        Endpoint endpoint = new Endpoint("/", interceptorList, "",  tc, getMethod);
         assertEquals("/", endpoint.getBaseUri());
         assertEquals("/post", endpoint.getEndpointUri());
 
-        List<IInterceptor> actualInterceptorList = Mocks.getPrivateFieldValue(endpoint, "interceptorList");
+        List<IInterceptor> actualInterceptorList = Mocks.getPrivate(endpoint, "interceptorList");
         assertNotEquals(interceptorList, actualInterceptorList);
 
-        HttpMethod method = Mocks.getPrivateFieldValue(endpoint, "allowHttpMethod");
+        HttpMethod method = Mocks.getPrivate(endpoint, "allowHttpMethod");
         assertEquals(HttpMethod.POST, method);
 
-        boolean isTransactional = Mocks.getPrivateFieldValue(endpoint, "isTransactional");
+        boolean isTransactional = Mocks.getPrivate(endpoint, "isTransactional");
         assertTrue(isTransactional);
-
-
     }
 }

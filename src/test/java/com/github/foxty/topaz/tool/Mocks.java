@@ -63,7 +63,7 @@ public class Mocks {
      * @param name
      * @return
      */
-    static public <T> T getPrivateFieldValue(Object obj, String name) throws Exception {
+    static public <T> T getPrivate(Object obj, String name) throws Exception {
         Field field = obj.getClass().getDeclaredField(name);
         field.setAccessible(true);
         return (T) field.get(obj);

@@ -44,21 +44,21 @@ public class CoreFilterTest {
     }
 
     private Map<String, Object> checkControllerMap(CoreFilter filter) throws Exception {
-        Map<String, Object> controllerMap = Mocks.getPrivateFieldValue(filter, "controllerMap");
+        Map<String, Object> controllerMap = Mocks.getPrivate(filter, "controllerMap");
         assertEquals(1, controllerMap.size());
         assertTrue(controllerMap.containsKey(TestController.class.getName()));
         return controllerMap;
     }
 
     private Map<String, IInterceptor> checkInterceptorMap(CoreFilter filter) throws Exception {
-        Map<String, IInterceptor> interceptorMap = Mocks.getPrivateFieldValue(filter, "interceptorMap");
+        Map<String, IInterceptor> interceptorMap = Mocks.getPrivate(filter, "interceptorMap");
         assertEquals(1, interceptorMap.size());
         assertTrue(interceptorMap.containsKey(TestInterceptor.class.getName()));
         return interceptorMap;
     }
 
     private Map<String, Endpoint> checkEndpointMap(CoreFilter filter) throws Exception {
-        Map<String, Endpoint> endpointMap = Mocks.getPrivateFieldValue(filter, "endpointMap");
+        Map<String, Endpoint> endpointMap = Mocks.getPrivate(filter, "endpointMap");
         assertEquals(2, endpointMap.size());
         assertTrue(endpointMap.containsKey("/test"));
         assertTrue(endpointMap.containsKey("/test/post"));
@@ -73,9 +73,9 @@ public class CoreFilterTest {
     @Test
     public void testInit() throws Exception {
         // Check init params
-        String contPkgName = Mocks.getPrivateFieldValue(filter, "contPackageName");
-        String viewBase = Mocks.getPrivateFieldValue(filter, "viewBase");
-        boolean xssFilterOn = Mocks.getPrivateFieldValue(filter, "xssFilterOn");
+        String contPkgName = Mocks.getPrivate(filter, "contPackageName");
+        String viewBase = Mocks.getPrivate(filter, "viewBase");
+        boolean xssFilterOn = Mocks.getPrivate(filter, "xssFilterOn");
         assertEquals(CoreFilter.DEFAULT_CONT_PACKAGE, contPkgName);
         assertEquals("/config/", viewBase);
         assertEquals(true, xssFilterOn);
