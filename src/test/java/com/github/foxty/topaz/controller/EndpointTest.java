@@ -23,7 +23,7 @@ public class EndpointTest {
         List<IInterceptor> interceptorList = new ArrayList<>();
         interceptorList.add(new TestInterceptor());
 
-        Endpoint endpoint1 = new Endpoint("/", interceptorList, "", tc, getMethod);
+        Endpoint endpoint1 = new Endpoint("/", interceptorList, tc, getMethod);
         assertEquals("/", endpoint1.getBaseUri());
         assertEquals("/", endpoint1.getEndpointUri());
 
@@ -45,7 +45,7 @@ public class EndpointTest {
         List<IInterceptor> interceptorList = new ArrayList<>();
         interceptorList.add(new TestInterceptor());
 
-        Endpoint endpoint = new Endpoint("/", interceptorList, "",  tc, getMethod);
+        Endpoint endpoint = new Endpoint("/", interceptorList, tc, getMethod);
         assertEquals("/", endpoint.getBaseUri());
         assertEquals("/post", endpoint.getEndpointUri());
 

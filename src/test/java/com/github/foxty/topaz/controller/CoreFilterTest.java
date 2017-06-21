@@ -59,7 +59,7 @@ public class CoreFilterTest {
 
     private Map<String, Endpoint> checkEndpointMap(CoreFilter filter) throws Exception {
         Map<String, Endpoint> endpointMap = Mocks.getPrivate(filter, "endpointMap");
-        assertEquals(2, endpointMap.size());
+        assertEquals(6, endpointMap.size());
         assertTrue(endpointMap.containsKey("/test"));
         assertTrue(endpointMap.containsKey("/test/post"));
 
@@ -88,9 +88,9 @@ public class CoreFilterTest {
 
     @Test
     public void testAccessValidEndpoint() throws Exception {
-        HttpServletRequest request = Mocks.mockHttpServletRequest(HttpMethod.GET, "",
+        HttpServletRequest request = Mocks.httpRequest(HttpMethod.GET, "",
                 "/test", null);
-        HttpServletResponse response = Mocks.mockHttpServletResponse();
+        HttpServletResponse response = Mocks.httpResponse();
         FilterChain chain = Mockito.mock(FilterChain.class);
 
         filter.doFilter(request, response, chain);
@@ -104,19 +104,13 @@ public class CoreFilterTest {
         TestController tc = (TestController) controllerMap.get(TestController.class.getName());
         assertTrue(tc.testGetAccessed);
         assertFalse(tc.testPostAccessed);
-
-        WebContext wc = WebContext.get();
-        Endpoint endpointInfo =  wc.getEndpoint();
-        assertNotNull(endpointInfo);
-        assertEquals("/test", endpointInfo.getEndpointUri());
-
     }
 
     @Test
     public void testAccessNonexistEndpoint() throws Exception {
-        HttpServletRequest request = Mocks.mockHttpServletRequest(HttpMethod.GET, "",
+        HttpServletRequest request = Mocks.httpRequest(HttpMethod.GET, "",
                 "/test1", null);
-        HttpServletResponse response = Mocks.mockHttpServletResponse();
+        HttpServletResponse response = Mocks.httpResponse();
         FilterChain chain = Mockito.mock(FilterChain.class);
 
         filter.doFilter(request, response, chain);
@@ -126,9 +120,9 @@ public class CoreFilterTest {
 
     @Test
     public void testAccessNotAllowedEndpoint() throws Exception {
-        HttpServletRequest request = Mocks.mockHttpServletRequest(HttpMethod.POST, "",
+        HttpServletRequest request = Mocks.httpRequest(HttpMethod.POST, "",
                 "/test", null);
-        HttpServletResponse response = Mocks.mockHttpServletResponse();
+        HttpServletResponse response = Mocks.httpResponse();
         FilterChain chain = Mockito.mock(FilterChain.class);
 
         filter.doFilter(request, response, chain);

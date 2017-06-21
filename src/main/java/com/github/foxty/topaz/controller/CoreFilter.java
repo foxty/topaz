@@ -6,7 +6,7 @@
 package com.github.foxty.topaz.controller;
 
 import com.github.foxty.topaz.common.Config;
-import com.github.foxty.topaz.controller.anno.Controller;
+import com.github.foxty.topaz.controller.anno.C;
 import com.github.foxty.topaz.controller.anno.EP;
 import com.github.foxty.topaz.controller.interceptor.IInterceptor;
 import com.sun.istack.internal.Nullable;
@@ -115,7 +115,7 @@ public class CoreFilter implements Filter {
                         continue;
                     }
 
-                    if (cls.isAnnotationPresent(Controller.class)) {
+                    if (cls.isAnnotationPresent(C.class)) {
                         initControllerAndEndpoints(cls);
                     }
                 }
@@ -128,7 +128,7 @@ public class CoreFilter implements Filter {
 
     private void initControllerAndEndpoints(Class contClazz) {
 
-        Controller contAnno = (Controller) contClazz.getAnnotation(Controller.class);
+        C contAnno = (C) contClazz.getAnnotation(C.class);
 
         // Init all interceptors
         List<IInterceptor> interceptors = new LinkedList<>();
@@ -167,11 +167,10 @@ public class CoreFilter implements Filter {
         // Create endpoints
         int epcount = 0;
         String baseUri = contAnno.uri();
-        String layout = contAnno.layout();
         Method[] methods = contClazz.getMethods();
         for (Method m : methods) {
             if (m.isAnnotationPresent(EP.class)) {
-                Endpoint ep = new Endpoint(baseUri, interceptors, layout, c, m);
+                Endpoint ep = new Endpoint(baseUri, interceptors, c, m);
                 Endpoint oldValue = endpointMap.putIfAbsent(ep.getEndpointUri(), ep);
                 if (null != oldValue) {
                     throw new ControllerException("EP URI conflict between " + oldValue + " and " + ep);
@@ -179,7 +178,7 @@ public class CoreFilter implements Filter {
                 epcount++;
             }
         }
-        log.info("Controller " + contClazz.getName() + " created with " + interceptors.size() + " interceptors, " + epcount + " endpoints.");
+        log.info("C " + contClazz.getName() + " created with " + interceptors.size() + " interceptors, " + epcount + " endpoints.");
     }
 
     /**
@@ -210,7 +209,7 @@ public class CoreFilter implements Filter {
             // Search endpoint info by requested uri
             Endpoint endpoint = searchEndpoint(uri);
             if (null != endpoint) {
-                WebContext ctx = WebContext.create(req, resp, viewBase, endpoint);
+                WebContext ctx = WebContext.create(req, resp, viewBase);
                 if (!xssFilterOn) {
                     ctx.xssFilterOff();
                 }

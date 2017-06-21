@@ -5,10 +5,14 @@ import org.mockito.Mockito;
 import static org.mockito.Mockito.*;
 
 import javax.servlet.FilterConfig;
+import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOError;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.Map;
@@ -19,29 +23,27 @@ import java.util.Map;
  */
 public class Mocks {
 
-    static public HttpServletRequest mockHttpServletRequest(HttpMethod method, String ctxPath,
-                                                            String requestURI, Map<String, String> reqParams) {
-        HttpServletRequest mockReq = mock(HttpServletRequest.class);
-        when(mockReq.getMethod()).thenReturn(method.name());
-        when(mockReq.getRequestURI()).thenReturn(requestURI);
-        when(mockReq.getContextPath()).thenReturn(ctxPath);
+    static public HttpServletRequest httpRequest(HttpMethod method, String ctxPath,
+                                                 String requestURI, Map<String, String> reqParams) {
+        HttpServletRequestMockBuilder reqBuilder = new HttpServletRequestMockBuilder();
+        reqBuilder.method(method).context(ctxPath).requestURI(requestURI).header("Accept", "text/html");
+
         if (reqParams != null) {
             for (String param : reqParams.keySet()) {
-                when(mockReq.getParameter(param)).thenReturn(reqParams.get(param));
+                reqBuilder.param(param, reqParams.get(param));
             }
         }
-
-        // Mock session and ServletContext
-        HttpSession mockSess = mock(HttpSession.class);
-        ServletContext mockCtx = mock(ServletContext.class);
-
-        when(mockReq.getSession()).thenReturn(mockSess);
-        when(mockSess.getServletContext()).thenReturn(mockCtx);
-        return mockReq;
+        return reqBuilder.build();
     }
 
-    static public HttpServletResponse mockHttpServletResponse() {
+    static public HttpServletRequestMockBuilder httpRequestBuilder() {
+        return new HttpServletRequestMockBuilder();
+    }
+
+    static public HttpServletResponse httpResponse() throws IOException {
         HttpServletResponse mockRes = Mockito.mock(HttpServletResponse.class);
+        PrintWriter writer = Mockito.mock(PrintWriter.class);
+        when(mockRes.getWriter()).thenReturn(writer);
         return mockRes;
     }
 
@@ -69,3 +71,4 @@ public class Mocks {
         return (T) field.get(obj);
     }
 }
+

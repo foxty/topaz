@@ -1,14 +1,17 @@
 package com.github.foxty.topaz.controller;
 
-import com.github.foxty.topaz.controller.anno.Controller;
+import com.github.foxty.topaz.controller.anno.C;
 import com.github.foxty.topaz.controller.anno.EP;
 import com.github.foxty.topaz.controller.interceptor.IInterceptor;
 import com.github.foxty.topaz.controller.interceptor.InterceptorChain;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by itian on 6/13/2017.
  */
-@Controller(uri = "/test", interceptors = {TestInterceptor.class})
+@C(uri = "/test", interceptors = {TestInterceptor.class})
 public class TestController {
 
     public boolean testGetAccessed = false;
@@ -22,6 +25,50 @@ public class TestController {
     @EP(uri = "/post", method = HttpMethod.POST, isTransactional = true)
     public void testPost() {
         testPostAccessed = true;
+    }
+
+    @EP(uri = "html", method = HttpMethod.GET)
+    public View renderHtml() {
+        return View.create("html.ftl");
+    }
+
+    @EP(uri = "json", method = HttpMethod.GET)
+    public Map<String, Object> renderJson() {
+        WebContext wc = WebContext.get();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", Boolean.TRUE);
+        result.put("prop", wc.param("prop"));
+        result.put("int16", Integer.parseInt(wc.param("int16")));
+        result.put("float", Float.parseFloat(wc.param("float")));
+        result.put("json", Boolean.TRUE);
+        return result;
+    }
+
+    @EP(uri = "xml", method = HttpMethod.GET)
+    public Map<String, Object> renderXml() {
+        WebContext wc = WebContext.get();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", Boolean.TRUE);
+        result.put("prop", wc.param("prop"));
+        result.put("int16", Integer.parseInt(wc.param("int16")));
+        result.put("float", Float.parseFloat(wc.param("float")));
+        result.put("xml", Boolean.TRUE);
+        return result;
+    }
+
+    @EP(uri = "text", method = HttpMethod.GET)
+    public Map<String, Object> renderText() {
+        WebContext wc = WebContext.get();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", Boolean.TRUE);
+        result.put("prop", wc.param("prop"));
+        result.put("int16", Integer.parseInt(wc.param("int16")));
+        result.put("float", Float.parseFloat(wc.param("float")));
+        result.put("text", Boolean.TRUE);
+        return result;
     }
 }
 

@@ -7,8 +7,7 @@
  */
 package com.github.foxty.topaz.controller;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletContext;
@@ -23,7 +22,7 @@ import org.apache.commons.lang.StringUtils;
 public class WebContext {
 
 	static public enum Accept {
-		JSON, XML, HTML, JSONP;
+		JSON, XML, HTML, PLAIN, JSONP;
 	}
 
 	public final static String FLASH = "flash";
@@ -37,7 +36,6 @@ public class WebContext {
 	private String contextPath;
 	private String viewBase;
 	private boolean xssFilterOn = true;
-	private Endpoint endpoint;
 
 	private static ThreadLocal<WebContext> local = new ThreadLocal<WebContext>();
 
@@ -46,14 +44,14 @@ public class WebContext {
 	}
 
 	public static WebContext create(HttpServletRequest req,
-			HttpServletResponse resp, String viewBase, Endpoint endpoint) {
-		WebContext ctx = new WebContext(req, resp, viewBase, endpoint);
+									HttpServletResponse resp, String viewBase) {
+		WebContext ctx = new WebContext(req, resp, viewBase);
 		local.set(ctx);
 		return ctx;
 	}
 
 	private WebContext(HttpServletRequest req, HttpServletResponse resp,
-			String viewBase, Endpoint endpoint) {
+					   String viewBase) {
 
 		this.request = req;
 		this.response = resp;
@@ -62,7 +60,6 @@ public class WebContext {
 		this.viewBase = StringUtils.isBlank(viewBase) ? "/view/" : (viewBase
 				.endsWith("/") ? viewBase : viewBase + "/");
 		this.contextPath = request.getContextPath();
-		this.endpoint = endpoint;
 	}
 
 	public void xssFilterOn() {
@@ -89,24 +86,12 @@ public class WebContext {
 		return session;
 	}
 
-	public void addError(String key, String msg) {
-		WebContext.get().getErrors().put(key, msg);
-	}
-
-	public Map<String, String> getErrors() {
-		return errors;
-	}
-
 	public String getViewBase() {
 		return viewBase;
 	}
 
 	public String getContextPath() {
 		return contextPath;
-	}
-
-	public Endpoint getEndpoint() {
-		return endpoint;
 	}
 
 	public boolean isGet() {
@@ -260,17 +245,52 @@ public class WebContext {
 			flashMap.clear();
 	}
 
-	public Accept getAccept() {
-		Accept acc = Accept.HTML;
-		String reqAccept = this.request.getHeader("Accept");
-		if (reqAccept.contains("application/json"))
-			acc = Accept.JSON;
-		if (reqAccept.contains("application/xml"))
-			acc = Accept.XML;
-		return acc;
+	public boolean isAcceptJson() {
+		return getAccept().contains(Accept.JSON);
 	}
 
-    /**
+	public boolean isAcceptXml() {
+		return getAccept().contains(Accept.XML);
+	}
+
+	public boolean isAcceptHtml() {
+		return getAccept().contains(Accept.HTML);
+	}
+
+	public boolean isAcceptPlain() {
+		return getAccept().contains(Accept.PLAIN);
+	}
+
+	public boolean isAJAX() {
+		return StringUtils.equals("XMLHttpRequest", header("X-Requested-With"));
+	}
+
+
+	public List<Accept> getAccept() {
+		List<Accept> accs = new LinkedList<>();
+		String reqAccept = this.request.getHeader("Accept");
+		if (reqAccept.contains("text/html"))
+			accs.add(Accept.HTML);
+		if (reqAccept.contains("text/plain"))
+			accs.add(Accept.PLAIN);
+		if (reqAccept.contains("application/json"))
+			accs.add(Accept.JSON);
+		if (reqAccept.contains("application/xml"))
+			accs.add(Accept.XML);
+		return accs;
+	}
+
+
+	public void addError(String key, String msg) {
+		WebContext.get().getErrors().put(key, msg);
+	}
+
+	public Map<String, String> getErrors() {
+		return errors;
+	}
+
+
+	/**
      * 检查是否所有数据均通过验证
      *
      * @return boolean
@@ -278,18 +298,5 @@ public class WebContext {
     protected boolean isInputValid() {
         return getErrors().isEmpty();
     }
-
-
-    public boolean isAcceptJSON() {
-		return getAccept() == Accept.JSON;
-	}
-
-	public boolean isAcceptXML() {
-		return getAccept() == Accept.XML;
-	}
-
-	public boolean isAJAX() {
-		return StringUtils.equals("XMLHttpRequest", header("X-Requested-With"));
-	}
 
 }

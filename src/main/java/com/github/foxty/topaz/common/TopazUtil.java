@@ -13,6 +13,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
@@ -139,15 +143,27 @@ public class TopazUtil {
         return re;
     }
 
-    public static Date parseDate(String dateString, String format) {
-        SimpleDateFormat sdf = new SimpleDateFormat(format);
-        Date re = null;
+    public static LocalDate parseDate(String dateString, String format) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(format);
+        LocalDate ld = null;
         try {
-            re = sdf.parse(dateString);
-        } catch (ParseException e) {
+            ld = LocalDate.parse(dateString, dtf);
+        } catch (DateTimeParseException e) {
             log.error(e.getMessage(), e);
         }
-        return re;
+        return ld;
+    }
+
+
+    public static LocalDateTime parseDateTime(String dateString, String format) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(format);
+        LocalDateTime ldt = null;
+        try {
+            ldt = LocalDateTime.parse(dateString, dtf);
+        } catch (DateTimeParseException e) {
+            log.error(e.getMessage(), e);
+        }
+        return ldt;
     }
 
     /**

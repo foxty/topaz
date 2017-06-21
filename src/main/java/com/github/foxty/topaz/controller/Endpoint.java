@@ -29,16 +29,14 @@ public class Endpoint {
     private String baseUri;
     private String methodUri;
     private List<IInterceptor> interceptorList;
-    private String layout;
     private Object controller;
     private Method method;
     private HttpMethod allowHttpMethod;
     private boolean isTransactional;
 
-    public Endpoint(String baseUri, List<IInterceptor> interceptorList, String layout, Object controller, Method method) {
+    public Endpoint(String baseUri, List<IInterceptor> interceptorList, Object controller, Method method) {
         this.baseUri = baseUri;
         this.interceptorList = new ArrayList<>(interceptorList);
-        this.layout = layout;
         this.controller = controller;
         this.method = method;
 
@@ -66,10 +64,6 @@ public class Endpoint {
 
     public String getEndpointUri() {
         return TopazUtil.cleanUri(baseUri + "/" + methodUri);
-    }
-
-    public String getLayout() {
-        return this.layout;
     }
 
     public void execute() {
