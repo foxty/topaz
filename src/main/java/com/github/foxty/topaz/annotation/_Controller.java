@@ -1,4 +1,4 @@
-package com.github.foxty.topaz.controller.anno;
+package com.github.foxty.topaz.annotation;
 
 import com.github.foxty.topaz.controller.interceptor.IInterceptor;
 
@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface C {
+public @interface _Controller {
 
     /*
     A URI is a sequence of characters from a very limited set:

@@ -1,6 +1,5 @@
 package com.github.foxty.topaz.dao;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -9,7 +8,6 @@ import java.sql.SQLXML;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import com.github.foxty.topaz.common.TopazUtil;
 import org.apache.commons.dbutils.ResultSetHandler;
@@ -40,7 +38,6 @@ public class TopazResultSetHandler<T> implements ResultSetHandler<List<T>> {
 	}
 
 	private List<String> columnNames(ResultSetMetaData rsmd) throws SQLException {
-
 		int c = rsmd.getColumnCount();
 		List<String> cNames = new ArrayList<String>(c);
 		for (int i = 0; i < c; i++) {
@@ -65,20 +62,20 @@ public class TopazResultSetHandler<T> implements ResultSetHandler<List<T>> {
 	}
 
 	private void processColumn(ResultSet rs, Object bean, String cName, int pos) throws SQLException {
-		Map<String, PropMapping> props = BaseModel.MODEL_PROPS.get(modelClass);
+		ModelMeta mp = Models.getInstance().getModelMeta((Class)modelClass);
 		if (cName.indexOf('.') >= 0) {
-			// Its a model property
+			// Its a model
 			String[] arr = cName.split("\\.");
 			String tblProp = TopazUtil.flat2camel(arr[0]);
-			if (props.containsKey(tblProp)) {
-				PropMapping pm = props.get(tblProp);
-				Method method = pm.getReadMethod();
+			if (mp.getColumnMetaMap().containsKey(tblProp)) {
+				ColumnMeta cm = mp.getColumnMeta(tblProp);
+				Method method = cm.getReadMethod();
 				Object subObj = null;
 				try {
 					subObj = method.invoke(bean);
 					if (subObj == null) {
-						subObj = this.newInstance(pm.getTargetType());
-						this.callSetter(bean, pm, subObj);
+						subObj = this.newInstance(cm.getFieldClazz());
+						this.callSetter(bean, cm, subObj);
 					}
 				} catch (Exception e) {
 					throw new DaoException(e);
@@ -87,14 +84,15 @@ public class TopazResultSetHandler<T> implements ResultSetHandler<List<T>> {
 				// Find the sub object
 				bean = subObj;
 				cName = arr[1];
-				props = BaseModel.MODEL_PROPS.get(pm.getTargetType());
+				mp = Models.getInstance().getModelMeta(cm.getFieldClazz());
 			}
 		}
-		
+
+		// Process column value
 		String pName = TopazUtil.flat2camel(cName);
-		if (props.containsKey(pName)) {
-			PropMapping pm = props.get(pName);
-			Object cValue = processColumnValue(rs, pos, pm.getTargetType());
+		if (mp.getColumnMetaMap().containsKey(pName)) {
+			ColumnMeta pm = mp.getColumnMeta(pName);
+			Object cValue = processColumnValue(rs, pos, pm.getFieldClazz());
 			callSetter(bean, pm, cValue);
 		}
 	}
@@ -180,14 +178,14 @@ public class TopazResultSetHandler<T> implements ResultSetHandler<List<T>> {
 	 * 
 	 * @param target
 	 *            The object to set the property on.
-	 * @param prop
-	 *            The property to set.
+	 * @param pm
+	 *            The property mapping.
 	 * @param value
 	 *            The value to pass into the setter.
 	 * @throws SQLException
 	 *             if an error occurs setting the property.
 	 */
-	private void callSetter(Object target, PropMapping pm, Object value)
+	private void callSetter(Object target, ColumnMeta pm, Object value)
 			throws SQLException {
 
 		Method setter = pm.getWriteMethod();
@@ -215,24 +213,17 @@ public class TopazResultSetHandler<T> implements ResultSetHandler<List<T>> {
 				setter.invoke(target, new Object[] { value });
 			} else {
 				throw new SQLException(
-						"Cannot set " + pm.getPropertyName()
+						"Cannot set " + pm.getColumnName()
 								+ ": incompatible types, cannot convert "
 								+ value.getClass().getName() + " to " + params[0].getName());
 				// value cannot be null here because isCompatibleType allows
 				// null
 			}
 
-		} catch (IllegalArgumentException e) {
+		} catch (Exception e) {
 			throw new SQLException(
-					"Cannot set " + pm.getPropertyName() + ": " + e.getMessage());
+					"Cannot set " + pm.getFieldName() + ": " + e.getMessage());
 
-		} catch (IllegalAccessException e) {
-			throw new SQLException(
-					"Cannot set " + pm.getPropertyName() + ": " + e.getMessage());
-
-		} catch (InvocationTargetException e) {
-			throw new SQLException(
-					"Cannot set " + pm.getPropertyName() + ": " + e.getMessage());
 		}
 	}
 

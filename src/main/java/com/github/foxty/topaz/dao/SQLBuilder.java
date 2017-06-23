@@ -2,7 +2,6 @@ package com.github.foxty.topaz.dao;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import com.github.foxty.topaz.common.TopazUtil;
 
@@ -12,7 +11,7 @@ import com.github.foxty.topaz.common.TopazUtil;
  * @author foxty
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
-abstract public class ModelSQLBuilder<T extends ModelSQLBuilder> {
+abstract public class SQLBuilder<T extends SQLBuilder> {
 
 	public static enum OP {
 		EQ(" = "), NE(" != "), LT(" < "), GT(" > "), LE(" <= "), GE(" >= "), IN(" in "), LK(
@@ -32,17 +31,21 @@ abstract public class ModelSQLBuilder<T extends ModelSQLBuilder> {
 
 	protected Class baseModelClazz;
 	protected final String baseTableName;
+	protected ModelMeta modelMeta;
 
 	protected StringBuffer sql = new StringBuffer();
 	protected List<Object> sqlParams = new ArrayList<Object>();
 
-	public ModelSQLBuilder(Class<? extends BaseModel> clazz) {
+	public SQLBuilder(Class<? extends Model> clazz) {
+		Models.getInstance().register(clazz);
+		modelMeta = Models.getInstance().getModelMeta(clazz);
 		this.baseModelClazz = clazz;
 		baseTableName = TopazUtil.camel2flat(baseModelClazz.getSimpleName());
 	}
 
-	public ModelSQLBuilder(Class<? extends BaseModel> clazz, String sql, List<Object> sqlParams,
-			SQLBuilderType type) {
+	public SQLBuilder(Class<? extends Model> clazz, String sql, List<Object> sqlParams) {
+		Models.getInstance().register(clazz);
+		modelMeta = Models.getInstance().getModelMeta(clazz);
 		this.baseModelClazz = clazz;
 		baseTableName = TopazUtil.camel2flat(baseModelClazz.getSimpleName());
 		this.sqlParams.addAll(sqlParams);
@@ -50,15 +53,14 @@ abstract public class ModelSQLBuilder<T extends ModelSQLBuilder> {
 
 	abstract protected void buildSQL();
 
-	protected PropMapping findProp(String prop) {
-		Map<String, PropMapping> mapping = BaseModel.MODEL_PROPS.get(baseModelClazz);
-		PropMapping pm = mapping.get(prop);
-		if (pm == null) {
+	protected ColumnMeta getColumnMapping(String prop) {
+		ColumnMeta cm = modelMeta.getColumnMetaMap().get(prop);
+		if (cm == null) {
 			throw new DaoException("No column mapping found for property "
 					+ baseModelClazz.getName() + "."
 					+ prop + "!");
 		}
-		return pm;
+		return cm;
 	}
 
 	public T c(String prop, Object value) {
@@ -66,8 +68,8 @@ abstract public class ModelSQLBuilder<T extends ModelSQLBuilder> {
 	}
 
 	public T c(String prop, OP op, Object value) {
-		PropMapping pm = findProp(prop);
-		sql.append(" " + baseTableName + ".").append(pm.getTargetName())
+		ColumnMeta pm = getColumnMapping(prop);
+		sql.append(" " + baseTableName + ".").append(pm.getColumnName())
 				.append(op.getValue()).append("? ");
 		sqlParams.add(value);
 		return (T) this;
@@ -98,8 +100,8 @@ abstract public class ModelSQLBuilder<T extends ModelSQLBuilder> {
 	}
 
 	public T where(String propName, OP op, Object value) {
-		PropMapping pm = findProp(propName);
-		sql.append(" WHERE ").append(baseTableName + ".").append(pm.getTargetName())
+		ColumnMeta pm = getColumnMapping(propName);
+		sql.append(" WHERE ").append(baseTableName + ".").append(pm.getColumnName())
 				.append(op.getValue()).append("? ");
 		sqlParams.add(value);
 		return (T) this;

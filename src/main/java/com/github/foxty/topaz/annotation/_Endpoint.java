@@ -1,4 +1,4 @@
-package com.github.foxty.topaz.controller.anno;
+package com.github.foxty.topaz.annotation;
 
 import com.github.foxty.topaz.controller.HttpMethod;
 
@@ -12,12 +12,8 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface EP {
-
+public @interface _Endpoint {
     String uri() default "";
-
     HttpMethod method() default HttpMethod.GET;
-
     boolean isTransactional() default false;
-
 }

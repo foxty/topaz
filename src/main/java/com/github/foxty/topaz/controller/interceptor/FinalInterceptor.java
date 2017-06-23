@@ -5,7 +5,7 @@ import com.github.foxty.topaz.common.TopazException;
 import com.github.foxty.topaz.controller.ControllerException;
 import com.github.foxty.topaz.controller.View;
 import com.github.foxty.topaz.controller.WebContext;
-import com.github.foxty.topaz.controller.anno.C;
+import com.github.foxty.topaz.annotation._Controller;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,13 +31,13 @@ final public class FinalInterceptor implements IInterceptor {
     private static Log log = LogFactory.getLog(FinalInterceptor.class);
     private Object controller;
     private Method targetMethod;
-    private C c;
+    private _Controller _controller;
 
     public FinalInterceptor(Object controller, Method targetMethod) {
         this.controller = controller;
         this.targetMethod = targetMethod;
-        this.c = controller.getClass().getAnnotation(C.class);
-        Objects.requireNonNull(c);
+        this._controller = controller.getClass().getAnnotation(_Controller.class);
+        Objects.requireNonNull(_controller);
     }
 
     final public void intercept(InterceptorChain chain) {
@@ -73,7 +73,7 @@ final public class FinalInterceptor implements IInterceptor {
         WebContext wc = WebContext.get();
         if (result instanceof View) {
             View v = (View) result;
-            String layout = c.layout();
+            String layout = _controller.layout();
             if (StringUtils.isBlank(v.getLayout())) {
                 v.setLayout(layout);
             }

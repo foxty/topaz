@@ -1,12 +1,11 @@
 package com.github.foxty.topaz.controller;
 
 import com.github.foxty.topaz.common.TopazUtil;
-import com.github.foxty.topaz.controller.anno.EP;
+import com.github.foxty.topaz.annotation._Endpoint;
 import com.github.foxty.topaz.controller.interceptor.FinalInterceptor;
 import com.github.foxty.topaz.controller.interceptor.IInterceptor;
 import com.github.foxty.topaz.controller.interceptor.InterceptorChain;
 import com.github.foxty.topaz.dao.DaoManager;
-import com.github.foxty.topaz.dao.ITransVisitor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -45,11 +44,11 @@ public class Endpoint {
 
     private void init() {
         Objects.requireNonNull(interceptorList, "InterceptorList should not be null.");
-        EP epAnno = method.getAnnotation(EP.class);
-        Objects.requireNonNull(epAnno, "@EP should not be null.");
-        methodUri = epAnno.uri();
-        allowHttpMethod = epAnno.method();
-        isTransactional = epAnno.isTransactional();
+        _Endpoint _endpoint = method.getAnnotation(_Endpoint.class);
+        Objects.requireNonNull(_endpoint, "@EP should not be null.");
+        methodUri = _endpoint.uri();
+        allowHttpMethod = _endpoint.method();
+        isTransactional = _endpoint.isTransactional();
 
         FinalInterceptor fin = new FinalInterceptor(controller, method);
         interceptorList.add(fin);

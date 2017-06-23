@@ -6,8 +6,8 @@
 package com.github.foxty.topaz.controller;
 
 import com.github.foxty.topaz.common.Config;
-import com.github.foxty.topaz.controller.anno.C;
-import com.github.foxty.topaz.controller.anno.EP;
+import com.github.foxty.topaz.annotation._Controller;
+import com.github.foxty.topaz.annotation._Endpoint;
 import com.github.foxty.topaz.controller.interceptor.IInterceptor;
 import com.sun.istack.internal.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -115,7 +115,7 @@ public class CoreFilter implements Filter {
                         continue;
                     }
 
-                    if (cls.isAnnotationPresent(C.class)) {
+                    if (cls.isAnnotationPresent(_Controller.class)) {
                         initControllerAndEndpoints(cls);
                     }
                 }
@@ -128,7 +128,7 @@ public class CoreFilter implements Filter {
 
     private void initControllerAndEndpoints(Class contClazz) {
 
-        C contAnno = (C) contClazz.getAnnotation(C.class);
+        _Controller contAnno = (_Controller) contClazz.getAnnotation(_Controller.class);
 
         // Init all interceptors
         List<IInterceptor> interceptors = new LinkedList<>();
@@ -169,7 +169,7 @@ public class CoreFilter implements Filter {
         String baseUri = contAnno.uri();
         Method[] methods = contClazz.getMethods();
         for (Method m : methods) {
-            if (m.isAnnotationPresent(EP.class)) {
+            if (m.isAnnotationPresent(_Endpoint.class)) {
                 Endpoint ep = new Endpoint(baseUri, interceptors, c, m);
                 Endpoint oldValue = endpointMap.putIfAbsent(ep.getEndpointUri(), ep);
                 if (null != oldValue) {

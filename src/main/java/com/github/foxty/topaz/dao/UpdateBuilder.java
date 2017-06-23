@@ -1,7 +1,5 @@
 package com.github.foxty.topaz.dao;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.commons.dbutils.QueryRunner;
@@ -14,17 +12,17 @@ import org.apache.commons.logging.LogFactory;
  * 
  * @author foxty
  */
-public class ModelUpdateBuilder extends ModelSQLBuilder<ModelUpdateBuilder> {
+public class UpdateBuilder extends SQLBuilder<UpdateBuilder> {
 
-	private static Log log = LogFactory.getLog(ModelUpdateBuilder.class);
+	private static Log log = LogFactory.getLog(UpdateBuilder.class);
 
-	public ModelUpdateBuilder(Class<? extends BaseModel> clazz) {
+	public UpdateBuilder(Class<? extends Model> clazz) {
 		super(clazz);
 		buildSQL();
 	}
 
-	public ModelUpdateBuilder(Class<? extends BaseModel> clazz, String sql,
-			List<Object> params) {
+	public UpdateBuilder(Class<? extends Model> clazz, String sql,
+						 List<Object> params) {
 		super(clazz);
 		this.sql.append(sql);
 		this.sqlParams.addAll(params);
@@ -35,12 +33,12 @@ public class ModelUpdateBuilder extends ModelSQLBuilder<ModelUpdateBuilder> {
 		sql.append("UPDATE ").append(baseTableName).append(" SET ");
 	}
 
-	public ModelUpdateBuilder set(String propName, Object value) {
-		PropMapping pm = findProp(propName);
+	public UpdateBuilder set(String propName, Object value) {
+		ColumnMeta pm = getColumnMapping(propName);
 		if (!StringUtils.endsWith(sql.toString(), "SET ")) {
-			sql.append("," + pm.getTargetName()).append("=?");
+			sql.append("," + pm.getColumnName()).append("=?");
 		} else {
-			sql.append(pm.getTargetName()).append("=?");
+			sql.append(pm.getColumnName()).append("=?");
 		}
 		sqlParams.add(value);
 		return this;
@@ -51,11 +49,11 @@ public class ModelUpdateBuilder extends ModelSQLBuilder<ModelUpdateBuilder> {
 	 * 
 	 * @param propName property name
 	 * @param step	step use for increase
-	 * @return ModelUpdateBuilder builder itself
+	 * @return UpdateBuilder builder itself
 	 */
-	public ModelUpdateBuilder inc(String propName, int step) {
-		PropMapping pm = findProp(propName);
-		sql.append(pm.getTargetName()).append(" = ").append(pm.getTargetName())
+	public UpdateBuilder inc(String propName, int step) {
+		ColumnMeta pm = getColumnMapping(propName);
+		sql.append(pm.getColumnName()).append(" = ").append(pm.getColumnName())
 				.append(" + ").append(step);
 		return this;
 	}
@@ -65,11 +63,11 @@ public class ModelUpdateBuilder extends ModelSQLBuilder<ModelUpdateBuilder> {
 	 * 
 	 * @param propName property name
 	 * @param step step use for decrease
-	 * @return ModelUpdateBuilder build itself
+	 * @return UpdateBuilder build itself
 	 */
-	public ModelUpdateBuilder dec(String propName, int step) {
-		PropMapping pm = findProp(propName);
-		sql.append(pm.getTargetName()).append(" = ").append(pm.getTargetName())
+	public UpdateBuilder dec(String propName, int step) {
+		ColumnMeta pm = getColumnMapping(propName);
+		sql.append(pm.getColumnName()).append(" = ").append(pm.getColumnName())
 				.append(" - ").append(step);
 		return this;
 	}
@@ -83,13 +81,9 @@ public class ModelUpdateBuilder extends ModelSQLBuilder<ModelUpdateBuilder> {
 		log.debug("Update sql = " + sql.toString());
 		int result = 0;
 		DaoManager daoMgr = DaoManager.getInstance();
-		result = (Integer) daoMgr.useConnection(new IConnVisitor() {
-
-			public Object visit(Connection conn) throws SQLException {
+		result = (Integer) daoMgr.useConnection(conn -> {
 				QueryRunner qr = new QueryRunner();
 				return qr.update(conn, sql.toString(), sqlParams.toArray());
-
-			}
 		});
 		return result;
 	}
