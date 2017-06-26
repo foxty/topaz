@@ -1,7 +1,7 @@
-package com.github.foxty.topaz.dao;
+package com.github.foxty.topaz.dao.sql;
 
-import java.sql.Connection;
-
+import com.github.foxty.topaz.dao.DaoManager;
+import com.github.foxty.topaz.dao.Model;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,7 +21,7 @@ public class DeleteBuilder extends SQLBuilder<DeleteBuilder> {
 
 	@Override
 	public void buildSQL() {
-		sql.append("DELETE FROM ").append(baseTableName);
+		sql.append("DELETE FROM ").append(tableName);
 	}
 
 	/**

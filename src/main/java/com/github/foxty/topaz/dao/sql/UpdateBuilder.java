@@ -1,7 +1,10 @@
-package com.github.foxty.topaz.dao;
+package com.github.foxty.topaz.dao.sql;
 
 import java.util.List;
 
+import com.github.foxty.topaz.dao.meta.ColumnMeta;
+import com.github.foxty.topaz.dao.DaoManager;
+import com.github.foxty.topaz.dao.Model;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -30,7 +33,7 @@ public class UpdateBuilder extends SQLBuilder<UpdateBuilder> {
 
 	@Override
 	public void buildSQL() {
-		sql.append("UPDATE ").append(baseTableName).append(" SET ");
+		sql.append("UPDATE ").append(tableName).append(" SET ");
 	}
 
 	public UpdateBuilder set(String propName, Object value) {

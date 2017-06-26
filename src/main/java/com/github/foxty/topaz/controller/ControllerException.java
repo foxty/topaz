@@ -7,14 +7,12 @@
  */
 package com.github.foxty.topaz.controller;
 
-import com.github.foxty.topaz.common.TopazException;
-
 /**
  * @author gzd1x2
  * 
  * 
  */
-public class ControllerException extends TopazException {
+public class ControllerException extends com.github.foxty.topaz.common.ControllerException {
 	/**
 	 */
 	private static final long serialVersionUID = 1L;

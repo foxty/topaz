@@ -1,8 +1,8 @@
 package com.github.foxty.topaz.dao;
 
-import com.github.foxty.topaz.common.TopazException;
+import com.github.foxty.topaz.common.ControllerException;
 
-public class DaoException extends TopazException {
+public class DaoException extends ControllerException {
 
 	/**
 	 */

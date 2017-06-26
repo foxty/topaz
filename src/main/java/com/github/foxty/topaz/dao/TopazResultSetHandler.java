@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github.foxty.topaz.common.TopazUtil;
+import com.github.foxty.topaz.dao.meta.ColumnMeta;
+import com.github.foxty.topaz.dao.meta.ModelMeta;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.lang.StringUtils;
 

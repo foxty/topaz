@@ -1,12 +1,14 @@
-package com.github.foxty.topaz.common;
+package com.github.foxty.topaz.controller;
 
+import com.github.foxty.topaz.common.ControllerException;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertEquals;
 
 /**
- * Created by itian on 6/14/2017.
+ * Created by itian on 6/26/2017.
  */
-public class TopazExceptionTest {
+public class ControllerExceptionTest {
 
     @Test
     public void testCreateWithMessage() throws Exception {

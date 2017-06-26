@@ -1,5 +1,9 @@
-package com.github.foxty.topaz.dao;
+package com.github.foxty.topaz.dao.sql;
 
+import com.github.foxty.topaz.dao.*;
+import com.github.foxty.topaz.dao.meta.ColumnMeta;
+import com.github.foxty.topaz.dao.meta.ModelMeta;
+import com.github.foxty.topaz.dao.meta.RelationMeta;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
@@ -29,28 +33,22 @@ public class SelectBuilder extends SQLBuilder<SelectBuilder> {
     public SelectBuilder(Class<? extends Model> clazz, String... with) {
         super(clazz);
         this.with = with;
-
-        for(String w : with) {
+        for (String w : with) {
             RelationMeta rm = modelMeta.getRelationMeta(w);
             Objects.requireNonNull(rm);
             Models.getInstance().register(rm.getFieldClazz());
         }
-
         buildSQL();
     }
 
-    public SelectBuilder(Class<? extends Model> clazz, String sql,
-                         List<Object> sqlParams) {
-        super(clazz);
-        this.sql.append(sql);
-        this.sqlParams.addAll(sqlParams);
+    public SelectBuilder(String sql, List<Object> sqlParams) {
+        super(sql, sqlParams);
     }
 
     @Override
-    public void buildSQL() {
-
-        sql.append("SELECT " + baseTableName + ".* ");
-        String fromSeg = " FROM " + baseTableName;
+    protected void buildSQL() {
+        sql.append("SELECT " + tableName + ".* ");
+        String fromSeg = " FROM " + tableName;
 
         for (String w : with) {
             RelationMeta rm = modelMeta.getRelationMeta(w);
@@ -66,7 +64,7 @@ public class SelectBuilder extends SQLBuilder<SelectBuilder> {
             switch (rm.getRelation()) {
                 case HasOne:
                     fromSeg += (" JOIN " + tblName + " " + w + " ON "
-                            + baseTableName + ".id=" + w + "." + byKey);
+                            + tableName + ".id=" + w + "." + byKey);
                     break;
                 case HasMany:
                     if (hasMany == null) {
@@ -76,10 +74,9 @@ public class SelectBuilder extends SQLBuilder<SelectBuilder> {
                     break;
                 case BelongsTo:
                     fromSeg += (" JOIN " + tblName + " " + w + " ON "
-                            + baseTableName + "." + byKey + "=" + w + ".id");
+                            + tableName + "." + byKey + "=" + w + ".id");
                     break;
             }
-
         }
         sql.append(fromSeg);
     }
@@ -95,11 +92,11 @@ public class SelectBuilder extends SQLBuilder<SelectBuilder> {
         return cm;
     }
 
-    public SelectBuilder c(String with, String prop, Object value) {
-        return c(with, prop, OP.EQ, value);
+    public SelectBuilder condition(String with, String prop, Object value) {
+        return condition(with, prop, OP.EQ, value);
     }
 
-    public SelectBuilder c(String with, String prop, OP op, Object value) {
+    public SelectBuilder condition(String with, String prop, OP op, Object value) {
         ColumnMeta pm = findWithColumn(with, prop);
         sql.append(" " + with + ".").append(pm.getColumnName())
                 .append(op.getValue()).append("? ");
@@ -125,7 +122,7 @@ public class SelectBuilder extends SQLBuilder<SelectBuilder> {
     }
 
     public SelectBuilder and(String with, String prop, OP op, Object value) {
-        and().c(with, prop, op, value);
+        and().condition(with, prop, op, value);
         return this;
     }
 
@@ -134,14 +131,14 @@ public class SelectBuilder extends SQLBuilder<SelectBuilder> {
     }
 
     public SelectBuilder or(String with, String prop, OP op, Object value) {
-        or().c(with, prop, op, value);
+        or().condition(with, prop, op, value);
         return this;
     }
 
     public SelectBuilder orderBy(String prop, boolean ascending) {
         ColumnMeta pm = getColumnMapping(prop);
         if (null != pm) {
-            sql.append(" ORDER BY ").append(baseTableName).append(".")
+            sql.append(" ORDER BY ").append(tableName).append(".")
                     .append(pm.getColumnName());
             sql.append(ascending ? " asc " : " desc ");
         }
@@ -193,7 +190,7 @@ public class SelectBuilder extends SQLBuilder<SelectBuilder> {
             public Object visit(Connection conn) throws SQLException {
                 QueryRunner runner = new QueryRunner();
                 TopazResultSetHandler<T> h = new TopazResultSetHandler<T>(
-                        baseModelClazz);
+                        modelClazz);
                 List<T> result = runner.query(conn, sql.toString(), h,
                         sqlParams.toArray());
 

@@ -1,8 +1,7 @@
 package com.github.foxty.topaz.controller.interceptor;
 
 import com.alibaba.fastjson.JSON;
-import com.github.foxty.topaz.common.TopazException;
-import com.github.foxty.topaz.controller.ControllerException;
+import com.github.foxty.topaz.common.ControllerException;
 import com.github.foxty.topaz.controller.View;
 import com.github.foxty.topaz.controller.WebContext;
 import com.github.foxty.topaz.annotation._Controller;
@@ -54,13 +53,13 @@ final public class FinalInterceptor implements IInterceptor {
         try {
             return targetMethod.invoke(controller);
         } catch (InvocationTargetException e) {
-            if (e.getTargetException() instanceof TopazException) {
-                throw (TopazException) e.getTargetException();
+            if (e.getTargetException() instanceof ControllerException) {
+                throw (ControllerException) e.getTargetException();
             } else {
-                throw new ControllerException(e);
+                throw new com.github.foxty.topaz.controller.ControllerException(e);
             }
         } catch (Exception e) {
-            throw new ControllerException(e);
+            throw new com.github.foxty.topaz.controller.ControllerException(e);
         }
     }
 
@@ -141,7 +140,7 @@ final public class FinalInterceptor implements IInterceptor {
             rd.include(request, response);
         } catch (Exception e) {
             log.error(e);
-            throw new ControllerException(e);
+            throw new com.github.foxty.topaz.controller.ControllerException(e);
         }
         wc.clearFlash();
     }

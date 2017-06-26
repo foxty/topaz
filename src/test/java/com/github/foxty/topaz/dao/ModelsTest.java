@@ -1,6 +1,8 @@
 package com.github.foxty.topaz.dao;
 
-import com.github.foxty.topaz.annotation._Relation;
+import com.github.foxty.topaz.dao.meta.ColumnMeta;
+import com.github.foxty.topaz.dao.meta.ModelMeta;
+import com.github.foxty.topaz.dao.meta.RelationMeta;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -53,6 +55,7 @@ public class ModelsTest {
         RelationMeta relation = mma.getRelationMeta("modelb");
         assertEquals(ModelB.class, relation.getFieldClazz());
         assertEquals(Relation.HasOne, relation.getRelation());
+        assertEquals("table_name_a_id", relation.byKey());
     }
 
     @Test(expected = UnsupportedOperationException.class)

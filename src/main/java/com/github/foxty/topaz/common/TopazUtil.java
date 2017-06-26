@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -93,7 +92,7 @@ public class TopazUtil {
         try {
             digest = MessageDigest.getInstance(algo);
         } catch (NoSuchAlgorithmException e) {
-            throw new TopazException(e);
+            throw new ControllerException(e);
         }
         digest.update(origStr.getBytes(Charset.forName("ASCII")));
         byte[] bytes = digest.digest();
@@ -223,9 +222,9 @@ public class TopazUtil {
     /**
      * Remove duplicate / in the uri, remove trailing /
      * e.g.
-     * //a/b/c/ -> /a/b/c
-     * a/b/c -> /a/b/c
-     * a//b//c -> a/b/c
+     * //a/b/condition/ -> /a/b/condition
+     * a/b/condition -> /a/b/condition
+     * a//b//condition -> a/b/condition
      *
      * @param uri
      */

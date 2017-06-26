@@ -2,6 +2,11 @@ package com.github.foxty.topaz.dao;
 
 import com.github.foxty.topaz.annotation._Column;
 import com.github.foxty.topaz.common.TopazUtil;
+import com.github.foxty.topaz.dao.meta.ColumnMeta;
+import com.github.foxty.topaz.dao.meta.ModelMeta;
+import com.github.foxty.topaz.dao.sql.DeleteBuilder;
+import com.github.foxty.topaz.dao.sql.SelectBuilder;
+import com.github.foxty.topaz.dao.sql.UpdateBuilder;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.MapListHandler;
@@ -33,7 +38,7 @@ public class Model implements Serializable {
 
     final static public SelectBuilder findBySql(Class<? extends Model> clazz,
                                                 String sql, Object... sqlParams) {
-        return new SelectBuilder(clazz, sql, Arrays.asList(sqlParams));
+        return new SelectBuilder(sql, Arrays.asList(sqlParams));
     }
 
     final static public List<Map<String, Object>> findBySql(final String sql,
