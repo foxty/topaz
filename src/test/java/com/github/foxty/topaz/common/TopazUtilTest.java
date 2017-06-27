@@ -72,10 +72,10 @@ public class TopazUtilTest {
 	public void testCleanUri() {
         assertEquals("/", TopazUtil.cleanUri(""));
         assertEquals("/", TopazUtil.cleanUri("/"));
-		assertEquals("/a/b/condition", TopazUtil.cleanUri("/a/b/condition"));
-		assertEquals("/a/b/condition", TopazUtil.cleanUri("//a////b///condition"));
-		assertEquals("/a/b/condition", TopazUtil.cleanUri("///a/b/condition"));
-		assertEquals("/a/b/condition", TopazUtil.cleanUri("a/b//condition//"));
+		assertEquals("/a/b/predicate", TopazUtil.cleanUri("/a/b/predicate"));
+		assertEquals("/a/b/predicate", TopazUtil.cleanUri("//a////b///predicate"));
+		assertEquals("/a/b/predicate", TopazUtil.cleanUri("///a/b/predicate"));
+		assertEquals("/a/b/predicate", TopazUtil.cleanUri("a/b//predicate//"));
 	}
 
 	@Test(expected = NullPointerException.class)

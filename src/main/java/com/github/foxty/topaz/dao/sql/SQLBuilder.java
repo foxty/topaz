@@ -3,33 +3,18 @@ package com.github.foxty.topaz.dao.sql;
 import com.github.foxty.topaz.dao.*;
 import com.github.foxty.topaz.dao.meta.ColumnMeta;
 import com.github.foxty.topaz.dao.meta.ModelMeta;
+import jdk.nashorn.internal.runtime.OptimisticReturnFilters;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Not thread safe!
+ * Not thread safe.
  *
  * @author foxty
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
 abstract public class SQLBuilder<T extends SQLBuilder> {
-
-    public static enum OP {
-        EQ(" = "), NE(" != "), LT(" < "), GT(" > "), LE(" <= "), GE(" >= "), IN(" in "), LK(
-                " like "), IS(" is ");
-
-        private String value;
-
-        private OP(String v) {
-            this.value = v;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-    }
 
     protected Class modelClazz;
     protected ModelMeta modelMeta;
@@ -52,8 +37,8 @@ abstract public class SQLBuilder<T extends SQLBuilder> {
 
     abstract protected void buildSQL();
 
-    protected ColumnMeta getColumnMapping(String prop) {
-        ColumnMeta cm = modelMeta.getColumnMetaMap().get(prop);
+    protected ColumnMeta getColumnMeta(String prop) {
+        ColumnMeta cm = modelMeta.findColumnMeta(prop);
         if (cm == null) {
             throw new DaoException("No column mapping found for property "
                     + modelClazz.getName() + "."
@@ -62,65 +47,18 @@ abstract public class SQLBuilder<T extends SQLBuilder> {
         return cm;
     }
 
-    public T condition(String prop, Object value) {
-        return condition(prop, OP.EQ, value);
+    public T where(IUseWhereCaluse useWhere) {
+        WhereClause wc = new WhereClause(modelMeta);
+        useWhere.where(wc);
+        this.sql.append(wc.getClause());
+        this.sqlParams.addAll(wc.getParams());
+        return (T)this;
     }
 
-    public T condition(String prop, OP op, Object value) {
-        ColumnMeta pm = getColumnMapping(prop);
-        sql.append(" " + tableName + ".").append(pm.getColumnName())
-                .append(op.getValue()).append("? ");
-        sqlParams.add(value);
-        return (T) this;
-    }
-
-    public T and() {
-        sql.append(" AND ");
-        return (T) this;
-    }
-
-    public T or() {
-        sql.append(" OR ");
-        return (T) this;
-    }
-
-    public T bracketStart() {
-        sql.append(" ( ");
-        return (T) this;
-    }
-
-    public T bracketEnd() {
-        sql.append(" ) ");
-        return (T) this;
-    }
-
-    public T where(String propName, Object value) {
-        return where(propName, OP.EQ, value);
-    }
-
-    public T where(String propName, OP op, Object value) {
-        ColumnMeta pm = getColumnMapping(propName);
-        sql.append(" WHERE ").append(tableName + ".").append(pm.getColumnName())
-                .append(op.getValue()).append("? ");
-        sqlParams.add(value);
-        return (T) this;
-    }
-
-    public T and(String prop, Object value) {
-        return and(prop, OP.EQ, value);
-    }
-
-    public T and(String prop, OP op, Object value) {
-        and().condition(prop, op, value);
-        return (T) this;
-    }
-
-    public T or(String prop, Object value) {
-        return or(prop, OP.EQ, value);
-    }
-
-    public T or(String prop, OP op, Object value) {
-        or().condition(prop, op, value);
+    public T where(String prop, Object value) {
+        WhereClause wc = new WhereClause(modelMeta, prop, Operators.EQ, value);
+        this.sql.append(wc.getClause());
+        this.sqlParams.addAll(wc.getParams());
         return (T) this;
     }
 

@@ -15,17 +15,17 @@ import org.apache.commons.logging.LogFactory;
  * 
  * @author foxty
  */
-public class UpdateBuilder extends SQLBuilder<UpdateBuilder> {
+public class SQLUpdate extends SQLBuilder<SQLUpdate> {
 
-	private static Log log = LogFactory.getLog(UpdateBuilder.class);
+	private static Log log = LogFactory.getLog(SQLUpdate.class);
 
-	public UpdateBuilder(Class<? extends Model> clazz) {
+	public SQLUpdate(Class<? extends Model> clazz) {
 		super(clazz);
 		buildSQL();
 	}
 
-	public UpdateBuilder(Class<? extends Model> clazz, String sql,
-						 List<Object> params) {
+	public SQLUpdate(Class<? extends Model> clazz, String sql,
+                     List<Object> params) {
 		super(clazz);
 		this.sql.append(sql);
 		this.sqlParams.addAll(params);
@@ -36,8 +36,8 @@ public class UpdateBuilder extends SQLBuilder<UpdateBuilder> {
 		sql.append("UPDATE ").append(tableName).append(" SET ");
 	}
 
-	public UpdateBuilder set(String propName, Object value) {
-		ColumnMeta pm = getColumnMapping(propName);
+	public SQLUpdate set(String propName, Object value) {
+		ColumnMeta pm = getColumnMeta(propName);
 		if (!StringUtils.endsWith(sql.toString(), "SET ")) {
 			sql.append("," + pm.getColumnName()).append("=?");
 		} else {
@@ -54,8 +54,8 @@ public class UpdateBuilder extends SQLBuilder<UpdateBuilder> {
 	 * @param step	step use for increase
 	 * @return UpdateBuilder builder itself
 	 */
-	public UpdateBuilder inc(String propName, int step) {
-		ColumnMeta pm = getColumnMapping(propName);
+	public SQLUpdate inc(String propName, int step) {
+		ColumnMeta pm = getColumnMeta(propName);
 		sql.append(pm.getColumnName()).append(" = ").append(pm.getColumnName())
 				.append(" + ").append(step);
 		return this;
@@ -68,8 +68,8 @@ public class UpdateBuilder extends SQLBuilder<UpdateBuilder> {
 	 * @param step step use for decrease
 	 * @return UpdateBuilder build itself
 	 */
-	public UpdateBuilder dec(String propName, int step) {
-		ColumnMeta pm = getColumnMapping(propName);
+	public SQLUpdate dec(String propName, int step) {
+		ColumnMeta pm = getColumnMeta(propName);
 		sql.append(pm.getColumnName()).append(" = ").append(pm.getColumnName())
 				.append(" - ").append(step);
 		return this;

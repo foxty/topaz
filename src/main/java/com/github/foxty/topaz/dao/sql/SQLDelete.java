@@ -10,11 +10,11 @@ import org.apache.commons.logging.LogFactory;
  * Not thread safe!
  * @author foxty
  */
-public class DeleteBuilder extends SQLBuilder<DeleteBuilder> {
+public class SQLDelete extends SQLBuilder<SQLDelete> {
 
-	private static Log log = LogFactory.getLog(DeleteBuilder.class);
+	private static Log log = LogFactory.getLog(SQLDelete.class);
 
-	public DeleteBuilder(Class<? extends Model> clazz) {
+	public SQLDelete(Class<? extends Model> clazz) {
 		super(clazz);
 		buildSQL();
 	}

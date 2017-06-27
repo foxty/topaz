@@ -222,9 +222,9 @@ public class TopazUtil {
     /**
      * Remove duplicate / in the uri, remove trailing /
      * e.g.
-     * //a/b/condition/ -> /a/b/condition
-     * a/b/condition -> /a/b/condition
-     * a//b//condition -> a/b/condition
+     * //a/b/predicate/ -> /a/b/predicate
+     * a/b/predicate -> /a/b/predicate
+     * a//b//predicate -> a/b/predicate
      *
      * @param uri
      */

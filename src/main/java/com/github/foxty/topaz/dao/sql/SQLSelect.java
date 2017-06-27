@@ -22,15 +22,15 @@ import java.util.Objects;
  *
  * @author foxty
  */
-public class SelectBuilder extends SQLBuilder<SelectBuilder> {
+public class SQLSelect extends SQLBuilder<SQLSelect> {
 
-    private static Log log = LogFactory.getLog(SelectBuilder.class);
+    private static Log log = LogFactory.getLog(SQLSelect.class);
 
     private boolean limited = false;
     private String[] with;
     private List<RelationMeta> hasMany;
 
-    public SelectBuilder(Class<? extends Model> clazz, String... with) {
+    public SQLSelect(Class<? extends Model> clazz, String... with) {
         super(clazz);
         this.with = with;
         for (String w : with) {
@@ -41,7 +41,7 @@ public class SelectBuilder extends SQLBuilder<SelectBuilder> {
         buildSQL();
     }
 
-    public SelectBuilder(String sql, List<Object> sqlParams) {
+    public SQLSelect(String sql, List<Object> sqlParams) {
         super(sql, sqlParams);
     }
 
@@ -81,82 +81,18 @@ public class SelectBuilder extends SQLBuilder<SelectBuilder> {
         sql.append(fromSeg);
     }
 
-    private ColumnMeta findWithColumn(String with, String prop) {
-        RelationMeta rm = modelMeta.getRelationMeta(with);
-        ModelMeta withM = Models.getInstance().getModelMeta(rm.getFieldClazz());
-        ColumnMeta cm = withM.getColumnMeta(prop);
-        if (cm == null) {
-            throw new DaoException("No column mapping found for property "
-                    + with + "." + prop + "!");
-        }
-        return cm;
-    }
-
-    public SelectBuilder condition(String with, String prop, Object value) {
-        return condition(with, prop, OP.EQ, value);
-    }
-
-    public SelectBuilder condition(String with, String prop, OP op, Object value) {
-        ColumnMeta pm = findWithColumn(with, prop);
-        sql.append(" " + with + ".").append(pm.getColumnName())
-                .append(op.getValue()).append("? ");
-        sqlParams.add(value);
-        return this;
-    }
-
-    public SelectBuilder where(String with, String propName, Object value) {
-        return where(with, propName, OP.EQ, value);
-    }
-
-    public SelectBuilder where(String with, String propName, OP op,
-                               Object value) {
-        ColumnMeta pm = findWithColumn(with, propName);
-        sql.append(" WHERE ").append(with + ".").append(pm.getColumnName())
-                .append(op.getValue()).append("? ");
-        sqlParams.add(value);
-        return this;
-    }
-
-    public SelectBuilder and(String with, String prop, Object value) {
-        return and(with, prop, OP.EQ, value);
-    }
-
-    public SelectBuilder and(String with, String prop, OP op, Object value) {
-        and().condition(with, prop, op, value);
-        return this;
-    }
-
-    public SelectBuilder or(String with, String prop, Object value) {
-        return or(with, prop, OP.EQ, value);
-    }
-
-    public SelectBuilder or(String with, String prop, OP op, Object value) {
-        or().condition(with, prop, op, value);
-        return this;
-    }
-
-    public SelectBuilder orderBy(String prop, boolean ascending) {
-        ColumnMeta pm = getColumnMapping(prop);
+    public SQLSelect orderBy(String prop, boolean ascending) {
+        ColumnMeta pm = getColumnMeta(prop);
         if (null != pm) {
-            sql.append(" ORDER BY ").append(tableName).append(".")
+            sql.append(" ORDER BY ").append(pm.getTableName()).append(".")
                     .append(pm.getColumnName());
-            sql.append(ascending ? " asc " : " desc ");
+            sql.append(ascending ? " ASC " : " DESC ");
         }
         return this;
     }
 
-    public SelectBuilder orderBy(String with, String propName,
-                                 boolean ascending) {
-        ColumnMeta pm = findWithColumn(with, propName);
-        if (null != pm) {
-            sql.append(" ORDER BY ").append(with + ".")
-                    .append(pm.getColumnName());
-            sql.append(ascending ? " asc " : " desc ");
-        }
-        return this;
-    }
 
-    public SelectBuilder limit(Integer offset, Integer count) {
+    public SQLSelect limit(Integer offset, Integer count) {
         if (limited) {
             throw new DaoException("Limit segment already added! SQL:" + sql);
         }

@@ -4,9 +4,9 @@ import com.github.foxty.topaz.annotation._Column;
 import com.github.foxty.topaz.common.TopazUtil;
 import com.github.foxty.topaz.dao.meta.ColumnMeta;
 import com.github.foxty.topaz.dao.meta.ModelMeta;
-import com.github.foxty.topaz.dao.sql.DeleteBuilder;
-import com.github.foxty.topaz.dao.sql.SelectBuilder;
-import com.github.foxty.topaz.dao.sql.UpdateBuilder;
+import com.github.foxty.topaz.dao.sql.SQLDelete;
+import com.github.foxty.topaz.dao.sql.SQLSelect;
+import com.github.foxty.topaz.dao.sql.SQLUpdate;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.MapListHandler;
@@ -32,13 +32,13 @@ public class Model implements Serializable {
      * @return builder itself
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    final static public SelectBuilder find(Class<? extends Model> clazz, String... with) {
-        return new SelectBuilder(clazz, with);
+    final static public SQLSelect find(Class<? extends Model> clazz, String... with) {
+        return new SQLSelect(clazz, with);
     }
 
-    final static public SelectBuilder findBySql(Class<? extends Model> clazz,
-                                                String sql, Object... sqlParams) {
-        return new SelectBuilder(sql, Arrays.asList(sqlParams));
+    final static public SQLSelect findBySql(Class<? extends Model> clazz,
+                                            String sql, Object... sqlParams) {
+        return new SQLSelect(sql, Arrays.asList(sqlParams));
     }
 
     final static public List<Map<String, Object>> findBySql(final String sql,
@@ -54,18 +54,18 @@ public class Model implements Serializable {
 
     final static public <T extends Model> T findById(Class<T> clazz, Integer id,
                                                      String... withs) {
-        SelectBuilder ms = find(clazz, withs).where("id", id);
+        SQLSelect ms = find(clazz, withs).where("id", id);
         return ms.first();
     }
 
-    public static UpdateBuilder update(Class<? extends Model> clazz) {
-        UpdateBuilder ub = new UpdateBuilder(clazz);
+    public static SQLUpdate update(Class<? extends Model> clazz) {
+        SQLUpdate ub = new SQLUpdate(clazz);
         return ub;
     }
 
     public static int updateBySql(Class<? extends Model> clazz, String sql,
                                   List<Object> objects) {
-        UpdateBuilder ub = new UpdateBuilder(clazz, sql, objects);
+        SQLUpdate ub = new SQLUpdate(clazz, sql, objects);
         return ub.update();
     }
 
@@ -75,8 +75,8 @@ public class Model implements Serializable {
      * @param clazz model class
      * @return SQLBuilder builder itself
      */
-    final static public DeleteBuilder delete(Class<? extends Model> clazz) {
-        DeleteBuilder sb = new DeleteBuilder(clazz);
+    final static public SQLDelete delete(Class<? extends Model> clazz) {
+        SQLDelete sb = new SQLDelete(clazz);
         return sb;
     }
 
@@ -228,7 +228,7 @@ public class Model implements Serializable {
         if (getId() == null || getId().longValue() == 0L) {
             throw new DaoException("Invalid id " + id);
         }
-        UpdateBuilder ub = new UpdateBuilder(this.getClass());
+        SQLUpdate ub = new SQLUpdate(this.getClass());
 
         Map<String, ColumnMeta> mapping = modelMeta.getColumnMetaMap();
         ColumnMeta idMapping = mapping.get("id");
@@ -262,19 +262,19 @@ public class Model implements Serializable {
     }
 
     final public boolean increase(String prop) {
-        UpdateBuilder sb = new UpdateBuilder(this.getClass());
+        SQLUpdate sb = new SQLUpdate(this.getClass());
         sb.inc(prop, 1).where("id", getId());
         return sb.update() > 0;
     }
 
     final public boolean decrease(String prop) {
-        UpdateBuilder sb = new UpdateBuilder(this.getClass());
+        SQLUpdate sb = new SQLUpdate(this.getClass());
         sb.dec(prop, 1).where("id", getId());
         return sb.update() > 0;
     }
 
     public boolean deleted() {
-        DeleteBuilder db = new DeleteBuilder(this.getClass());
+        SQLDelete db = new SQLDelete(this.getClass());
         db.where("id", id);
         return db.update() > 0;
     }

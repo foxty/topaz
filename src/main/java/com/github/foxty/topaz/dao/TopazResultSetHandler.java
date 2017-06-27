@@ -70,7 +70,7 @@ public class TopazResultSetHandler<T> implements ResultSetHandler<List<T>> {
 			String[] arr = cName.split("\\.");
 			String tblProp = TopazUtil.flat2camel(arr[0]);
 			if (mp.getColumnMetaMap().containsKey(tblProp)) {
-				ColumnMeta cm = mp.getColumnMeta(tblProp);
+				ColumnMeta cm = mp.findColumnMeta(tblProp);
 				Method method = cm.getReadMethod();
 				Object subObj = null;
 				try {
@@ -93,7 +93,7 @@ public class TopazResultSetHandler<T> implements ResultSetHandler<List<T>> {
 		// Process column value
 		String pName = TopazUtil.flat2camel(cName);
 		if (mp.getColumnMetaMap().containsKey(pName)) {
-			ColumnMeta pm = mp.getColumnMeta(pName);
+			ColumnMeta pm = mp.findColumnMeta(pName);
 			Object cValue = processColumnValue(rs, pos, pm.getFieldClazz());
 			callSetter(bean, pm, cValue);
 		}

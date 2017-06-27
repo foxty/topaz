@@ -10,12 +10,18 @@ import java.lang.reflect.Method;
  * Created by itian on 6/26/2017.
  */
 public class ColumnMeta extends FieldMeta {
+    String tableName;
     private _Column column;
 
-    public ColumnMeta(_Column column, String fieldName, Class fieldClazz,
+    public ColumnMeta(_Column column, String tableName, String fieldName, Class fieldClazz,
                       Method readMethod, Method writeMethod) {
         super(fieldClazz, readMethod, writeMethod, fieldName);
+        this.tableName = tableName;
         this.column = column;
+    }
+
+    public String getTableName() {
+        return tableName;
     }
 
     public String getColumnName() {

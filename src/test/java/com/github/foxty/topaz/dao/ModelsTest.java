@@ -35,19 +35,28 @@ public class ModelsTest {
         assertTrue(mma.getColumnMetaMap().containsKey("bornDate"));
         assertEquals("table_name_a", mma.getTableName());
 
-        assertEquals(3, mmb.getColumnMetaMap().size());
+        assertEquals(4, mmb.getColumnMetaMap().size());
         assertTrue(mmb.getRelationMetaMap().isEmpty());
         assertEquals("model_b", mmb.getTableName());
+
+        assertEquals("id", mma.findColumnMeta("id").getColumnName());
+        assertEquals("id", mma.findColumnMeta("modelb.id").getColumnName());
+        assertEquals("name", mma.findColumnMeta("modelb.name").getColumnName());
     }
 
     @Test
     public void testColumnAnno() {
-        ColumnMeta cmName = mma.getColumnMeta("name");
-        ColumnMeta cmScore = mma.getColumnMeta("score");
+        ColumnMeta cmName = mma.findColumnMeta("name");
+        ColumnMeta cmScore = mma.findColumnMeta("score");
 
+        assertEquals("table_name_a", cmName.getTableName());
         assertEquals("aname", cmName.getColumnName());
         assertEquals("name", cmName.getFieldName());
         assertEquals(String.class, cmName.getFieldClazz());
+
+        ColumnMeta cmExpiredAt = mmb.findColumnMeta("expiredAt");
+        assertEquals("model_b", cmExpiredAt.getTableName());
+        assertEquals("expired_date_on", cmExpiredAt.getColumnName());
     }
 
     @Test
