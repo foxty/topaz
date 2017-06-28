@@ -55,4 +55,5 @@ public class ModelA extends Model {
     public void setModelb(ModelB modelb) {
         this.modelb = modelb;
     }
+
 }

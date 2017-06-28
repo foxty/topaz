@@ -44,6 +44,11 @@ public class Models {
         }
         return modelMetaMap.get(modelClazz.getName());
     }
+
+    public String genDDL(Class clazz) {
+        StringBuffer sb = new StringBuffer();
+        return sb.toString();
+    }
 }
 
 

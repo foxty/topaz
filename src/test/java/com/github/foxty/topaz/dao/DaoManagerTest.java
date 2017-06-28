@@ -41,9 +41,7 @@ public class DaoManagerTest {
 		final DaoManager mgr = DaoManager.getInstance();
 		mgr.useTransaction(() -> {
 				Connection conn1 = mgr.useConnection(conn -> conn);
-
 				Connection conn2 = mgr.useConnection(conn -> conn);
-
 				boolean autoCommit = true;
 				try {
 					autoCommit = conn1.getAutoCommit();

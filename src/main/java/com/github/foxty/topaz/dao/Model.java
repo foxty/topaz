@@ -19,70 +19,16 @@ import java.sql.*;
 import java.util.*;
 import java.util.Map.Entry;
 
+import static com.github.foxty.topaz.dao.sql.SQLSelect.fn.findById;
+
 @SuppressWarnings("serial")
 public class Model implements Serializable {
 
     private static Log log = LogFactory.getLog(Model.class);
-    /*Static Area*/
-    /**
-     * Read methods
-     *
-     * @param clazz class of model want to fetch
-     * @param with  sub model
-     * @return builder itself
-     */
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    final static public SQLSelect find(Class<? extends Model> clazz, String... with) {
-        return new SQLSelect(clazz, with);
-    }
-
-    final static public SQLSelect findBySql(Class<? extends Model> clazz,
-                                            String sql, Object... sqlParams) {
-        return new SQLSelect(sql, Arrays.asList(sqlParams));
-    }
-
-    final static public List<Map<String, Object>> findBySql(final String sql,
-                                                            final Object... sqlParams) {
-        DaoManager mgr = DaoManager.getInstance();
-        List<Map<String, Object>> result = mgr.useConnection(conn -> {
-                QueryRunner runner = new QueryRunner();
-                MapListHandler h = new MapListHandler();
-                return runner.query(conn, sql, h, sqlParams);
-        });
-        return result;
-    }
-
-    final static public <T extends Model> T findById(Class<T> clazz, Integer id,
-                                                     String... withs) {
-        SQLSelect ms = find(clazz, withs).where("id", id);
-        return ms.first();
-    }
-
-    public static SQLUpdate update(Class<? extends Model> clazz) {
-        SQLUpdate ub = new SQLUpdate(clazz);
-        return ub;
-    }
-
-    public static int updateBySql(Class<? extends Model> clazz, String sql,
-                                  List<Object> objects) {
-        SQLUpdate ub = new SQLUpdate(clazz, sql, objects);
-        return ub.update();
-    }
-
-    /**
-     * Deletion methods
-     *
-     * @param clazz model class
-     * @return SQLBuilder builder itself
-     */
-    final static public SQLDelete delete(Class<? extends Model> clazz) {
-        SQLDelete sb = new SQLDelete(clazz);
-        return sb;
-    }
-
 
     /*Instance Area*/
     protected ModelMeta modelMeta;
+
     // Primary Key
     @_Column
     protected Integer id;
@@ -136,15 +82,15 @@ public class Model implements Serializable {
         if (getId() != null && getId() != 0) {
             return updated();
         }
-        Map<String, ColumnMeta> mapping = modelMeta.getColumnMetaMap();
+        Map<String, ColumnMeta> columns = modelMeta.getColumnMetaMap();
 
         final StringBuffer insertSql = new StringBuffer("INSERT INTO ");
         final StringBuffer valueSql = new StringBuffer(" VALUES(");
-        final List<Object> params = new ArrayList<Object>(mapping.size());
+        final List<Object> params = new ArrayList<Object>(columns.size());
 
-        String tblName = TopazUtil.camel2flat(getClass().getSimpleName());
+        String tblName = modelMeta.getTableName();
         insertSql.append(tblName).append(" (");
-        for (Map.Entry<String, ColumnMeta> entry : mapping.entrySet()) {
+        for (Map.Entry<String, ColumnMeta> entry : columns.entrySet()) {
             ColumnMeta cm = entry.getValue();
             Object propValue;
             try {
@@ -200,7 +146,7 @@ public class Model implements Serializable {
 
 
     final public void refresh() {
-        Model newModel = find(this.getClass()).where("id", id).first();
+        Model newModel = findById(this.getClass(), id);
         if (newModel == null) {
             throw new DaoException("Can't find entity by id " + id);
         }

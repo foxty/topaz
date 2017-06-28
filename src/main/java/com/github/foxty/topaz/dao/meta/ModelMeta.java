@@ -20,8 +20,15 @@ public class ModelMeta {
 
     private Class<? extends Model> modelClazz;
     private _Model _model;
+
+    // All model's column definitions, key is the filed name
     private Map<String, ColumnMeta> columnMetaMap;
+
+    // Current model's relations
     private Map<String, RelationMeta> relationMetaMap;
+
+    // Mapping for db column name to object filed name.
+    private Map<String, String> columnName2filedName = new HashMap<>();
 
     public ModelMeta(Class<? extends Model> modelClazz) {
         this.modelClazz = modelClazz;
@@ -60,6 +67,9 @@ public class ModelMeta {
                     if (column != null) {
                         columns.put(fieldName, new ColumnMeta(column, getTableName(), fieldName,
                                 f.getType(), readMethod, writeMethod));
+                        if(!column.name().equals(fieldName)) {
+                            columnName2filedName.put(column.name(), fieldName);
+                        }
                     }
                     _Relation relation = f.getAnnotation(_Relation.class);
                     if (relation != null) {
@@ -88,7 +98,7 @@ public class ModelMeta {
      * It can be distinguished by the format of key.
      *  - if key contains "." then means should get from relational models
      *  - else means should get from current module's columns.
-     * @param key
+     * @param key Should be the field name or column name
      * @return
      */
     public ColumnMeta findColumnMeta(String key) {
@@ -98,10 +108,13 @@ public class ModelMeta {
             String[] props = key.split("\\.");
             RelationMeta rm = getRelationMeta(props[0]);
             ModelMeta rmm = Models.getInstance().getModelMeta(rm.getFieldClazz());
-            cm = rmm.getColumnMetaMap().get(props[1]);
-
+            cm = rmm.findColumnMeta(props[1]);
         } else {
             cm = columnMetaMap.get(key);
+            if(null == cm) {
+                String fieldName = columnName2filedName.get(key);
+                cm = columnMetaMap.get(fieldName);
+            }
         }
         return cm;
     }

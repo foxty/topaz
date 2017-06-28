@@ -59,7 +59,7 @@ public class TopazUtil {
      */
     public static String flat2camel(String input) {
         StringBuffer result = new StringBuffer();
-        String[] arr = input.split("_");
+        String[] arr = input.toLowerCase().split("_");
         result.append(arr[0]);
         for (int i = 1; i < arr.length; i++) {
             String ele = arr[i];

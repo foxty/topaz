@@ -24,7 +24,7 @@ public class ConfigTest {
 		Config.init(CFG_FILE);
 		Config c = Config.getInstance();
 		assertEquals("org.h2.Driver", c.getDbDriver());
-		assertEquals("jdbc:h2:mem:testdb",
+		assertEquals("jdbc:h2:mem:testdb;INIT=RUNSCRIPT FROM 'src/test/resources/testdb.sql'",
 				c.getDbUrl());
 		assertEquals("sa", c.getDbUsername());
 		assertEquals("", c.getDbPassword());

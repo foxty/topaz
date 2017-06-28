@@ -7,6 +7,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -40,6 +41,8 @@ public class ModelsTest {
         assertEquals("model_b", mmb.getTableName());
 
         assertEquals("id", mma.findColumnMeta("id").getColumnName());
+        assertEquals("aname", mma.findColumnMeta("aname").getColumnName());
+        assertEquals("aname", mma.findColumnMeta("name").getColumnName());
         assertEquals("id", mma.findColumnMeta("modelb.id").getColumnName());
         assertEquals("name", mma.findColumnMeta("modelb.name").getColumnName());
     }

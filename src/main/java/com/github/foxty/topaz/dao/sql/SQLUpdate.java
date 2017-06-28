@@ -19,6 +19,20 @@ public class SQLUpdate extends SQLBuilder<SQLUpdate> {
 
 	private static Log log = LogFactory.getLog(SQLUpdate.class);
 
+	public static class fn {
+
+		public static int updateBySql(Class<? extends Model> clazz, String sql,
+									  List<Object> objects) {
+			SQLUpdate ub = new SQLUpdate(clazz, sql, objects);
+			return ub.update();
+		}
+
+        public static SQLUpdate update(Class<? extends Model> clazz) {
+            SQLUpdate ub = new SQLUpdate(clazz);
+            return ub;
+        }
+	}
+
 	public SQLUpdate(Class<? extends Model> clazz) {
 		super(clazz);
 		buildSQL();

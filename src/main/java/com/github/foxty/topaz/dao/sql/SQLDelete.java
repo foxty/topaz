@@ -14,6 +14,26 @@ public class SQLDelete extends SQLBuilder<SQLDelete> {
 
 	private static Log log = LogFactory.getLog(SQLDelete.class);
 
+	public static class fn {
+
+		/**
+		 * Deletion methods
+		 *
+		 * @param clazz model class
+		 * @return SQLBuilder builder itself
+		 */
+		final static public SQLDelete delete(Class<? extends Model> clazz) {
+			SQLDelete sb = new SQLDelete(clazz);
+			return sb;
+		}
+
+		final static public boolean deleteById(Class<? extends Model> clazz, int id) {
+			int c = new SQLDelete(clazz).where("id", id).update();
+			return c > 0;
+		}
+
+	}
+
 	public SQLDelete(Class<? extends Model> clazz) {
 		super(clazz);
 		buildSQL();

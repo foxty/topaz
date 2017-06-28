@@ -22,11 +22,11 @@ public class SQLSelectTest {
         assertEquals(ModelA.class, ss.modelClazz);
         Assert.assertEquals(Models.getInstance().getModelMeta(ModelA.class), ss.modelMeta);
         assertEquals(0, ((String[])Mocks.getPrivate(ss, "with")).length);
-        assertEquals("SELECT table_name_a.*  FROM table_name_a", ss.sql.toString());
+        assertEquals("SELECT *  FROM table_name_a", ss.sql.toString());
 
         ss = new SQLSelect(ModelA.class, "modelb");
         assertEquals(1, ((String[])Mocks.getPrivate(ss, "with")).length);
-        assertEquals("SELECT table_name_a.* ,modelb.expired_date_on AS 'modelb.expired_date_on'," +
+        assertEquals("SELECT * ,modelb.expired_date_on AS 'modelb.expired_date_on'," +
                         "modelb.name AS 'modelb.name',modelb.modela_id AS 'modelb.modela_id'," +
                         "modelb.id AS 'modelb.id' FROM table_name_a JOIN model_b modelb ON table_name_a.id=modelb.table_name_a_id",
                 ss.sql.toString());
@@ -40,17 +40,17 @@ public class SQLSelectTest {
     public void testOrderby() throws Exception {
         SQLSelect ss = new SQLSelect(ModelA.class);
         ss.orderBy("name", true);
-        assertEquals("SELECT table_name_a.*  FROM table_name_a ORDER BY table_name_a.aname ASC ", ss.sql.toString());
+        assertEquals("SELECT *  FROM table_name_a ORDER BY table_name_a.aname ASC ", ss.sql.toString());
 
         ss = new SQLSelect(ModelA.class);
         ss.orderBy("name", false);
-        assertEquals("SELECT table_name_a.*  FROM table_name_a ORDER BY table_name_a.aname DESC ", ss.sql.toString());
+        assertEquals("SELECT *  FROM table_name_a ORDER BY table_name_a.aname DESC ", ss.sql.toString());
     }
 
     @Test
     public void testLimit() throws Exception {
         SQLSelect ss = new SQLSelect(ModelA.class);
         ss.limit(10, 5);
-        assertEquals("SELECT table_name_a.*  FROM table_name_a LIMIT 10,5", ss.sql.toString());
+        assertEquals("SELECT *  FROM table_name_a LIMIT 10,5", ss.sql.toString());
     }
 }

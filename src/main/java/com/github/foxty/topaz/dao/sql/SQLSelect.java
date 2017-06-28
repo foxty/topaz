@@ -6,6 +6,7 @@ import com.github.foxty.topaz.dao.meta.ModelMeta;
 import com.github.foxty.topaz.dao.meta.RelationMeta;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
+import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,9 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Not thread safe
@@ -25,6 +24,34 @@ import java.util.Objects;
 public class SQLSelect extends SQLBuilder<SQLSelect> {
 
     private static Log log = LogFactory.getLog(SQLSelect.class);
+
+    public static class fn {
+
+        public static <T extends Model> T  findById(Class<? extends Model> clazz, int id) {
+            return find(clazz).where("id", id).first();
+        }
+
+        public static SQLSelect find(Class<? extends Model> clazz, String... with) {
+            return new SQLSelect(clazz, with);
+        }
+
+        final static public SQLSelect findBySql(Class<? extends Model> clazz,
+                                                String sql, Object... sqlParams) {
+            return new SQLSelect(sql, Arrays.asList(sqlParams));
+        }
+
+        final static public List<Map<String, Object>> findBySql(final String sql,
+                                                                final Object... sqlParams) {
+            DaoManager mgr = DaoManager.getInstance();
+            List<Map<String, Object>> result = mgr.useConnection(conn -> {
+                QueryRunner runner = new QueryRunner();
+                MapListHandler h = new MapListHandler();
+                return runner.query(conn, sql, h, sqlParams);
+            });
+            return result;
+        }
+    }
+
 
     private boolean limited = false;
     private String[] with;
@@ -47,7 +74,7 @@ public class SQLSelect extends SQLBuilder<SQLSelect> {
 
     @Override
     protected void buildSQL() {
-        sql.append("SELECT " + tableName + ".* ");
+        sql.append("SELECT * ");
         String fromSeg = " FROM " + tableName;
 
         for (String w : with) {
