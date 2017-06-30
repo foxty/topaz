@@ -1,20 +1,16 @@
 package com.github.foxty.topaz.dao;
 
 import com.github.foxty.topaz.common.Config;
-import com.sun.scenario.effect.Offset;
-import org.apache.commons.dbutils.DbUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.cglib.core.Local;
+
+import java.io.File;
+import java.time.LocalDateTime;
 
 import static com.github.foxty.topaz.dao.sql.SQLDelete.fn.deleteById;
 import static com.github.foxty.topaz.dao.sql.SQLSelect.fn.findById;
 import static org.junit.Assert.*;
-
-import java.io.File;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 
 /**
  * Created by itian on 6/14/2017.
@@ -31,7 +27,7 @@ public class ModelTest {
     }
 
     @Before
-    public static void before() throws Exception {
+    public void before() throws Exception {
 
     }
 

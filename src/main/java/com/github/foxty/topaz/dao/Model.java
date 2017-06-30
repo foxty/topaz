@@ -174,7 +174,7 @@ public class Model implements Serializable {
         if (getId() == null || getId().longValue() == 0L) {
             throw new DaoException("Invalid id " + id);
         }
-        SQLUpdate ub = new SQLUpdate(this.getClass());
+        SQLUpdate ub = SQLUpdate.fn.update(this.getClass());
 
         Map<String, ColumnMeta> mapping = modelMeta.getColumnMetaMap();
         ColumnMeta idMapping = mapping.get("id");
@@ -208,13 +208,13 @@ public class Model implements Serializable {
     }
 
     final public boolean increase(String prop) {
-        SQLUpdate sb = new SQLUpdate(this.getClass());
+        SQLUpdate sb = SQLUpdate.fn.update(this.getClass());
         sb.inc(prop, 1).where("id", getId());
         return sb.update() > 0;
     }
 
     final public boolean decrease(String prop) {
-        SQLUpdate sb = new SQLUpdate(this.getClass());
+        SQLUpdate sb = SQLUpdate.fn.update(this.getClass());
         sb.dec(prop, 1).where("id", getId());
         return sb.update() > 0;
     }
