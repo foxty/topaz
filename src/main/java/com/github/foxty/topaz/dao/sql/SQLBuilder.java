@@ -62,6 +62,13 @@ abstract public class SQLBuilder<T extends SQLBuilder> {
         return (T) this;
     }
 
+    public T where(String prop, Operators op, Object value) {
+        WhereClause wc = new WhereClause(modelMeta, prop, op, value);
+        this.sql.append(wc.getClause());
+        this.sqlParams.addAll(wc.getParams());
+        return (T) this;
+    }
+
     @Override
     public String toString() {
         return sql.toString();

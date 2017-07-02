@@ -27,9 +27,6 @@ public class ModelMeta {
     // Current model's relations
     private Map<String, RelationMeta> relationMetaMap;
 
-    // Mapping for db column name to object filed name.
-    private Map<String, String> columnName2filedName = new HashMap<>();
-
     public ModelMeta(Class<? extends Model> modelClazz) {
         this.modelClazz = modelClazz;
         this._model = modelClazz.getAnnotation(_Model.class);
@@ -67,9 +64,6 @@ public class ModelMeta {
                     if (column != null) {
                         columns.put(fieldName, new ColumnMeta(column, getTableName(), fieldName,
                                 f.getType(), readMethod, writeMethod));
-                        if(!column.name().equals(fieldName)) {
-                            columnName2filedName.put(column.name(), fieldName);
-                        }
                     }
                     _Relation relation = f.getAnnotation(_Relation.class);
                     if (relation != null) {
@@ -82,11 +76,7 @@ public class ModelMeta {
     }
 
     public String getTableName() {
-        if (null == _model || StringUtils.isBlank(_model.tableName())) {
-            return TopazUtil.camel2flat(modelClazz.getSimpleName());
-        } else {
-            return _model.tableName();
-        }
+        return TopazUtil.camel2flat(modelClazz.getSimpleName());
     }
 
     public Map<String, ColumnMeta> getColumnMetaMap() {
@@ -96,9 +86,11 @@ public class ModelMeta {
     /**
      * Find column meta info from model columns or relation model's columns.
      * It can be distinguished by the format of key.
-     *  - if key contains "." then means should get from relational models
-     *  - else means should get from current module's columns.
-     * @param key Should be the field name or column name
+     * - if key contains "." then means should get from relational models
+     * - else means should get from current module's columns.
+     *
+     * @param key Should be the field name(by default) or
+     *            column name(which may have case sensitive)
      * @return
      */
     public ColumnMeta findColumnMeta(String key) {
@@ -106,24 +98,33 @@ public class ModelMeta {
         if (key.contains(".")) {
             //This is a predication on relation tables.
             String[] props = key.split("\\.");
-            RelationMeta rm = getRelationMeta(props[0]);
+            RelationMeta rm = findRealtionMega(props[0]);
             ModelMeta rmm = Models.getInstance().getModelMeta(rm.getFieldClazz());
             cm = rmm.findColumnMeta(props[1]);
         } else {
             cm = columnMetaMap.get(key);
-            if(null == cm) {
-                String fieldName = columnName2filedName.get(key);
-                cm = columnMetaMap.get(fieldName);
-            }
+        }
+        if (cm == null) {
+            throw new DaoException("No definition for column: " + key + " of " + this.getTableName());
         }
         return cm;
     }
 
-    public Map<String, RelationMeta> getRelationMetaMap() {
-        return relationMetaMap;
+    /**
+     * Find the relation metadata, key must be the field name or table name.
+     *
+     * @param key
+     * @return
+     */
+    public RelationMeta findRealtionMega(String key) {
+        RelationMeta rm =  relationMetaMap.get(key);
+        if (rm == null) {
+            throw new DaoException("No definition for relation: " + key + " of " + this.getTableName());
+        }
+        return rm;
     }
 
-    public RelationMeta getRelationMeta(String propName) {
-        return relationMetaMap.get(propName);
+    public Map<String, RelationMeta> getRelationMetaMap() {
+        return relationMetaMap;
     }
 }

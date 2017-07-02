@@ -33,6 +33,8 @@ public class SQLUpdate extends SQLBuilder<SQLUpdate> {
         }
     }
 
+    private boolean isSet;
+
     private SQLUpdate(Class<? extends Model> clazz) {
         super(clazz);
         buildSQL();
@@ -49,12 +51,11 @@ public class SQLUpdate extends SQLBuilder<SQLUpdate> {
 
     public SQLUpdate set(String propName, Object value) {
         ColumnMeta pm = getColumnMeta(propName);
-        if (!StringUtils.endsWith(sql.toString(), "SET ")) {
-            sql.append("," + pm.getColumnName()).append("=?");
-        } else {
-            sql.append(pm.getColumnName()).append("=?");
-        }
+        if (isSet)
+            sql.append(",");
+        sql.append(pm.getColumnName()).append("=?");
         sqlParams.add(value);
+        isSet = true;
         return this;
     }
 
@@ -67,8 +68,10 @@ public class SQLUpdate extends SQLBuilder<SQLUpdate> {
      */
     public SQLUpdate inc(String propName, int step) {
         ColumnMeta pm = getColumnMeta(propName);
-        sql.append(pm.getColumnName()).append(" = ").append(pm.getColumnName())
-                .append(" + ").append(step);
+        if (isSet) sql.append(",");
+        sql.append(pm.getColumnName()).append("=").append(pm.getColumnName())
+                .append("+").append(step);
+        isSet = true;
         return this;
     }
 
@@ -81,8 +84,10 @@ public class SQLUpdate extends SQLBuilder<SQLUpdate> {
      */
     public SQLUpdate dec(String propName, int step) {
         ColumnMeta pm = getColumnMeta(propName);
-        sql.append(pm.getColumnName()).append(" = ").append(pm.getColumnName())
-                .append(" - ").append(step);
+        if (isSet) sql.append(",");
+        sql.append(pm.getColumnName()).append("=").append(pm.getColumnName())
+                .append("-").append(step);
+        isSet = true;
         return this;
     }
 

@@ -34,7 +34,7 @@ public class SQLDelete extends SQLBuilder<SQLDelete> {
 
 	}
 
-	public SQLDelete(Class<? extends Model> clazz) {
+	private SQLDelete(Class<? extends Model> clazz) {
 		super(clazz);
 		buildSQL();
 	}

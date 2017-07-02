@@ -10,6 +10,4 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface _Model {
-    String tableName() default "";
-}
+public @interface _Model {}

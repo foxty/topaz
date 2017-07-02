@@ -1,6 +1,7 @@
 package com.github.foxty.topaz.dao.meta;
 
 import com.github.foxty.topaz.annotation._Relation;
+import com.github.foxty.topaz.dao.Model;
 import com.github.foxty.topaz.dao.Relation;
 import org.apache.commons.lang.StringUtils;
 
@@ -21,6 +22,10 @@ public class RelationMeta extends FieldMeta {
 
     public Relation getRelation() {
         return relation.relation();
+    }
+
+    public Class getModelClazz() {
+        return (relation.model() == Model.class) ? getFieldClazz() : relation.model();
     }
 
     public String byKey() {

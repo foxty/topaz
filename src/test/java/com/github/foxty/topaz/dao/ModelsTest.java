@@ -6,6 +6,9 @@ import com.github.foxty.topaz.dao.meta.RelationMeta;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -29,20 +32,19 @@ public class ModelsTest {
     public void testModelAnnontations() {
 
         assertEquals(4, mma.getColumnMetaMap().size());
-        assertEquals(1, mma.getRelationMetaMap().size());
+        assertEquals(2, mma.getRelationMetaMap().size());
         assertTrue(mma.getColumnMetaMap().containsKey("id"));
         assertTrue(mma.getColumnMetaMap().containsKey("name"));
         assertTrue(mma.getColumnMetaMap().containsKey("score"));
         assertTrue(mma.getColumnMetaMap().containsKey("bornDate"));
-        assertEquals("table_name_a", mma.getTableName());
+        assertEquals("model_a", mma.getTableName());
 
         assertEquals(4, mmb.getColumnMetaMap().size());
         assertTrue(mmb.getRelationMetaMap().isEmpty());
         assertEquals("model_b", mmb.getTableName());
 
         assertEquals("id", mma.findColumnMeta("id").getColumnName());
-        assertEquals("aname", mma.findColumnMeta("aname").getColumnName());
-        assertEquals("aname", mma.findColumnMeta("name").getColumnName());
+        assertEquals("name", mma.findColumnMeta("name").getColumnName());
         assertEquals("id", mma.findColumnMeta("modelb.id").getColumnName());
         assertEquals("name", mma.findColumnMeta("modelb.name").getColumnName());
     }
@@ -52,22 +54,28 @@ public class ModelsTest {
         ColumnMeta cmName = mma.findColumnMeta("name");
         ColumnMeta cmScore = mma.findColumnMeta("score");
 
-        assertEquals("table_name_a", cmName.getTableName());
-        assertEquals("aname", cmName.getColumnName());
+        assertEquals("model_a", cmName.getTableName());
+        assertEquals("name", cmName.getColumnName());
         assertEquals("name", cmName.getFieldName());
         assertEquals(String.class, cmName.getFieldClazz());
 
-        ColumnMeta cmExpiredAt = mmb.findColumnMeta("expiredAt");
+        ColumnMeta cmExpiredAt = mmb.findColumnMeta("expiredDateOn");
         assertEquals("model_b", cmExpiredAt.getTableName());
         assertEquals("expired_date_on", cmExpiredAt.getColumnName());
     }
 
     @Test
     public void testRelationAnno() throws Exception {
-        RelationMeta relation = mma.getRelationMeta("modelb");
+        RelationMeta relation = mma.findRealtionMega("modelb");
         assertEquals(ModelB.class, relation.getFieldClazz());
+        assertEquals(ModelB.class, relation.getModelClazz());
         assertEquals(Relation.HasOne, relation.getRelation());
-        assertEquals("table_name_a_id", relation.byKey());
+        assertEquals("model_a_id", relation.byKey());
+
+        RelationMeta relationC = mma.findRealtionMega("modelcList");
+        assertEquals(Relation.HasMany, relationC.getRelation());
+        assertEquals(ModelC.class, relationC.getModelClazz());
+        assertEquals(ArrayList.class, relationC.getFieldClazz());
     }
 
     @Test(expected = UnsupportedOperationException.class)

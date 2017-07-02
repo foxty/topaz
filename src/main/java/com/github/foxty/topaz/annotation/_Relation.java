@@ -21,5 +21,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface _Relation {
     Relation relation() default Relation.HasOne;
+    Class<? extends Model> model() default Model.class;
     String byKey() default "";
 }

@@ -2,10 +2,13 @@ package com.github.foxty.topaz.dao;
 
 import com.github.foxty.topaz.common.TopazUtil;
 import com.github.foxty.topaz.dao.meta.ColumnMeta;
+import com.github.foxty.topaz.dao.meta.FieldMeta;
 import com.github.foxty.topaz.dao.meta.ModelMeta;
+import com.github.foxty.topaz.dao.meta.RelationMeta;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.lang.StringUtils;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.sql.*;
 import java.time.ZoneId;
@@ -62,35 +65,31 @@ public class TopazResultSetHandler<T> implements ResultSetHandler<List<T>> {
     }
 
     private void processColumn(ResultSet rs, Object bean, String cName, int pos) throws SQLException {
-        ModelMeta mp = Models.getInstance().getModelMeta(modelClass);
-        if (cName.indexOf('.') >= 0) {
+        ModelMeta mm = Models.getInstance().getModelMeta(modelClass);
+        if (cName.indexOf("__") >= 0) {
             // Its a sub model
-            String[] arr = cName.split("\\.");
-            String tblProp = TopazUtil.flat2camel(arr[0]);
-            if (mp.getColumnMetaMap().containsKey(tblProp)) {
-                ColumnMeta cm = mp.findColumnMeta(tblProp);
-                Method method = cm.getReadMethod();
-                Object subObj = null;
-                try {
-                    subObj = method.invoke(bean);
-                    if (subObj == null) {
-                        subObj = this.newInstance(cm.getFieldClazz());
-                        this.callSetter(bean, cm, subObj);
-                    }
-                } catch (Exception e) {
-                    throw new DaoException(e);
+            String[] arr = cName.split("__");
+            RelationMeta rm = mm.findRealtionMega(TopazUtil.flat2camel(arr[0]));
+            Method method = rm.getReadMethod();
+            Object subObj = null;
+            try {
+                subObj = method.invoke(bean);
+                if (subObj == null) {
+                    subObj = this.newInstance(rm.getFieldClazz());
+                    this.callSetter(bean, rm, subObj);
                 }
-
-                // Find the sub object
-                bean = subObj;
-                cName = arr[1];
-                mp = Models.getInstance().getModelMeta(cm.getFieldClazz());
+            } catch (Exception e) {
+                throw new DaoException(e);
             }
+
+            // Find the sub object
+            bean = subObj;
+            cName = arr[1];
+            mm = Models.getInstance().getModelMeta(rm.getFieldClazz());
         }
 
         // Process column value
-        String fieldName = TopazUtil.flat2camel(cName);
-        ColumnMeta pm = mp.findColumnMeta(fieldName);
+        ColumnMeta pm = mm.findColumnMeta(TopazUtil.flat2camel(cName));
         Object cValue = processColumnValue(rs, pos, pm.getFieldClazz());
         callSetter(bean, pm, cValue);
 
@@ -178,10 +177,10 @@ public class TopazResultSetHandler<T> implements ResultSetHandler<List<T>> {
      */
     private static long DAY_IN_MILLI = 24 * 3600 * 1000;
 
-    private void callSetter(Object target, ColumnMeta pm, Object value)
+    private void callSetter(Object target, FieldMeta fm, Object value)
             throws SQLException {
 
-        Method setter = pm.getWriteMethod();
+        Method setter = fm.getWriteMethod();
 
         if (setter == null) {
             return;
@@ -213,7 +212,7 @@ public class TopazResultSetHandler<T> implements ResultSetHandler<List<T>> {
                 setter.invoke(target, new Object[]{value});
             } else {
                 throw new SQLException(
-                        "Cannot set " + pm.getColumnName()
+                        "Cannot set " + fm.getFieldName()
                                 + ": incompatible types, cannot convert "
                                 + value.getClass().getName() + " to " + params[0].getName());
                 // value cannot be null here because isCompatibleType allows
@@ -222,7 +221,7 @@ public class TopazResultSetHandler<T> implements ResultSetHandler<List<T>> {
 
         } catch (Exception e) {
             throw new SQLException(
-                    "Cannot set " + pm.getFieldName() + ": " + e.getMessage());
+                    "Cannot set " + fm.getFieldName() + ": " + e.getMessage());
 
         }
     }

@@ -1,5 +1,6 @@
 package com.github.foxty.topaz.dao.sql;
 
+import com.github.foxty.topaz.common.TopazUtil;
 import com.github.foxty.topaz.dao.*;
 import com.github.foxty.topaz.dao.meta.ColumnMeta;
 import com.github.foxty.topaz.dao.meta.ModelMeta;
@@ -27,7 +28,7 @@ public class SQLSelect extends SQLBuilder<SQLSelect> {
 
     public static class fn {
 
-        public static <T extends Model> T  findById(Class<? extends Model> clazz, int id) {
+        public static <T extends Model> T findById(Class<? extends Model> clazz, int id) {
             return find(clazz).where("id", id).first();
         }
 
@@ -57,41 +58,45 @@ public class SQLSelect extends SQLBuilder<SQLSelect> {
     private String[] with;
     private List<RelationMeta> hasMany;
 
-    public SQLSelect(Class<? extends Model> clazz, String... with) {
+    private SQLSelect(Class<? extends Model> clazz, String... with) {
         super(clazz);
         this.with = with;
         for (String w : with) {
-            RelationMeta rm = modelMeta.getRelationMeta(w);
+            RelationMeta rm = modelMeta.findRealtionMega(w);
             Objects.requireNonNull(rm);
             Models.getInstance().register(rm.getFieldClazz());
         }
         buildSQL();
     }
 
-    public SQLSelect(String sql, List<Object> sqlParams) {
+    private SQLSelect(String sql, List<Object> sqlParams) {
         super(sql, sqlParams);
     }
 
     @Override
     protected void buildSQL() {
-        sql.append("SELECT * ");
+        sql.append("SELECT " + tableName + ".*");
         String fromSeg = " FROM " + tableName;
+        String tableName = modelMeta.getTableName();
 
         for (String w : with) {
-            RelationMeta rm = modelMeta.getRelationMeta(w);
-            ModelMeta subModelMeta = Models.getInstance().getModelMeta(rm.getFieldClazz());
-            for (ColumnMeta cm : subModelMeta.getColumnMetaMap().values()) {
-                String cName = cm.getColumnName();
-                String colFullName = w + "." + cName;
-                sql.append("," + colFullName + " AS '" + colFullName + "'");
+            RelationMeta rm = modelMeta.findRealtionMega(w);
+            ModelMeta subModelMeta = Models.getInstance().getModelMeta(rm.getModelClazz());
+            String subTableName = subModelMeta.getTableName();
+            if (rm.getRelation() != Relation.HasMany) {
+                for (ColumnMeta cm : subModelMeta.getColumnMetaMap().values()) {
+                    String cName = cm.getColumnName();
+                    String colFullName = subTableName + "." + cName;
+                    String asFullName = TopazUtil.camel2flat(w) + "__" + cName;
+                    sql.append("," + colFullName + " AS " + asFullName);
+                }
             }
-            String tblName = subModelMeta.getTableName();
             String byKey = rm.byKey();
 
             switch (rm.getRelation()) {
                 case HasOne:
-                    fromSeg += (" JOIN " + tblName + " " + w + " ON "
-                            + tableName + ".id=" + w + "." + byKey);
+                    fromSeg += (" JOIN " + subTableName + " ON "
+                            + tableName + ".id=" + subTableName + "." + byKey);
                     break;
                 case HasMany:
                     if (hasMany == null) {
@@ -100,8 +105,8 @@ public class SQLSelect extends SQLBuilder<SQLSelect> {
                     hasMany.add(rm);
                     break;
                 case BelongsTo:
-                    fromSeg += (" JOIN " + tblName + " " + w + " ON "
-                            + tableName + "." + byKey + "=" + w + ".id");
+                    fromSeg += (" JOIN " + subTableName + " ON "
+                            + tableName + "." + byKey + "=" + subTableName + ".id");
                     break;
             }
         }
@@ -160,12 +165,12 @@ public class SQLSelect extends SQLBuilder<SQLSelect> {
                 if (hasMany != null) {
                     for (T re : result) {
                         for (RelationMeta rm : hasMany) {
-                            ModelMeta mm = Models.getInstance().getModelMeta(rm.getFieldClazz());
+                            ModelMeta mm = Models.getInstance().getModelMeta(rm.getModelClazz());
                             String byKey = rm.byKey();
                             String sql = "SELECT * FROM " + mm.getTableName() + " WHERE " + byKey
                                     + "=?";
                             TopazResultSetHandler subHandler = new TopazResultSetHandler(
-                                    rm.getFieldClazz());
+                                    rm.getModelClazz());
                             List<Object> subResult = (List<Object>) runner.query(conn, sql, subHandler,
                                     new Object[]{re.getId()});
 

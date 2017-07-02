@@ -4,15 +4,18 @@ import com.github.foxty.topaz.annotation._Column;
 import com.github.foxty.topaz.annotation._Model;
 import com.github.foxty.topaz.annotation._Relation;
 
+import java.lang.reflect.Array;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by itian on 6/22/2017.
  */
-@_Model(tableName = "table_name_a")
+@_Model
 public class ModelA extends Model {
 
-    @_Column(name = "aname")
+    @_Column
     private String name;
 
     @_Column
@@ -23,6 +26,9 @@ public class ModelA extends Model {
 
     @_Relation
     private ModelB modelb;
+
+    @_Relation(relation = Relation.HasMany, model = ModelC.class)
+    private ArrayList<ModelA> modelcList;
 
     public String getName() {
         return name;
@@ -56,4 +62,11 @@ public class ModelA extends Model {
         this.modelb = modelb;
     }
 
+    public List<ModelA> getModelcList() {
+        return modelcList;
+    }
+
+    public void setModelcList(ArrayList<ModelA> modelcList) {
+        this.modelcList = modelcList;
+    }
 }

@@ -19,6 +19,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.Map.Entry;
 
+import static com.github.foxty.topaz.dao.sql.SQLDelete.fn.deleteById;
 import static com.github.foxty.topaz.dao.sql.SQLSelect.fn.findById;
 
 @SuppressWarnings("serial")
@@ -189,7 +190,7 @@ public class Model implements Serializable {
             } catch (Exception e) {
                 throw new DaoException(e);
             }
-            ub.set(cm.getColumnName(), newValue);
+            ub.set(cm.getFieldName(), newValue);
         }
 
         ub.where("id", getId());
@@ -220,10 +221,7 @@ public class Model implements Serializable {
     }
 
     public boolean deleted() {
-        SQLDelete db = new SQLDelete(this.getClass());
-        db.where("id", id);
-        return db.update() > 0;
+        return deleteById(this.getClass(), id);
     }
-
 }
 

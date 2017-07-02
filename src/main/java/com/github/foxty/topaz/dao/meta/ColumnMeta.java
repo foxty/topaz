@@ -25,10 +25,6 @@ public class ColumnMeta extends FieldMeta {
     }
 
     public String getColumnName() {
-        if (StringUtils.isBlank(column.name())) {
-            return TopazUtil.camel2flat(getFieldName());
-        } else {
-            return column.name();
-        }
+        return TopazUtil.camel2flat(getFieldName());
     }
 }

@@ -1,22 +1,26 @@
 package com.github.foxty.topaz.dao;
 
 import com.github.foxty.topaz.annotation._Column;
+import com.github.foxty.topaz.annotation._Relation;
 
 import java.time.LocalDateTime;
 
 /**
  * Created by itian on 6/22/2017.
  */
-public class ModelB extends Model {
+public class ModelC extends Model {
 
     @_Column
     private String name;
 
     @_Column
-    private LocalDateTime expiredDateOn;
+    private LocalDateTime createdAt;
 
     @_Column
     private Integer modelAId;
+
+    @_Relation(relation = Relation.BelongsTo)
+    private ModelA parent;
 
     public String getName() {
         return name;
@@ -26,12 +30,12 @@ public class ModelB extends Model {
         this.name = name;
     }
 
-    public LocalDateTime getExpiredDateOn() {
-        return expiredDateOn;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setExpiredDateOn(LocalDateTime expiredDateOn) {
-        this.expiredDateOn = expiredDateOn;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public Integer getModelAId() {
@@ -40,5 +44,13 @@ public class ModelB extends Model {
 
     public void setModelAId(Integer modelAId) {
         this.modelAId = modelAId;
+    }
+
+    public ModelA getParent() {
+        return parent;
+    }
+
+    public void setParent(ModelA parent) {
+        this.parent = parent;
     }
 }

@@ -41,7 +41,7 @@ public class WhereClauseTest {
         WhereClause wc = new WhereClause(mma, "id", Operators.EQ, 100);
         wc.and("name", Operators.NE, "Isaac").or("score", Operators.GE, 60);
         String tn = mma.getTableName();
-        String expecSql = " WHERE  " + tn + ".id = ?  AND  " + tn + ".aname <> ?  OR  " + tn + ".score >= ? ";
+        String expecSql = " WHERE  " + tn + ".id = ?  AND  " + tn + ".name <> ?  OR  " + tn + ".score >= ? ";
         assertEquals(expecSql, wc.getClause().toString());
         assertEquals(3, wc.getParams().size());
         assertEquals(100, wc.getParams().get(0));
@@ -58,7 +58,7 @@ public class WhereClauseTest {
             w.predicate("id", 300).or("score", Operators.LT, 80);
         });
         String tn = mma.getTableName();
-        String expSql = " WHERE  %s.id = ?  OR (  %s.id = ?  AND  %s.aname = ?  ) " +
+        String expSql = " WHERE  %s.id = ?  OR (  %s.id = ?  AND  %s.name = ?  ) " +
                 " AND (  %s.id = ?  OR  %s.score < ?  ) ";
         expSql = String.format(expSql, tn, tn ,tn, tn, tn);
         assertEquals(expSql, wc.getClause().toString());
