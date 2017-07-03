@@ -76,6 +76,7 @@ public class ModelsTest {
         assertEquals(Relation.HasMany, relationC.getRelation());
         assertEquals(ModelC.class, relationC.getModelClazz());
         assertEquals(ArrayList.class, relationC.getFieldClazz());
+        assertEquals("model_a_id", relationC.byKey());
     }
 
     @Test(expected = UnsupportedOperationException.class)

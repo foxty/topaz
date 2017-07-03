@@ -62,13 +62,17 @@ public class ModelMeta {
                     }
                     _Column column = f.getAnnotation(_Column.class);
                     if (column != null) {
-                        columns.put(fieldName, new ColumnMeta(column, getTableName(), fieldName,
-                                f.getType(), readMethod, writeMethod));
+                        columns.put(fieldName,
+                                new ColumnMeta(column, getTableName(),
+                                        fieldName, f.getType(),
+                                        readMethod, writeMethod));
                     }
                     _Relation relation = f.getAnnotation(_Relation.class);
                     if (relation != null) {
-                        relations.put(fieldName, new RelationMeta(relation, getTableName() + "_id",
-                                fieldName, f.getType(), readMethod, writeMethod));
+                        relations.put(fieldName,
+                                new RelationMeta(relation, modelClazz,
+                                        fieldName, f.getType(),
+                                        readMethod, writeMethod));
                     }
                 });
         columnMetaMap = Collections.unmodifiableMap(columns);

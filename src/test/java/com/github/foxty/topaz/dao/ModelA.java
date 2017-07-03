@@ -28,7 +28,7 @@ public class ModelA extends Model {
     private ModelB modelb;
 
     @_Relation(relation = Relation.HasMany, model = ModelC.class)
-    private ArrayList<ModelA> modelcList;
+    private ArrayList<ModelC> modelcList;
 
     public String getName() {
         return name;
@@ -62,11 +62,11 @@ public class ModelA extends Model {
         this.modelb = modelb;
     }
 
-    public List<ModelA> getModelcList() {
+    public List<ModelC> getModelcList() {
         return modelcList;
     }
 
-    public void setModelcList(ArrayList<ModelA> modelcList) {
+    public void setModelcList(ArrayList<ModelC> modelcList) {
         this.modelcList = modelcList;
     }
 }

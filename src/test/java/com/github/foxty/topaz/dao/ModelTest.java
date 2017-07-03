@@ -70,8 +70,20 @@ public class ModelTest {
         assertEquals(3, a.getModelb().getId().intValue());
         System.out.println(ss.toString());
 
-        ModelA a1 = find(ModelA.class, "modelcList").where("id", 2).first();
+        ModelA a1 = find(ModelA.class, "modelcList")
+                .where("id", 2).first();
         assertEquals(2, a1.getId().intValue());
+        assertEquals(2, a1.getModelcList().size());
+        assertEquals(3, a1.getModelcList().get(0).getId().intValue());
+
+        ModelC c1 = find(ModelC.class, "parent")
+                .where("id", 1).first();
+        assertEquals(1, c1.getId().intValue());
+        assertEquals("modelc_1", c1.getName());
+        assertEquals(1, c1.getParent().getId().intValue());
+        assertEquals("test_data_1", c1.getParent().getName());
+        assertEquals(0, c1.getParent().getScore().intValue());
+        assertTrue(c1.getParent().getBornDate().isBefore(LocalDateTime.now()));
     }
 
     @Test
