@@ -2,6 +2,7 @@ package com.github.foxty.topaz.common;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -33,7 +34,7 @@ public class Config {
 
 	public static Config getInstance() {
 		if (instance == null) {
-			throw new ControllerException("Configuratoin file haven't initialized!!");
+			throw new ControllerException("Configuration file haven't initialized!!");
 		}
 		return instance;
 	}
@@ -53,7 +54,8 @@ public class Config {
 		if (cfgFile == null || !cfgFile.exists()) {
 			log.warn("Cant'f get configuration file " + cfgFile
 					+ ", using default configuration.");
-			return;
+            URL defUrl = this.getClass().getClassLoader().getResource("/topaz_default.properties");
+            cfgFile = new File(defUrl.getFile());
 		}
 		try {
 			props.load(FileUtils.openInputStream(cfgFile));

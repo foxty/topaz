@@ -29,7 +29,7 @@ public class TopazUtil {
 
     /**
      * Convert input str to underscore split
-     * <p>
+     *
      * e.g. AbcDefDAo to abc_def
      *
      * @param input input string
@@ -222,11 +222,12 @@ public class TopazUtil {
     /**
      * Remove duplicate / in the uri, remove trailing /
      * e.g.
-     * //a/b/predicate/ -> /a/b/predicate
-     * a/b/predicate -> /a/b/predicate
-     * a//b//predicate -> a/b/predicate
+     * //a/b/predicate/ to /a/b/predicate
+     * a/b/predicate to /a/b/predicate
+     * a//b//predicate to a/b/predicate
      *
-     * @param uri
+     * @param uri input uri string
+     * @return String uri after clean
      */
     public static String cleanUri(String uri) {
         Objects.requireNonNull(uri);
@@ -241,9 +242,5 @@ public class TopazUtil {
         }
 
         return uri;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(genUUID().length());
     }
 }

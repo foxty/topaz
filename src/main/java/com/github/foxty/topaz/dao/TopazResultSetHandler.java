@@ -100,7 +100,7 @@ public class TopazResultSetHandler<T> implements ResultSetHandler<List<T>> {
      * implementations could just call <code>rs.getObject(index)</code> while
      * more complex implementations could perform type manipulation to match the
      * column's type to the bean property type.
-     * <p>
+     *
      * <p>
      * This implementation calls the appropriate <code>ResultSet</code> getter
      * method for the given property type to perform the type conversion. If the

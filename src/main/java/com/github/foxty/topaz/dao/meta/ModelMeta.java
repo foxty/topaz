@@ -95,7 +95,7 @@ public class ModelMeta {
      *
      * @param key Should be the field name(by default) or
      *            column name(which may have case sensitive)
-     * @return
+     * @return ColumnMeta
      */
     public ColumnMeta findColumnMeta(String key) {
         ColumnMeta cm = null;
@@ -115,10 +115,10 @@ public class ModelMeta {
     }
 
     /**
-     * Find the relation metadata, key must be the field name or table name.
+     * Find the relation metadata, key must be the field name.
      *
-     * @param key
-     * @return
+     * @param key field name defined in model
+     * @return RelationMeta
      */
     public RelationMeta findRealtionMega(String key) {
         RelationMeta rm =  relationMetaMap.get(key);

@@ -111,7 +111,7 @@ public class CoreFilter implements Filter {
                     try {
                         cls = Thread.currentThread().getContextClassLoader().loadClass(clsPath);
                     } catch (ClassNotFoundException e) {
-                        log.error("Can nt find class " + clsPath, e);
+                        log.error("Can not find class " + clsPath, e);
                         continue;
                     }
 
@@ -120,8 +120,7 @@ public class CoreFilter implements Filter {
                     }
                 }
             } else {
-                contPackageName += "." + f.getName();
-                scanControllersInFolder(contPackageName, f);
+                scanControllersInFolder(contPackageName + "." + f.getName(), f);
             }
         }
     }
@@ -184,11 +183,9 @@ public class CoreFilter implements Filter {
     /**
      * Find the endpoint
      *
-     * @param request
-     * @param response
-     * @param chain
-     * @throws IOException
-     * @throws ServletException
+     * @param request HTTP Request
+     * @param response HTTP Response
+     * @param chain Filter Chain
      */
     public void doFilter(ServletRequest request, ServletResponse response,
                          FilterChain chain) throws IOException, ServletException {
