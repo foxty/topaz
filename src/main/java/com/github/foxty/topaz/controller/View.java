@@ -8,45 +8,54 @@ import java.util.Map;
  */
 public class View {
 
-    private String layout;
-    private String name;
-    private Map<String, Object> responseData;
+	private boolean noLayout;
+	private String layout;
+	private String name;
+	private Map<String, Object> responseData;
 
-    private View(String layout, String name, Map<String, Object> data) {
-        this.layout = layout;
-        this.name = name;
-        this.responseData = data;
-    }
+	private View(String layout, String name, boolean noLayout) {
+		this.layout = layout;
+		this.name = name;
+		this.noLayout = noLayout;
+	}
 
-    public static View create(String layout, String name) {
-        return new View(layout, name, null);
-    }
+	public static View create(String layout, String name) {
+		return new View(layout, name, false);
+	}
 
-    public static View create(String name) {
-        return  new View(null, name, null);
-    }
+	public static View create(String name) {
+		return new View(null, name, false);
+	}
 
-    public View data(String name, Object value) {
-        if(responseData == null) {
-            responseData = new HashMap<>();
-        }
-        responseData.put(name, value);
-        return this;
-    }
+	public static View createWithoutLayout(String name) {
+		return new View(null, name, true);
+	}
 
-    public void setLayout(String layout) {
-        this.layout = layout;
-    }
+	public View data(String name, Object value) {
+		if (responseData == null) {
+			responseData = new HashMap<>();
+		}
+		responseData.put(name, value);
+		return this;
+	}
 
-    public String getLayout() {
-        return layout;
-    }
+	public void setLayout(String layout) {
+		this.layout = layout;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getLayout() {
+		return layout;
+	}
 
-    public Map<String, Object> getResponseData() {
-        return responseData;
-    }
+	public String getName() {
+		return name;
+	}
+
+	public boolean isNoLayout() {
+		return noLayout;
+	}
+
+	public Map<String, Object> getResponseData() {
+		return responseData;
+	}
 }

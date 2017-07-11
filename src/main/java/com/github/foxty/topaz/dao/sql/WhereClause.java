@@ -75,6 +75,10 @@ public class WhereClause extends Clause {
         clause.append(" ) ");
         return this;
     }
+    
+    public WhereClause and(String p, Object v) {
+    	return and(p, Operators.EQ, v);
+    }
 
     public WhereClause and(String prop, Operators op, Object value) {
         if(state.isPredicate()) {
@@ -83,6 +87,10 @@ public class WhereClause extends Clause {
         state.toKeyword();
         predicate(prop, op, value);
         return this;
+    }
+    
+    public WhereClause or(String p, Object v) {
+    	return or(p, Operators.EQ, v);
     }
 
     public WhereClause or(String prop, Operators op, Object value) {

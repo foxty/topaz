@@ -17,82 +17,83 @@ import java.util.Objects;
 
 /**
  * Endpoint stand for an access point, which target to a method of a controller.
- * It has interceptors, baseUri mapping, controller instance and method instance.
+ * It has interceptors, baseUri mapping, controller instance and method
+ * instance.
  * <p>
  * Created by itian on 6/13/2017.
  */
 public class Endpoint {
 
-    private static Log log = LogFactory.getLog(Endpoint.class);
+	private static Log log = LogFactory.getLog(Endpoint.class);
 
-    private String baseUri;
-    private String methodUri;
-    private List<IInterceptor> interceptorList;
-    private Object controller;
-    private Method method;
-    private HttpMethod allowHttpMethod;
-    private boolean isTransactional;
+	private String baseUri;
+	private String methodUri;
+	private List<IInterceptor> interceptorList;
+	private Controller controller;
+	private Method method;
+	private HttpMethod allowHttpMethod;
+	private boolean isTransactional;
 
-    public Endpoint(String baseUri, List<IInterceptor> interceptorList, Object controller, Method method) {
-        this.baseUri = baseUri;
-        this.interceptorList = new ArrayList<>(interceptorList);
-        this.controller = controller;
-        this.method = method;
+	public Endpoint(Controller controller, Method method) {
+		this.baseUri = controller.getUri();
+		this.interceptorList = controller.getInterceptors();
+		this.controller = controller;
+		this.method = method;
 
-        init();
-    }
+		init();
+	}
 
-    private void init() {
-        Objects.requireNonNull(interceptorList, "InterceptorList should not be null.");
-        _Endpoint _endpoint = method.getAnnotation(_Endpoint.class);
-        Objects.requireNonNull(_endpoint, "@EP should not be null.");
-        methodUri = _endpoint.uri();
-        allowHttpMethod = _endpoint.method();
-        isTransactional = _endpoint.isTransactional();
+	private void init() {
+		Objects.requireNonNull(interceptorList, "InterceptorList should not be null.");
+		_Endpoint _endpoint = method.getAnnotation(_Endpoint.class);
+		Objects.requireNonNull(_endpoint, "@EP should not be null.");
+		methodUri = _endpoint.uri();
+		allowHttpMethod = _endpoint.method();
+		isTransactional = _endpoint.isTransactional();
 
-        FinalInterceptor fin = new FinalInterceptor(controller, method);
-        interceptorList.add(fin);
+		FinalInterceptor fin = new FinalInterceptor(controller, method);
+		interceptorList.add(fin);
 
-        baseUri = TopazUtil.cleanUri(baseUri);
-        methodUri = TopazUtil.cleanUri(methodUri);
-    }
+		baseUri = TopazUtil.cleanUri(baseUri);
+		methodUri = TopazUtil.cleanUri(methodUri);
+	}
 
-    public String getBaseUri() {
-        return baseUri;
-    }
+	public String getBaseUri() {
+		return baseUri;
+	}
 
-    public String getEndpointUri() {
-        return TopazUtil.cleanUri(baseUri + "/" + methodUri);
-    }
+	public String getEndpointUri() {
+		return TopazUtil.cleanUri(baseUri + "/" + methodUri);
+	}
 
-    public void execute() {
-        WebContext wc = WebContext.get();
-        HttpMethod requestMethod = HttpMethod.valueOf(wc.getRequest().getMethod());
-        if (log.isDebugEnabled()) {
-            log.debug("Access endpoint: " + this);
-        }
+	public void execute() {
+		WebContext wc = WebContext.get();
+		HttpMethod requestMethod = HttpMethod.valueOf(wc.getRequest().getMethod());
+		if (log.isDebugEnabled()) {
+			log.debug("Access endpoint: " + this);
+		}
 
-        if (allowHttpMethod != requestMethod) {
-            wc.getResponse().setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-            log.warn("Endpoint " + this + " is not support method " + requestMethod);
-            return;
-        }
-        // interceptor chain
-        InterceptorChain chain = new InterceptorChain(interceptorList);
-        if (isTransactional) {
-            if (log.isDebugEnabled()) {
-                log.debug("Wrap transaction on " + this.toString() + ".");
-            }
-            DaoManager.getInstance().useTransaction(() -> {
-                chain.proceed();
-            });
-        } else {
-            chain.proceed();
-        }
-    }
+		if (allowHttpMethod != requestMethod) {
+			wc.getResponse().setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+			log.warn("Endpoint " + this + " is not support method " + requestMethod);
+			return;
+		}
+		// interceptor chain
+		InterceptorChain chain = new InterceptorChain(interceptorList);
+		if (isTransactional) {
+			if (log.isDebugEnabled()) {
+				log.debug("Wrap transaction on " + this.toString() + ".");
+			}
+			DaoManager.getInstance().useTransaction(() -> {
+				chain.proceed();
+			});
+		} else {
+			chain.proceed();
+		}
+	}
 
-    public String toString() {
-        return "Endpoint: " + this.getEndpointUri() + " on " +
-                controller.getClass().getName() + "." + method.getName();
-    }
+	public String toString() {
+		return "Endpoint: " + this.getEndpointUri() + " on " + controller.getResource().getClass().getName() + "."
+				+ method.getName();
+	}
 }

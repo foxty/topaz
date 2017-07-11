@@ -1,61 +1,74 @@
 package com.github.foxty.topaz.controller;
 
-import com.github.foxty.topaz.controller.interceptor.IInterceptor;
-import com.github.foxty.topaz.tool.Mocks;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.github.foxty.topaz.controller.interceptor.IInterceptor;
+import com.github.foxty.topaz.tool.Mocks;
 
 /**
  * Created by itian on 6/13/2017.
  */
 public class EndpointTest {
 
-    @Test
-    public void testGetEndpoint() throws Exception {
-        TestController tc = new TestController();
-        Method getMethod = tc.getClass().getMethod("testGet", null);
+	Controller controller;
 
-        List<IInterceptor> interceptorList = new ArrayList<>();
-        interceptorList.add(new TestInterceptor());
+	@Before
+	public void before() {
+		TestController tc = new TestController();
+		controller = new Controller(tc);
+	}
 
-        Endpoint endpoint1 = new Endpoint("/", interceptorList, tc, getMethod);
-        assertEquals("/", endpoint1.getBaseUri());
-        assertEquals("/", endpoint1.getEndpointUri());
+	@Test
+	public void testGetEndpoint() throws Exception {
+		TestController tc = new TestController();
+		Method getMethod = tc.getClass().getMethod("testGet", null);
 
-        List<IInterceptor> actualInterceptorList = Mocks.getPrivate(endpoint1, "interceptorList");
-        assertNotEquals(interceptorList, actualInterceptorList);
+		List<IInterceptor> interceptorList = new ArrayList<>();
+		interceptorList.add(new TestInterceptor());
 
-        HttpMethod method = Mocks.getPrivate(endpoint1, "allowHttpMethod");
-        assertEquals(HttpMethod.GET, method);
+		Endpoint endpoint1 = new Endpoint(controller, getMethod);
+		assertEquals("/test", endpoint1.getBaseUri());
+		assertEquals("/test", endpoint1.getEndpointUri());
 
-        boolean isTransactional = Mocks.getPrivate(endpoint1, "isTransactional");
-        assertFalse(isTransactional);
-    }
+		List<IInterceptor> actualInterceptorList = Mocks.getPrivate(endpoint1, "interceptorList");
+		assertNotEquals(interceptorList, actualInterceptorList);
 
-    @Test
-    public void testPostEndpoint() throws Exception {
-        TestController tc = new TestController();
-        Method getMethod = tc.getClass().getMethod("testPost", null);
+		HttpMethod method = Mocks.getPrivate(endpoint1, "allowHttpMethod");
+		assertEquals(HttpMethod.GET, method);
 
-        List<IInterceptor> interceptorList = new ArrayList<>();
-        interceptorList.add(new TestInterceptor());
+		boolean isTransactional = Mocks.getPrivate(endpoint1, "isTransactional");
+		assertFalse(isTransactional);
+	}
 
-        Endpoint endpoint = new Endpoint("/", interceptorList, tc, getMethod);
-        assertEquals("/", endpoint.getBaseUri());
-        assertEquals("/post", endpoint.getEndpointUri());
+	@Test
+	public void testPostEndpoint() throws Exception {
+		TestController tc = new TestController();
+		Method getMethod = tc.getClass().getMethod("testPost", null);
 
-        List<IInterceptor> actualInterceptorList = Mocks.getPrivate(endpoint, "interceptorList");
-        assertNotEquals(interceptorList, actualInterceptorList);
+		List<IInterceptor> interceptorList = new ArrayList<>();
+		interceptorList.add(new TestInterceptor());
 
-        HttpMethod method = Mocks.getPrivate(endpoint, "allowHttpMethod");
-        assertEquals(HttpMethod.POST, method);
+		Endpoint endpoint = new Endpoint(controller, getMethod);
+		assertEquals("/test", endpoint.getBaseUri());
+		assertEquals("/test/post", endpoint.getEndpointUri());
 
-        boolean isTransactional = Mocks.getPrivate(endpoint, "isTransactional");
-        assertTrue(isTransactional);
-    }
+		List<IInterceptor> actualInterceptorList = Mocks.getPrivate(endpoint, "interceptorList");
+		assertNotEquals(interceptorList, actualInterceptorList);
+
+		HttpMethod method = Mocks.getPrivate(endpoint, "allowHttpMethod");
+		assertEquals(HttpMethod.POST, method);
+
+		boolean isTransactional = Mocks.getPrivate(endpoint, "isTransactional");
+		assertTrue(isTransactional);
+	}
 }
