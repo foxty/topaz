@@ -172,8 +172,11 @@
 				<artifactId>jetty-maven-plugin</artifactId>
 				<version>${version.jetty-maven-plugin}</version>
 				<configuration>
+					<httpConnector>
+						<port>12345</port>
+					</httpConnector>
                     <daemon>true</daemon>
-					<stopPort>8081</stopPort>
+					<stopPort>12346</stopPort>
 					<stopKey>stop-integration-server</stopKey>
                     <webAppSourceDirectory>${project.basedir}/src/test/resources/webapp</webAppSourceDirectory>
 				</configuration>
