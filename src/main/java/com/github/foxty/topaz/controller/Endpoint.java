@@ -73,12 +73,12 @@ public class Endpoint {
 			log.debug("Access endpoint: " + this);
 		}
 
-		if (allowHttpMethod != requestMethod) {
+		if (allowHttpMethod != HttpMethod.ANY && allowHttpMethod != requestMethod) {
 			wc.getResponse().setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
 			log.warn("Endpoint " + this + " is not support method " + requestMethod);
 			return;
 		}
-		// interceptor chain
+		// intercepter chain
 		InterceptorChain chain = new InterceptorChain(interceptorList);
 		if (isTransactional) {
 			if (log.isDebugEnabled()) {

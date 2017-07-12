@@ -115,7 +115,7 @@ public class CoreFilterTest {
 
 	@Test
 	public void testAccessNotAllowedEndpoint() throws Exception {
-		HttpServletRequest request = Mocks.httpRequest(HttpMethod.POST, "", "/test", null);
+		HttpServletRequest request = Mocks.httpRequest(HttpMethod.GET, "", "/test/post", null);
 		HttpServletResponse response = Mocks.httpResponse();
 		FilterChain chain = Mockito.mock(FilterChain.class);
 

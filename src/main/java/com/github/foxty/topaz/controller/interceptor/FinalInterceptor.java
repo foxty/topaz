@@ -16,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.alibaba.fastjson.JSON;
 import com.github.foxty.topaz.common.ControllerException;
+import com.github.foxty.topaz.common.TopazUtil;
 import com.github.foxty.topaz.controller.Controller;
 import com.github.foxty.topaz.controller.WebContext;
 import com.github.foxty.topaz.controller.response.Redirect;
@@ -74,7 +75,7 @@ final public class FinalInterceptor implements IInterceptor {
 			if (StringUtils.isBlank(v.getLayout())) {
 				v.setLayout(layout);
 			}
-			renderView(v);
+			renderView(controller.getUri(), v);
 		} else if (result instanceof Redirect) {
 			redirect(((Redirect) result).getTargetUri());
 		} else if (wc.isAcceptJson()) {
@@ -101,13 +102,15 @@ final public class FinalInterceptor implements IInterceptor {
 		return resPath != null && (resPath.startsWith("/") || resPath.startsWith("\\"));
 	}
 
-	private void renderView(View v) {
+	private void renderView(String baseUri, View v) {
 		WebContext wc = WebContext.get();
 		HttpServletRequest request = wc.getRequest();
 		HttpServletResponse response = wc.getResponse();
 
 		request.setAttribute(WEB_ERRORS, wc.getErrors());
-		String resPath = isAbsolutePath(v.getName()) ? v.getName() : "/" + v.getName();
+		// Add the controller uri as the folder name if resource name not start with /
+		String resPath = TopazUtil
+				.cleanUri(isAbsolutePath(v.getName()) ? v.getName() : "/" + baseUri + "/" + v.getName());
 		File resFile = new File(wc.getApplication().getRealPath(wc.getViewBase() + resPath));
 		if (!resFile.exists()) {
 			log.error("Can't find resource " + resFile);

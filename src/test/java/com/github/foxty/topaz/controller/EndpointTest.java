@@ -44,7 +44,7 @@ public class EndpointTest {
 		assertNotEquals(interceptorList, actualInterceptorList);
 
 		HttpMethod method = Mocks.getPrivate(endpoint1, "allowHttpMethod");
-		assertEquals(HttpMethod.GET, method);
+		assertEquals(HttpMethod.ANY, method);
 
 		boolean isTransactional = Mocks.getPrivate(endpoint1, "isTransactional");
 		assertFalse(isTransactional);

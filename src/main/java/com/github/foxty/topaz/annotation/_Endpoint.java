@@ -14,6 +14,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface _Endpoint {
     String uri() default "";
-    HttpMethod method() default HttpMethod.GET;
+    HttpMethod method() default HttpMethod.ANY;
     boolean isTransactional() default false;
 }
