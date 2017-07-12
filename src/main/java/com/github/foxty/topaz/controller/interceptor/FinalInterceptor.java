@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Map.Entry;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
@@ -16,8 +17,9 @@ import org.apache.commons.logging.LogFactory;
 import com.alibaba.fastjson.JSON;
 import com.github.foxty.topaz.common.ControllerException;
 import com.github.foxty.topaz.controller.Controller;
-import com.github.foxty.topaz.controller.View;
 import com.github.foxty.topaz.controller.WebContext;
+import com.github.foxty.topaz.controller.response.Redirect;
+import com.github.foxty.topaz.controller.response.View;
 
 /**
  * Final interceptor was last in the chain to handle the resource request.
@@ -73,6 +75,8 @@ final public class FinalInterceptor implements IInterceptor {
 				v.setLayout(layout);
 			}
 			renderView(v);
+		} else if (result instanceof Redirect) {
+			redirect(((Redirect) result).getTargetUri());
 		} else if (wc.isAcceptJson()) {
 			renderJson(result);
 		} else if (wc.isAcceptXml()) {
@@ -126,6 +130,12 @@ final public class FinalInterceptor implements IInterceptor {
 		}
 		if (log.isDebugEnabled()) {
 			log.debug("Render  " + v);
+		}
+
+		if (v.getResponseData() != null) {
+			for (Entry<String, Object> data : v.getResponseData().entrySet()) {
+				wc.attr(data.getKey(), data.getValue());
+			}
 		}
 		RequestDispatcher rd = wc.getApplication().getRequestDispatcher(targetRes);
 		try {

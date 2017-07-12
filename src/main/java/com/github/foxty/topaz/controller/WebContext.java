@@ -295,7 +295,7 @@ public class WebContext {
      *
      * @return boolean
      */
-    protected boolean isInputValid() {
+    public boolean isInputValid() {
         return getErrors().isEmpty();
     }
 

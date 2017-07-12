@@ -61,7 +61,7 @@ public class Validation {
      * @param maxLength maximum length
      * @return current validation object
      */
-    public Validation rengeLen(int minLength,
+    public Validation rangeLen(int minLength,
                                int maxLength) {
         if (valid && notBlank) {
             valid &= DataChecker.isSafeString(value, minLength, maxLength, null);

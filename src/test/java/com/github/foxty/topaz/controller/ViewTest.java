@@ -5,6 +5,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import com.github.foxty.topaz.controller.response.View;
+
 /**
  * Created by itian on 6/26/2017.
  */

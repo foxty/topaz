@@ -103,19 +103,19 @@ public class ValidationTest {
         setup();
         WebContext wc = WebContext.get();
         Validation v = Validation.create("string");
-        String value = v.rengeLen(0, 100).get();
+        String value = v.rangeLen(0, 100).get();
         assertEquals("this is a string value", value);
         assertTrue(Mocks.getPrivate(v, "valid"));
         assertTrue(wc.getErrors().isEmpty());
 
         v = Validation.create("string");
-        value = v.rengeLen(22, 22).get();
+        value = v.rangeLen(22, 22).get();
         assertEquals("this is a string value", value);
         assertTrue(Mocks.getPrivate(v, "valid"));
         assertTrue(wc.getErrors().isEmpty());
 
         v = Validation.create("string");
-        value = v.rengeLen(23, 26).get();
+        value = v.rangeLen(23, 26).get();
         assertNull(value);
         assertFalse(Mocks.getPrivate(v, "valid"));
         assertTrue(wc.getErrors().containsKey("string"));

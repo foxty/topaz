@@ -1,4 +1,4 @@
-package com.github.foxty.topaz.controller;
+package com.github.foxty.topaz.controller.response;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Created by itian on 6/15/2017.
  */
-public class View {
+public class View extends Response {
 
 	private boolean noLayout;
 	private String layout;

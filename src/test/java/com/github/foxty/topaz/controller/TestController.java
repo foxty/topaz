@@ -4,6 +4,7 @@ import com.github.foxty.topaz.annotation._Controller;
 import com.github.foxty.topaz.annotation._Endpoint;
 import com.github.foxty.topaz.controller.interceptor.IInterceptor;
 import com.github.foxty.topaz.controller.interceptor.InterceptorChain;
+import com.github.foxty.topaz.controller.response.View;
 
 import java.util.HashMap;
 import java.util.Map;
