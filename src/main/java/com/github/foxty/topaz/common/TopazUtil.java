@@ -92,7 +92,7 @@ public class TopazUtil {
         try {
             digest = MessageDigest.getInstance(algo);
         } catch (NoSuchAlgorithmException e) {
-            throw new ControllerException(e);
+            throw new TopazException(e);
         }
         digest.update(origStr.getBytes(Charset.forName("ASCII")));
         byte[] bytes = digest.digest();

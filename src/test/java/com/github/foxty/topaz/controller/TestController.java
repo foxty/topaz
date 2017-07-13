@@ -2,8 +2,8 @@ package com.github.foxty.topaz.controller;
 
 import com.github.foxty.topaz.annotation._Controller;
 import com.github.foxty.topaz.annotation._Endpoint;
-import com.github.foxty.topaz.controller.interceptor.IInterceptor;
-import com.github.foxty.topaz.controller.interceptor.InterceptorChain;
+import com.github.foxty.topaz.controller.interceptor.IIntercepter;
+import com.github.foxty.topaz.controller.interceptor.IntercepterChain;
 import com.github.foxty.topaz.controller.response.View;
 
 import java.util.HashMap;
@@ -73,12 +73,12 @@ public class TestController {
     }
 }
 
-class TestInterceptor implements IInterceptor {
+class TestInterceptor implements IIntercepter {
 
     public boolean called;
 
     @Override
-    public void intercept(InterceptorChain chain) {
+    public void intercept(IntercepterChain chain) {
         called = true;
         chain.proceed();
     }

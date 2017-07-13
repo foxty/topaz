@@ -1,19 +1,20 @@
 package com.github.foxty.topaz.controller;
 
-import com.github.foxty.topaz.common.TopazUtil;
-import com.github.foxty.topaz.annotation._Endpoint;
-import com.github.foxty.topaz.controller.interceptor.FinalInterceptor;
-import com.github.foxty.topaz.controller.interceptor.IInterceptor;
-import com.github.foxty.topaz.controller.interceptor.InterceptorChain;
-import com.github.foxty.topaz.dao.DaoManager;
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Objects;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.servlet.http.HttpServletResponse;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import com.github.foxty.topaz.annotation._Endpoint;
+import com.github.foxty.topaz.common.TopazUtil;
+import com.github.foxty.topaz.controller.interceptor.FinalIntercepter;
+import com.github.foxty.topaz.controller.interceptor.IIntercepter;
+import com.github.foxty.topaz.controller.interceptor.IntercepterChain;
+import com.github.foxty.topaz.dao.DaoManager;
 
 /**
  * Endpoint stand for an access point, which target to a method of a controller.
@@ -28,7 +29,7 @@ public class Endpoint {
 
 	private String baseUri;
 	private String methodUri;
-	private List<IInterceptor> interceptorList;
+	private List<IIntercepter> interceptorList;
 	private Controller controller;
 	private Method method;
 	private HttpMethod allowHttpMethod;
@@ -51,11 +52,15 @@ public class Endpoint {
 		allowHttpMethod = _endpoint.method();
 		isTransactional = _endpoint.isTransactional();
 
-		FinalInterceptor fin = new FinalInterceptor(controller, method);
+		FinalIntercepter fin = new FinalIntercepter(controller, method);
 		interceptorList.add(fin);
 
 		baseUri = TopazUtil.cleanUri(baseUri);
 		methodUri = TopazUtil.cleanUri(methodUri);
+	}
+
+	public HttpMethod getAllowHttpMethod() {
+		return allowHttpMethod;
 	}
 
 	public String getBaseUri() {
@@ -79,7 +84,7 @@ public class Endpoint {
 			return;
 		}
 		// intercepter chain
-		InterceptorChain chain = new InterceptorChain(interceptorList);
+		IntercepterChain chain = new IntercepterChain(interceptorList);
 		if (isTransactional) {
 			if (log.isDebugEnabled()) {
 				log.debug("Wrap transaction on " + this.toString() + ".");

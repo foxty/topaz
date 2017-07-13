@@ -13,7 +13,7 @@ public class ServerIT {
     @Test
     public void testServerReady() throws Exception {
         int code = HttpRequest.get("http://localhost:12345/").code();
-        assertEquals(200, code);
+        assertEquals(404, code);
 
         code = HttpRequest.get("http://localhost:12345/404").code();
         assertEquals(404, code);

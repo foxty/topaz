@@ -29,7 +29,6 @@ import org.apache.commons.logging.LogFactory;
 import com.github.foxty.topaz.annotation._Controller;
 import com.github.foxty.topaz.annotation._Endpoint;
 import com.github.foxty.topaz.common.Config;
-import com.sun.istack.internal.Nullable;
 
 /**
  * @author Isaac Tian
@@ -46,9 +45,7 @@ public class CoreFilter implements Filter {
 	private boolean xssFilterOn = true;
 
 	private ConcurrentHashMap<String, Controller> controllerMap = new ConcurrentHashMap<>();
-	// private ConcurrentHashMap<String, IInterceptor> interceptorMap = new
-	// ConcurrentHashMap<>();
-	private ConcurrentHashMap<String, Endpoint> endpointMap = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, Endpoints> endpointsMap = new ConcurrentHashMap<>();
 
 	/*
 	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
@@ -146,14 +143,17 @@ public class CoreFilter implements Filter {
 		for (Method m : methods) {
 			if (m.isAnnotationPresent(_Endpoint.class)) {
 				Endpoint ep = new Endpoint(controller, m);
-				Endpoint oldValue = endpointMap.putIfAbsent(ep.getEndpointUri(), ep);
-				if (null != oldValue) {
-					throw new ControllerException("EP URI conflict between " + oldValue + " and " + ep);
+				Endpoints eps = endpointsMap.get(ep.getEndpointUri());
+				if (eps == null) {
+					eps = new Endpoints(ep);
+					endpointsMap.putIfAbsent(ep.getEndpointUri(), eps);
+				} else {
+					eps.addEndpoint(ep);
 				}
 				epcount++;
 			}
 		}
-		log.info("C " + contClazz.getName() + " created with " + epcount + " endpoints.");
+		log.info("Controller " + contClazz.getName() + " created with " + epcount + " endpoints.");
 	}
 
 	/**
@@ -171,18 +171,19 @@ public class CoreFilter implements Filter {
 		HttpServletRequest req = (HttpServletRequest) request;
 		HttpServletResponse resp = (HttpServletResponse) response;
 		try {
-			request.setCharacterEncoding("UTF-8");
+			req.setCharacterEncoding("UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			log.error(e.toString(), e);
 		}
-		response.setCharacterEncoding("UTF-8");
+		resp.setCharacterEncoding("UTF-8");
 		String uri = req.getRequestURI().replaceFirst(req.getContextPath(), "").toLowerCase();
 		log.debug("Current uri = " + uri);
 
 		// if its REST style
 		if (uri.indexOf('.') <= 0) {
-			// Search endpoint info by requested uri
-			Endpoint endpoint = searchEndpoint(uri);
+			HttpMethod httpMethod = HttpMethod.valueOf(req.getMethod());
+			// Search endpoint info by requested URI
+			Endpoint endpoint = searchEndpoint(uri, httpMethod);
 			if (null != endpoint) {
 				WebContext ctx = WebContext.create(req, resp, viewBase);
 				if (!xssFilterOn) {
@@ -191,7 +192,8 @@ public class CoreFilter implements Filter {
 				endpoint.execute();
 				return;
 			} else {
-				log.warn("Can't find endpoint info for URI " + uri);
+				log.warn("Can't find endpoint " + httpMethod + " on" + uri);
+				resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			}
 		}
 
@@ -202,11 +204,14 @@ public class CoreFilter implements Filter {
 	/**
 	 *
 	 * @param uri
-	 * @return
+	 *            Request URI
+	 * @param httpMethod
+	 *            Request Http Method
+	 * @return Endpoint Target Endpoint
 	 */
-	@Nullable
-	private Endpoint searchEndpoint(String uri) {
-		return endpointMap.get(uri);
+	private Endpoint searchEndpoint(String uri, HttpMethod httpMethod) {
+		Endpoints eps = endpointsMap.get(uri);
+		return eps != null ? eps.findEndpoint(httpMethod) : null;
 	}
 
 	public void destroy() {

@@ -10,14 +10,14 @@ public class TopazExceptionTest {
 
     @Test
     public void testCreateWithMessage() throws Exception {
-        ControllerException e = new ControllerException("test message");
+        TopazException e = new TopazException("test message");
         assertEquals("test message", e.getMessage());
     }
 
     @Test
     public void testCreateWithCause() throws Exception {
         NullPointerException npe = new NullPointerException();
-        ControllerException e = new ControllerException(npe);
+        TopazException e = new TopazException(npe);
         assertEquals(npe, e.getCause());
     }
 }

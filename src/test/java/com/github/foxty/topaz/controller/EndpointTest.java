@@ -12,7 +12,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.github.foxty.topaz.controller.interceptor.IInterceptor;
+import com.github.foxty.topaz.controller.interceptor.IIntercepter;
 import com.github.foxty.topaz.tool.Mocks;
 
 /**
@@ -33,14 +33,14 @@ public class EndpointTest {
 		TestController tc = new TestController();
 		Method getMethod = tc.getClass().getMethod("testGet", null);
 
-		List<IInterceptor> interceptorList = new ArrayList<>();
+		List<IIntercepter> interceptorList = new ArrayList<>();
 		interceptorList.add(new TestInterceptor());
 
 		Endpoint endpoint1 = new Endpoint(controller, getMethod);
 		assertEquals("/test", endpoint1.getBaseUri());
 		assertEquals("/test", endpoint1.getEndpointUri());
 
-		List<IInterceptor> actualInterceptorList = Mocks.getPrivate(endpoint1, "interceptorList");
+		List<IIntercepter> actualInterceptorList = Mocks.getPrivate(endpoint1, "interceptorList");
 		assertNotEquals(interceptorList, actualInterceptorList);
 
 		HttpMethod method = Mocks.getPrivate(endpoint1, "allowHttpMethod");
@@ -55,14 +55,14 @@ public class EndpointTest {
 		TestController tc = new TestController();
 		Method getMethod = tc.getClass().getMethod("testPost", null);
 
-		List<IInterceptor> interceptorList = new ArrayList<>();
+		List<IIntercepter> interceptorList = new ArrayList<>();
 		interceptorList.add(new TestInterceptor());
 
 		Endpoint endpoint = new Endpoint(controller, getMethod);
 		assertEquals("/test", endpoint.getBaseUri());
 		assertEquals("/test/post", endpoint.getEndpointUri());
 
-		List<IInterceptor> actualInterceptorList = Mocks.getPrivate(endpoint, "interceptorList");
+		List<IIntercepter> actualInterceptorList = Mocks.getPrivate(endpoint, "interceptorList");
 		assertNotEquals(interceptorList, actualInterceptorList);
 
 		HttpMethod method = Mocks.getPrivate(endpoint, "allowHttpMethod");

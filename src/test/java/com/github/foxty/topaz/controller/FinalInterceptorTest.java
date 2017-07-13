@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.github.foxty.topaz.controller.interceptor.FinalInterceptor;
+import com.github.foxty.topaz.controller.interceptor.FinalIntercepter;
 import com.github.foxty.topaz.tool.Mocks;
 
 /**
@@ -34,13 +34,13 @@ public class FinalInterceptorTest {
 	}
 
 	@Test
-	public void testRnderJSON() throws Exception {
+	public void testRnderJSON() throws Throwable {
 		setup("/test/json", "Accept", "application/json");
 		WebContext wc = WebContext.get();
 		HttpServletResponse response = wc.getResponse();
 
 		Method m = TestController.class.getMethod("renderJson");
-		FinalInterceptor interceptor = new FinalInterceptor(c, m);
+		FinalIntercepter interceptor = new FinalIntercepter(c, m);
 		interceptor.intercept(null);
 
 		verify(response).setContentType("application/json");
@@ -48,13 +48,13 @@ public class FinalInterceptorTest {
 	}
 
 	@Test
-	public void testRenderXML() throws Exception {
+	public void testRenderXML() throws Throwable {
 		setup("/test/xml", "Accept", "application/xml");
 		WebContext wc = WebContext.get();
 		HttpServletResponse response = wc.getResponse();
 
 		Method m = TestController.class.getMethod("renderXml");
-		FinalInterceptor interceptor = new FinalInterceptor(c, m);
+		FinalIntercepter interceptor = new FinalIntercepter(c, m);
 		interceptor.intercept(null);
 
 		verify(response).setContentType("application/xml");
@@ -63,14 +63,14 @@ public class FinalInterceptorTest {
 
 	@Test
 	@Ignore
-	public void testRenderHTML() throws Exception {
+	public void testRenderHTML() throws Throwable {
 		setup("/test/html", "Accept", "text/html");
 		WebContext wc = WebContext.get();
 		HttpServletRequest request = wc.getRequest();
 		HttpServletResponse response = wc.getResponse();
 
 		Method m = TestController.class.getMethod("renderHtml");
-		FinalInterceptor interceptor = new FinalInterceptor(c, m);
+		FinalIntercepter interceptor = new FinalIntercepter(c, m);
 		interceptor.intercept(null);
 
 		verify(response).setContentType("text/html");
@@ -78,14 +78,14 @@ public class FinalInterceptorTest {
 	}
 
 	@Test
-	public void testRnderText() throws Exception {
+	public void testRnderText() throws Throwable {
 		setup("/test/text", "Accept", "text/plain");
 		WebContext wc = WebContext.get();
 		HttpServletRequest request = wc.getRequest();
 		HttpServletResponse response = wc.getResponse();
 
 		Method m = TestController.class.getMethod("renderText");
-		FinalInterceptor interceptor = new FinalInterceptor(c, m);
+		FinalIntercepter interceptor = new FinalIntercepter(c, m);
 		interceptor.intercept(null);
 
 		verify(response).setContentType("text/plain");

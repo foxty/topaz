@@ -31,14 +31,6 @@ public class View extends Response {
 		return new View(null, name, true);
 	}
 
-	public View data(String name, Object value) {
-		if (responseData == null) {
-			responseData = new HashMap<>();
-		}
-		responseData.put(name, value);
-		return this;
-	}
-
 	public void setLayout(String layout) {
 		this.layout = layout;
 	}
@@ -53,9 +45,5 @@ public class View extends Response {
 
 	public boolean isNoLayout() {
 		return noLayout;
-	}
-
-	public Map<String, Object> getResponseData() {
-		return responseData;
 	}
 }

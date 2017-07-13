@@ -7,7 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.github.foxty.topaz.annotation._Controller;
-import com.github.foxty.topaz.controller.interceptor.IInterceptor;
+import com.github.foxty.topaz.controller.interceptor.IIntercepter;
 
 /**
  * Wrapper of controller
@@ -21,7 +21,7 @@ public class Controller {
 	private Class<?> clazz;
 	private _Controller anno;
 	private Object resource;
-	private List<IInterceptor> interceptors = new LinkedList<>();
+	private List<IIntercepter> interceptors = new LinkedList<>();
 
 	public Controller(Object resource) {
 		this.clazz = resource.getClass();
@@ -35,11 +35,11 @@ public class Controller {
 		// Init all interceptors
 		Class tmpClazz = clazz;
 		while (tmpClazz != Object.class) {
-			Class<? extends IInterceptor>[] interceptorClazzs = anno.interceptors();
+			Class<? extends IIntercepter>[] interceptorClazzs = anno.interceptors();
 			if (interceptorClazzs != null) {
-				for (Class<? extends IInterceptor> interceptorClazz : interceptorClazzs) {
+				for (Class<? extends IIntercepter> interceptorClazz : interceptorClazzs) {
 					try {
-						IInterceptor inter = interceptorClazz.newInstance();
+						IIntercepter inter = interceptorClazz.newInstance();
 						interceptors.add(inter);
 					} catch (InstantiationException e) {
 						log.error("Initialize " + interceptorClazz + " failed!");
@@ -68,7 +68,7 @@ public class Controller {
 		return resource;
 	}
 
-	public List<IInterceptor> getInterceptors() {
-		return new LinkedList<IInterceptor>(interceptors);
+	public List<IIntercepter> getInterceptors() {
+		return new LinkedList<IIntercepter>(interceptors);
 	}
 }

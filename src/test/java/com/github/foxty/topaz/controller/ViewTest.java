@@ -16,20 +16,20 @@ public class ViewTest {
     public void testViewCreation() throws Exception {
         View v = View.create("view1");
         assertNull(v.getLayout());
-        assertNull(v.getResponseData());
+        assertNull(v.getData());
         assertEquals("view1", v.getName());
         assertFalse(v.isNoLayout());
 
         v = View.create("layout1", "view2");
         assertEquals("layout1", v.getLayout());
-        assertNull(v.getResponseData());
+        assertNull(v.getData());
         assertEquals("view2", v.getName());
         assertFalse(v.isNoLayout());
 
         v.data("data1", "string1");
         v.data("data2", new Integer(1));
-        assertEquals("string1", v.getResponseData().get("data1"));
-        assertEquals(1, v.getResponseData().get("data2"));
+        assertEquals("string1", v.getData().get("data1"));
+        assertEquals(1, v.getData().get("data2"));
         
         v = View.createWithoutLayout("test");
         assertTrue(v.isNoLayout());

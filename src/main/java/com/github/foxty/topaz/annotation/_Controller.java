@@ -1,6 +1,6 @@
 package com.github.foxty.topaz.annotation;
 
-import com.github.foxty.topaz.controller.interceptor.IInterceptor;
+import com.github.foxty.topaz.controller.interceptor.IIntercepter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -23,7 +23,7 @@ public @interface _Controller {
      */
     String uri() default "/";
 
-    Class<? extends IInterceptor>[] interceptors() default {};
+    Class<? extends IIntercepter>[] interceptors() default {};
 
     /*
     Layout of the controller

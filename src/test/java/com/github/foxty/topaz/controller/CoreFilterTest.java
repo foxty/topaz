@@ -55,17 +55,17 @@ public class CoreFilterTest {
 		return controllerMap;
 	}
 
-	private Map<String, Endpoint> checkEndpointMap(CoreFilter filter) throws Exception {
-		Map<String, Endpoint> endpointMap = Mocks.getPrivate(filter, "endpointMap");
-		assertEquals(6, endpointMap.size());
-		assertTrue(endpointMap.containsKey("/test"));
-		assertTrue(endpointMap.containsKey("/test/post"));
+	private Map<String, Endpoints> checkEndpointMap(CoreFilter filter) throws Exception {
+		Map<String, Endpoints> endpointsMap = Mocks.getPrivate(filter, "endpointsMap");
+		assertEquals(6, endpointsMap.size());
+		assertTrue(endpointsMap.containsKey("/test"));
+		assertTrue(endpointsMap.containsKey("/test/post"));
 
-		Endpoint ep1 = endpointMap.get("/test");
-		Endpoint ep2 = endpointMap.get("/test/post");
-		assertEquals("/test", ep1.getEndpointUri());
-		assertEquals("/test/post", ep2.getEndpointUri());
-		return endpointMap;
+		Endpoints eps1 = endpointsMap.get("/test");
+		Endpoints eps2 = endpointsMap.get("/test/post");
+		assertEquals("/test", eps1.findEndpoint(HttpMethod.GET).getEndpointUri());
+		assertEquals("/test/post", eps2.findEndpoint(HttpMethod.POST).getEndpointUri());
+		return endpointsMap;
 	}
 
 	@Test
@@ -118,9 +118,7 @@ public class CoreFilterTest {
 		HttpServletRequest request = Mocks.httpRequest(HttpMethod.GET, "", "/test/post", null);
 		HttpServletResponse response = Mocks.httpResponse();
 		FilterChain chain = Mockito.mock(FilterChain.class);
-
 		filter.doFilter(request, response, chain);
-
 		verify(chain, never()).doFilter(request, response);
 		verify(response).setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
 	}

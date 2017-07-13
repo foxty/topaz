@@ -11,17 +11,17 @@ import java.util.Map;
  */
 public class Response {
 
-	private Map<String, Object> responseData;
+	private Map<String, Object> data;
 
-	public Response data(String name, Object value) {
-		if (responseData == null) {
-			responseData = new HashMap<>();
+	public <T extends Response> T data(String name, Object value) {
+		if (data == null) {
+			data = new HashMap<>();
 		}
-		responseData.put(name, value);
-		return this;
+		data.put(name, value);
+		return (T) this;
 	}
 
-	public Map<String, Object> getResponseDate() {
-		return responseData;
+	public Map<String, Object> getData() {
+		return data;
 	}
 }

@@ -15,10 +15,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.alibaba.fastjson.JSON;
-import com.github.foxty.topaz.common.ControllerException;
 import com.github.foxty.topaz.common.TopazUtil;
 import com.github.foxty.topaz.controller.Controller;
+import com.github.foxty.topaz.controller.ControllerException;
 import com.github.foxty.topaz.controller.WebContext;
+import com.github.foxty.topaz.controller.response.Json;
 import com.github.foxty.topaz.controller.response.Redirect;
 import com.github.foxty.topaz.controller.response.View;
 
@@ -27,20 +28,20 @@ import com.github.foxty.topaz.controller.response.View;
  *
  * @author itian
  */
-final public class FinalInterceptor implements IInterceptor {
+final public class FinalIntercepter implements IIntercepter {
 
 	private static String WEB_ERRORS = "errors";
 	private static String LAYOUT_CHILDREN = "children";
-	private static Log log = LogFactory.getLog(FinalInterceptor.class);
+	private static Log log = LogFactory.getLog(FinalIntercepter.class);
 	private Controller controller;
 	private Method targetMethod;
 
-	public FinalInterceptor(Controller controller, Method targetMethod) {
+	public FinalIntercepter(Controller controller, Method targetMethod) {
 		this.controller = controller;
 		this.targetMethod = targetMethod;
 	}
 
-	final public void intercept(InterceptorChain chain) {
+	final public void intercept(IntercepterChain chain) {
 		if (log.isDebugEnabled()) {
 			log.debug("Execute method " + controller.getResource().getClass() + "." + targetMethod.getName());
 		}
@@ -51,15 +52,19 @@ final public class FinalInterceptor implements IInterceptor {
 	private Object invokeTargetMethod() {
 		try {
 			return targetMethod.invoke(controller.getResource());
+		} catch (IllegalAccessException | IllegalArgumentException e) {
+			throw new ControllerException(e);
 		} catch (InvocationTargetException e) {
-			if (e.getTargetException() instanceof ControllerException) {
-				throw (ControllerException) e.getTargetException();
+			Throwable t = e.getTargetException();
+			if (t instanceof RuntimeException) {
+				throw (RuntimeException) t;
 			} else {
-				throw new com.github.foxty.topaz.controller.ControllerException(e);
+				throw new ControllerException(e);
 			}
-		} catch (Exception e) {
-			throw new com.github.foxty.topaz.controller.ControllerException(e);
+		} catch (RuntimeException re) {
+			throw re;
 		}
+
 	}
 
 	/**
@@ -78,7 +83,7 @@ final public class FinalInterceptor implements IInterceptor {
 			renderView(controller.getUri(), v);
 		} else if (result instanceof Redirect) {
 			redirect(((Redirect) result).getTargetUri());
-		} else if (wc.isAcceptJson()) {
+		} else if (wc.isAcceptJson() || result instanceof Json) {
 			renderJson(result);
 		} else if (wc.isAcceptXml()) {
 			renderXml(result);
@@ -108,7 +113,8 @@ final public class FinalInterceptor implements IInterceptor {
 		HttpServletResponse response = wc.getResponse();
 
 		request.setAttribute(WEB_ERRORS, wc.getErrors());
-		// Add the controller uri as the folder name if resource name not start with /
+		// Add the controller uri as the folder name if resource name not start
+		// with /
 		String resPath = TopazUtil
 				.cleanUri(isAbsolutePath(v.getName()) ? v.getName() : "/" + baseUri + "/" + v.getName());
 		File resFile = new File(wc.getApplication().getRealPath(wc.getViewBase() + resPath));
@@ -135,8 +141,8 @@ final public class FinalInterceptor implements IInterceptor {
 			log.debug("Render  " + v);
 		}
 
-		if (v.getResponseData() != null) {
-			for (Entry<String, Object> data : v.getResponseData().entrySet()) {
+		if (v.getData() != null) {
+			for (Entry<String, Object> data : v.getData().entrySet()) {
 				wc.attr(data.getKey(), data.getValue());
 			}
 		}
@@ -151,10 +157,17 @@ final public class FinalInterceptor implements IInterceptor {
 	}
 
 	private void renderJson(Object object) {
+
 		WebContext ctx = WebContext.get();
 		HttpServletResponse response = ctx.getResponse();
 		response.setContentType("application/json");
-		String json = JSON.toJSONString(object);
+		Object data = object;
+		if (object instanceof Json) {
+			Json re = (Json) object;
+			response.setStatus(re.getStatusCode());
+			data = re.getData();
+		}
+		String json = JSON.toJSONString(data);
 		try {
 			response.getWriter().write(json);
 		} catch (IOException e) {

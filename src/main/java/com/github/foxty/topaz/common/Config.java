@@ -34,7 +34,7 @@ public class Config {
 
 	public static Config getInstance() {
 		if (instance == null) {
-			throw new ControllerException("Configuration file haven't initialized!!");
+			throw new TopazException("Configuration file haven't initialized!!");
 		}
 		return instance;
 	}
@@ -64,7 +64,7 @@ public class Config {
 			log.info("Load config " + cfgFile);
 		} catch (IOException e) {
 			log.error(e.getMessage(), e);
-			throw new ControllerException(e);
+			throw new TopazException(e);
 		}
 	}
 
