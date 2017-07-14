@@ -24,13 +24,13 @@ public class EndpointTest {
 
 	@Before
 	public void before() {
-		TestController tc = new TestController();
+		TestController1 tc = new TestController1();
 		controller = new Controller(tc);
 	}
 
 	@Test
 	public void testGetEndpoint() throws Exception {
-		TestController tc = new TestController();
+		TestController1 tc = new TestController1();
 		Method getMethod = tc.getClass().getMethod("testGet", null);
 
 		List<IIntercepter> interceptorList = new ArrayList<>();
@@ -52,7 +52,7 @@ public class EndpointTest {
 
 	@Test
 	public void testPostEndpoint() throws Exception {
-		TestController tc = new TestController();
+		TestController1 tc = new TestController1();
 		Method getMethod = tc.getClass().getMethod("testPost", null);
 
 		List<IIntercepter> interceptorList = new ArrayList<>();

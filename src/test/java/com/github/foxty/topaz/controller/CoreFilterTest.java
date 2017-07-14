@@ -49,23 +49,18 @@ public class CoreFilterTest {
 	}
 
 	private Map<String, Controller> checkControllerMap(CoreFilter filter) throws Exception {
-		Map<String, Controller> controllerMap = Mocks.getPrivate(filter, "controllerMap");
-		assertEquals(1, controllerMap.size());
-		assertTrue(controllerMap.containsKey(TestController.class.getName()));
+		Map<String, Controller> controllerMap = Mocks.getPrivate(filter, "controllerUriMap");
+		assertEquals(2, controllerMap.size());
+		Controller c1 = controllerMap.get("/test");
+		Controller c2 = controllerMap.get("/test2");
+		assertTrue(c1.getResource() instanceof TestController1);
+		assertTrue(c2.getResource() instanceof TestController2);
+		assertEquals(1, c1.getIntercepters().size());
+		assertEquals(1, c2.getIntercepters().size());
+
+		assertEquals(6, c1.getEndpointCount());
+		assertEquals(4, c2.getEndpointCount());
 		return controllerMap;
-	}
-
-	private Map<String, Endpoints> checkEndpointMap(CoreFilter filter) throws Exception {
-		Map<String, Endpoints> endpointsMap = Mocks.getPrivate(filter, "endpointsMap");
-		assertEquals(6, endpointsMap.size());
-		assertTrue(endpointsMap.containsKey("/test"));
-		assertTrue(endpointsMap.containsKey("/test/post"));
-
-		Endpoints eps1 = endpointsMap.get("/test");
-		Endpoints eps2 = endpointsMap.get("/test/post");
-		assertEquals("/test", eps1.findEndpoint(HttpMethod.GET).getEndpointUri());
-		assertEquals("/test/post", eps2.findEndpoint(HttpMethod.POST).getEndpointUri());
-		return endpointsMap;
 	}
 
 	@Test
@@ -80,7 +75,6 @@ public class CoreFilterTest {
 
 		// Check scan controller/intercepter/endpoint
 		checkControllerMap(filter);
-		checkEndpointMap(filter);
 	}
 
 	@Test
@@ -96,8 +90,8 @@ public class CoreFilterTest {
 		verify(chain, never()).doFilter(request, response);
 
 		Map<String, Controller> controllerMap = checkControllerMap(filter);
-		Controller c = controllerMap.get(TestController.class.getName());
-		TestController tc = (TestController) c.getResource();
+		Controller c = controllerMap.get("/test");
+		TestController1 tc = (TestController1) c.getResource();
 		assertTrue(tc.testGetAccessed);
 		assertFalse(tc.testPostAccessed);
 	}

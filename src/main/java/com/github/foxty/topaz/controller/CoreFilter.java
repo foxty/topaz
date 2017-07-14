@@ -8,9 +8,7 @@ package com.github.foxty.topaz.controller;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.Filter;
@@ -27,7 +25,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.github.foxty.topaz.annotation._Controller;
-import com.github.foxty.topaz.annotation._Endpoint;
 import com.github.foxty.topaz.common.Config;
 
 /**
@@ -44,8 +41,7 @@ public class CoreFilter implements Filter {
 	private String cfgFilePath;
 	private boolean xssFilterOn = true;
 
-	private ConcurrentHashMap<String, Controller> controllerMap = new ConcurrentHashMap<>();
-	private ConcurrentHashMap<String, Endpoints> endpointsMap = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, Controller> controllerUriMap = new ConcurrentHashMap<>();
 
 	/*
 	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
@@ -86,10 +82,7 @@ public class CoreFilter implements Filter {
 	 * @param contPackageName
 	 */
 	private void scanControllers(String contPackageName) {
-
-		boolean recursive = true;
 		String packageDirName = contPackageName.replace('.', '/');
-		Enumeration<URL> dirs;
 		URL url = Thread.currentThread().getContextClassLoader().getResource(packageDirName);
 		File pFile = new File(url.getFile());
 		if (pFile.exists()) {
@@ -125,35 +118,21 @@ public class CoreFilter implements Filter {
 		}
 	}
 
-	private void initControllerAndEndpoints(Class contClazz) {
+	private void initControllerAndEndpoints(Class<?> contClazz) {
 
 		// Instant the controller object.
 		Controller controller = null;
 		try {
 			controller = new Controller(contClazz.newInstance());
-			controllerMap.putIfAbsent(contClazz.getName(), controller);
+			Controller oldValue = controllerUriMap.putIfAbsent(controller.getUri(), controller);
+			if (null != oldValue) {
+				log.error("Conflict uri mapping between controller " + controller + " and " + oldValue);
+			}
 		} catch (Exception e) {
 			log.error(e);
 			throw new ControllerException(e);
 		}
-
-		// Create Endpoints
-		int epcount = 0;
-		Method[] methods = contClazz.getMethods();
-		for (Method m : methods) {
-			if (m.isAnnotationPresent(_Endpoint.class)) {
-				Endpoint ep = new Endpoint(controller, m);
-				Endpoints eps = endpointsMap.get(ep.getEndpointUri());
-				if (eps == null) {
-					eps = new Endpoints(ep);
-					endpointsMap.putIfAbsent(ep.getEndpointUri(), eps);
-				} else {
-					eps.addEndpoint(ep);
-				}
-				epcount++;
-			}
-		}
-		log.info("Controller " + contClazz.getName() + " created with " + epcount + " endpoints.");
+		log.info("Controller " + contClazz.getName() + " created with " + controller.getEndpointCount() + " endpoint.");
 	}
 
 	/**
@@ -197,7 +176,7 @@ public class CoreFilter implements Filter {
 			}
 		}
 
-		// Execute the rest filter/servlet
+		// Execute the rest Filter/Servlet
 		chain.doFilter(request, response);
 	}
 
@@ -210,8 +189,22 @@ public class CoreFilter implements Filter {
 	 * @return Endpoint Target Endpoint
 	 */
 	private Endpoint searchEndpoint(String uri, HttpMethod httpMethod) {
-		Endpoints eps = endpointsMap.get(uri);
-		return eps != null ? eps.findEndpoint(httpMethod) : null;
+		// Step 1 find the controller
+		String[] uriArr = uri.split("[/\\;]");
+		String contUri = "/";
+		for (String uriPart : uriArr) {
+			contUri += uriPart;
+			Controller c = controllerUriMap.get(contUri);
+			if (c != null) {
+				Endpoint ep = c.findEndpoint(uri, httpMethod);
+				if (ep == null) {
+					continue;
+				}
+				return ep;
+			}
+		}
+		log.info("Can't mapp uri " + uri + " to any endpoint.");
+		return null;
 	}
 
 	public void destroy() {

@@ -21,7 +21,7 @@ import com.github.foxty.topaz.tool.Mocks;
  */
 public class FinalInterceptorTest {
 
-	private static TestController controller = new TestController();
+	private static TestController1 controller = new TestController1();
 	private static Controller c = new Controller(controller);
 
 	public void setup(String uri, String headerName, String headerValue) throws IOException {
@@ -39,7 +39,7 @@ public class FinalInterceptorTest {
 		WebContext wc = WebContext.get();
 		HttpServletResponse response = wc.getResponse();
 
-		Method m = TestController.class.getMethod("renderJson");
+		Method m = TestController1.class.getMethod("renderJson");
 		FinalIntercepter interceptor = new FinalIntercepter(c, m);
 		interceptor.intercept(null);
 
@@ -53,7 +53,7 @@ public class FinalInterceptorTest {
 		WebContext wc = WebContext.get();
 		HttpServletResponse response = wc.getResponse();
 
-		Method m = TestController.class.getMethod("renderXml");
+		Method m = TestController1.class.getMethod("renderXml");
 		FinalIntercepter interceptor = new FinalIntercepter(c, m);
 		interceptor.intercept(null);
 
@@ -69,7 +69,7 @@ public class FinalInterceptorTest {
 		HttpServletRequest request = wc.getRequest();
 		HttpServletResponse response = wc.getResponse();
 
-		Method m = TestController.class.getMethod("renderHtml");
+		Method m = TestController1.class.getMethod("renderHtml");
 		FinalIntercepter interceptor = new FinalIntercepter(c, m);
 		interceptor.intercept(null);
 
@@ -84,7 +84,7 @@ public class FinalInterceptorTest {
 		HttpServletRequest request = wc.getRequest();
 		HttpServletResponse response = wc.getResponse();
 
-		Method m = TestController.class.getMethod("renderText");
+		Method m = TestController1.class.getMethod("renderText");
 		FinalIntercepter interceptor = new FinalIntercepter(c, m);
 		interceptor.intercept(null);
 

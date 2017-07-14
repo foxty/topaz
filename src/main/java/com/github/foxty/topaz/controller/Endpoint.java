@@ -37,7 +37,7 @@ public class Endpoint {
 
 	public Endpoint(Controller controller, Method method) {
 		this.baseUri = controller.getUri();
-		this.interceptorList = controller.getInterceptors();
+		this.interceptorList = controller.getIntercepters();
 		this.controller = controller;
 		this.method = method;
 
