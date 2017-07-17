@@ -1,15 +1,15 @@
 package com.github.foxty.topaz.dao.sql;
 
-import static org.junit.Assert.*;
+import static com.github.foxty.topaz.dao.sql.SQLSelect.fn.find;
+import static com.github.foxty.topaz.dao.sql.SQLSelect.fn.findBySql;
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 import com.github.foxty.topaz.dao.ModelA;
 import com.github.foxty.topaz.dao.Models;
 import com.github.foxty.topaz.tool.Mocks;
-import static com.github.foxty.topaz.dao.sql.SQLSelect.fn.*;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.ArrayList;
 
 /**
  * Created by itian on 6/26/2017.

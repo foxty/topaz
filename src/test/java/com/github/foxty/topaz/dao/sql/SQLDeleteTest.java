@@ -1,11 +1,11 @@
 package com.github.foxty.topaz.dao.sql;
 
-import com.github.foxty.topaz.dao.ModelA;
+import static com.github.foxty.topaz.dao.sql.SQLDelete.fn.delete;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
-import static com.github.foxty.topaz.dao.sql.SQLDelete.fn.delete;
-import static com.github.foxty.topaz.dao.sql.SQLUpdate.fn.update;
-import static org.junit.Assert.assertEquals;
+import com.github.foxty.topaz.dao.ModelA;
 
 /**
  * Created by foxty on 17/6/30.

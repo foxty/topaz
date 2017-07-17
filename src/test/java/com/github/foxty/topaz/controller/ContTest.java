@@ -1,9 +1,8 @@
 package com.github.foxty.topaz.controller;
 
-import org.junit.Test;
-
 import java.net.URL;
-import java.util.Enumeration;
+
+import org.junit.Test;
 
 /**
  * Created by itian on 6/13/2017.

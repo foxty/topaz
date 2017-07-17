@@ -9,7 +9,12 @@ import java.time.LocalDateTime;
  */
 public class ModelB extends Model {
 
-    @_Column
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	@_Column
     private String name;
 
     @_Column

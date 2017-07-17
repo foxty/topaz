@@ -16,51 +16,50 @@ import static org.junit.Assert.assertTrue;
  */
 public class WebContextTest {
 
-    public void setup(String headerName, String headerValue) throws IOException {
-        HttpServletRequest req = Mocks.httpRequestBuilder().
-                header(headerName, headerValue).build();
-        HttpServletResponse resp = Mocks.httpResponse();
-        WebContext wc = WebContext.create(req, resp, "/");
-    }
+	public void setup(String headerName, String headerValue) throws IOException {
+		HttpServletRequest req = Mocks.httpRequestBuilder().header(headerName, headerValue).build();
+		HttpServletResponse resp = Mocks.httpResponse();
+		WebContext.create(req, resp, "/");
+	}
 
-    @Test
-    public void testAcceptJson() throws Exception {
-        setup("Accept", "application/json");
-        WebContext wc = WebContext.get();
+	@Test
+	public void testAcceptJson() throws Exception {
+		setup("Accept", "application/json");
+		WebContext wc = WebContext.get();
 
-        List<WebContext.Accept> acceptList = wc.getAccept();
-        assertEquals(1, acceptList.size());
-        assertTrue(acceptList.contains(WebContext.Accept.JSON));
-    }
+		List<WebContext.Accept> acceptList = wc.getAccept();
+		assertEquals(1, acceptList.size());
+		assertTrue(acceptList.contains(WebContext.Accept.JSON));
+	}
 
-    @Test
-    public void testAcceptXml() throws Exception {
-        setup("Accept", "application/xml");
-        WebContext wc = WebContext.get();
+	@Test
+	public void testAcceptXml() throws Exception {
+		setup("Accept", "application/xml");
+		WebContext wc = WebContext.get();
 
-        List<WebContext.Accept> acceptList = wc.getAccept();
-        assertEquals(1, acceptList.size());
-        assertTrue(acceptList.contains(WebContext.Accept.XML));
-    }
+		List<WebContext.Accept> acceptList = wc.getAccept();
+		assertEquals(1, acceptList.size());
+		assertTrue(acceptList.contains(WebContext.Accept.XML));
+	}
 
-    @Test
-    public void testAcceptHtml() throws Exception {
-        setup("Accept", "text/html");
-        WebContext wc = WebContext.get();
+	@Test
+	public void testAcceptHtml() throws Exception {
+		setup("Accept", "text/html");
+		WebContext wc = WebContext.get();
 
-        List<WebContext.Accept> acceptList = wc.getAccept();
-        assertEquals(1, acceptList.size());
-        assertTrue(acceptList.contains(WebContext.Accept.HTML));
-    }
+		List<WebContext.Accept> acceptList = wc.getAccept();
+		assertEquals(1, acceptList.size());
+		assertTrue(acceptList.contains(WebContext.Accept.HTML));
+	}
 
-    @Test
-    public void testAcceptText() throws Exception {
-        setup("Accept", "text/plain");
-        WebContext wc = WebContext.get();
+	@Test
+	public void testAcceptText() throws Exception {
+		setup("Accept", "text/plain");
+		WebContext wc = WebContext.get();
 
-        List<WebContext.Accept> acceptList = wc.getAccept();
-        assertEquals(1, acceptList.size());
-        assertTrue(acceptList.contains(WebContext.Accept.PLAIN));
-    }
+		List<WebContext.Accept> acceptList = wc.getAccept();
+		assertEquals(1, acceptList.size());
+		assertTrue(acceptList.contains(WebContext.Accept.PLAIN));
+	}
 
 }

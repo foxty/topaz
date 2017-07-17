@@ -1,11 +1,11 @@
 package com.github.foxty.topaz.controller;
 
-import com.github.foxty.topaz.common.DataChecker;
-import com.github.foxty.topaz.common.TopazUtil;
+import java.util.Arrays;
+
 import org.apache.commons.lang.StringUtils;
 
-import javax.imageio.metadata.IIOInvalidTreeException;
-import java.util.Arrays;
+import com.github.foxty.topaz.common.DataChecker;
+import com.github.foxty.topaz.common.TopazUtil;
 
 /**
  * Validation to valid input parameter.

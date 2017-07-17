@@ -1,20 +1,24 @@
 package com.github.foxty.topaz.dao;
 
+import java.lang.reflect.Method;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.SQLXML;
+import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.dbutils.ResultSetHandler;
+import org.apache.commons.lang.StringUtils;
+
 import com.github.foxty.topaz.common.TopazUtil;
 import com.github.foxty.topaz.dao.meta.ColumnMeta;
 import com.github.foxty.topaz.dao.meta.FieldMeta;
 import com.github.foxty.topaz.dao.meta.ModelMeta;
 import com.github.foxty.topaz.dao.meta.RelationMeta;
-import org.apache.commons.dbutils.ResultSetHandler;
-import org.apache.commons.lang.StringUtils;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.sql.*;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 public class TopazResultSetHandler<T> implements ResultSetHandler<List<T>> {
 
@@ -175,8 +179,6 @@ public class TopazResultSetHandler<T> implements ResultSetHandler<List<T>> {
      * @throws SQLException
      * if an error occurs setting the property.
      */
-    private static long DAY_IN_MILLI = 24 * 3600 * 1000;
-
     private void callSetter(Object target, FieldMeta fm, Object value)
             throws SQLException {
 

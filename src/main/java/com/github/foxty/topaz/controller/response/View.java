@@ -1,8 +1,5 @@
 package com.github.foxty.topaz.controller.response;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Created by itian on 6/15/2017.
  */
@@ -11,7 +8,6 @@ public class View extends Response {
 	private boolean noLayout;
 	private String layout;
 	private String name;
-	private Map<String, Object> responseData;
 
 	private View(String layout, String name, boolean noLayout) {
 		this.layout = layout;

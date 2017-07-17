@@ -1,21 +1,20 @@
 package com.github.foxty.topaz.tool;
 
-import com.github.foxty.topaz.controller.HttpMethod;
-import org.mockito.Mockito;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
-import javax.servlet.FilterConfig;
-import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.IOError;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.Map;
+
+import javax.servlet.FilterConfig;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.mockito.Mockito;
+
+import com.github.foxty.topaz.controller.HttpMethod;
 
 /**
  * Mock object for all unit test.

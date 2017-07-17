@@ -1,7 +1,5 @@
 package com.github.foxty.topaz.dao.meta;
 
-import com.github.foxty.topaz.dao.Model;
-
 import java.lang.reflect.Method;
 
 /**
@@ -10,11 +8,11 @@ import java.lang.reflect.Method;
 public class FieldMeta {
 
     protected String fieldName;
-    protected Class fieldClazz;
+    protected Class<?> fieldClazz;
     protected Method readMethod;
     protected Method writeMethod;
 
-    public FieldMeta(Class fieldClazz, Method readMethod, Method writeMethod, String fieldName) {
+    public FieldMeta(Class<?> fieldClazz, Method readMethod, Method writeMethod, String fieldName) {
         this.fieldClazz = fieldClazz;
         this.readMethod = readMethod;
         this.writeMethod = writeMethod;
@@ -25,7 +23,7 @@ public class FieldMeta {
         return fieldName;
     }
 
-    public Class<? extends Model> getFieldClazz() {
+    public Class<?> getFieldClazz() {
         return fieldClazz;
     }
 

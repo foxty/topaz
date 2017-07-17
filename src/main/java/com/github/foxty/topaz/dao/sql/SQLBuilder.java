@@ -1,12 +1,13 @@
 package com.github.foxty.topaz.dao.sql;
 
-import com.github.foxty.topaz.dao.*;
-import com.github.foxty.topaz.dao.meta.ColumnMeta;
-import com.github.foxty.topaz.dao.meta.ModelMeta;
-import jdk.nashorn.internal.runtime.OptimisticReturnFilters;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.github.foxty.topaz.dao.DaoException;
+import com.github.foxty.topaz.dao.Model;
+import com.github.foxty.topaz.dao.Models;
+import com.github.foxty.topaz.dao.meta.ColumnMeta;
+import com.github.foxty.topaz.dao.meta.ModelMeta;
 
 /**
  * Not thread safe.

@@ -81,7 +81,6 @@ public class FinalInterceptorTest {
 	public void testRnderText() throws Throwable {
 		setup("/test/text", "Accept", "text/plain");
 		WebContext wc = WebContext.get();
-		HttpServletRequest request = wc.getRequest();
 		HttpServletResponse response = wc.getResponse();
 
 		Method m = TestController1.class.getMethod("renderText");

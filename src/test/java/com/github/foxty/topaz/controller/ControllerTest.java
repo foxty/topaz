@@ -12,7 +12,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.github.foxty.topaz.controller.interceptor.IIntercepter;
-import com.github.foxty.topaz.tool.Mocks;
 
 /**
  * @author itian
@@ -86,12 +85,10 @@ public class ControllerTest {
 	@Test
 	public void testfindEndpoint() throws Exception {
 		Endpoint ep = controller1.findEndpoint("/test", HttpMethod.GET);
-		List<IIntercepter> inters = (List<IIntercepter>) Mocks.getPrivate(ep, "interceptorList");
 		assertEquals("/test", ep.getEndpointUri());
 		assertEquals(HttpMethod.ANY, ep.getAllowHttpMethod());
 
 		ep = controller1.findEndpoint("/test/post", HttpMethod.POST);
-		inters = (List<IIntercepter>) Mocks.getPrivate(ep, "interceptorList");
 		assertEquals("/test/post", ep.getEndpointUri());
 		assertEquals(HttpMethod.POST, ep.getAllowHttpMethod());
 		assertEquals(null, controller1.findEndpoint("/aaa", HttpMethod.GET));
@@ -99,7 +96,7 @@ public class ControllerTest {
 		ep = controller2.findEndpoint("/test2/res1", HttpMethod.GET);
 		assertEquals("/test2/res1", ep.getEndpointUri());
 		assertEquals(HttpMethod.GET, ep.getAllowHttpMethod());
-		
+
 		ep = controller2.findEndpoint("/test2/res1", HttpMethod.PUT);
 		assertEquals("/test2/res1", ep.getEndpointUri());
 		assertEquals(HttpMethod.PUT, ep.getAllowHttpMethod());

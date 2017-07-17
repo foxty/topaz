@@ -1,26 +1,28 @@
 package com.github.foxty.topaz.dao;
 
-import com.github.foxty.topaz.annotation._Column;
-import com.github.foxty.topaz.common.TopazUtil;
-import com.github.foxty.topaz.dao.meta.ColumnMeta;
-import com.github.foxty.topaz.dao.meta.ModelMeta;
-import com.github.foxty.topaz.dao.sql.SQLDelete;
-import com.github.foxty.topaz.dao.sql.SQLSelect;
-import com.github.foxty.topaz.dao.sql.SQLUpdate;
-import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.handlers.MapListHandler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import static com.github.foxty.topaz.dao.sql.SQLDelete.fn.deleteById;
+import static com.github.foxty.topaz.dao.sql.SQLSelect.fn.findById;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
-import static com.github.foxty.topaz.dao.sql.SQLDelete.fn.deleteById;
-import static com.github.foxty.topaz.dao.sql.SQLSelect.fn.findById;
+import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.github.foxty.topaz.annotation._Column;
+import com.github.foxty.topaz.dao.meta.ColumnMeta;
+import com.github.foxty.topaz.dao.meta.ModelMeta;
+import com.github.foxty.topaz.dao.sql.SQLUpdate;
 
 @SuppressWarnings("serial")
 public class Model implements Serializable {
@@ -79,7 +81,6 @@ public class Model implements Serializable {
      * @throws DaoException DaoException will throw if no id attached
      */
     public boolean saved() {
-        boolean result = false;
         if (getId() != null && getId() != 0) {
             return updated();
         }

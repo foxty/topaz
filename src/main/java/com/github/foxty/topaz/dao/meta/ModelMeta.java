@@ -1,24 +1,29 @@
 package com.github.foxty.topaz.dao.meta;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+
 import com.github.foxty.topaz.annotation._Column;
 import com.github.foxty.topaz.annotation._Model;
 import com.github.foxty.topaz.annotation._Relation;
 import com.github.foxty.topaz.common.TopazUtil;
 import com.github.foxty.topaz.dao.DaoException;
-import com.github.foxty.topaz.dao.Model;
 import com.github.foxty.topaz.dao.Models;
-import org.apache.commons.lang.StringUtils;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.*;
 
 /**
  * Created by itian on 6/26/2017.
  */
 public class ModelMeta {
 
-    private Class<? extends Model> modelClazz;
+    private Class<?> modelClazz;
     private _Model _model;
 
     // All model's column definitions, key is the filed name
@@ -27,7 +32,7 @@ public class ModelMeta {
     // Current model's relations
     private Map<String, RelationMeta> relationMetaMap;
 
-    public ModelMeta(Class<? extends Model> modelClazz) {
+    public ModelMeta(Class<?> modelClazz) {
         this.modelClazz = modelClazz;
         this._model = modelClazz.getAnnotation(_Model.class);
 

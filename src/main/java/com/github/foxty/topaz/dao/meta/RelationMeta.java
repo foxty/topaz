@@ -13,9 +13,9 @@ import java.lang.reflect.Method;
  */
 public class RelationMeta extends FieldMeta {
     private _Relation relation;
-    private Class baseClazz;
+    private Class<?> baseClazz;
 
-    public RelationMeta(_Relation relation, Class baseClazz, String fieldName, Class fieldClazz, Method readMethod, Method writeMethod) {
+    public RelationMeta(_Relation relation, Class<?> baseClazz, String fieldName, Class<?> fieldClazz, Method readMethod, Method writeMethod) {
         super(fieldClazz, readMethod, writeMethod, fieldName);
         this.relation = relation;
         this.baseClazz = baseClazz;
@@ -25,7 +25,7 @@ public class RelationMeta extends FieldMeta {
         return relation.relation();
     }
 
-    public Class getModelClazz() {
+    public Class<?> getModelClazz() {
         return (relation.model() == Model.class) ? getFieldClazz() : relation.model();
     }
 

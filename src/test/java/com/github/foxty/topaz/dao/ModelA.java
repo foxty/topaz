@@ -1,13 +1,12 @@
 package com.github.foxty.topaz.dao;
 
-import com.github.foxty.topaz.annotation._Column;
-import com.github.foxty.topaz.annotation._Model;
-import com.github.foxty.topaz.annotation._Relation;
-
-import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.github.foxty.topaz.annotation._Column;
+import com.github.foxty.topaz.annotation._Model;
+import com.github.foxty.topaz.annotation._Relation;
 
 /**
  * Created by itian on 6/22/2017.
@@ -15,7 +14,12 @@ import java.util.List;
 @_Model
 public class ModelA extends Model {
 
-    @_Column
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	@_Column
     private String name;
 
     @_Column

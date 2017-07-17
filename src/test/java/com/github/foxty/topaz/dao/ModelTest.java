@@ -106,7 +106,7 @@ public class ModelTest {
         boolean re = a.updated();
         assertTrue(re);
         ModelA a1 = findById(ModelA.class, 1);
-        assertEquals("model_a_1", a.getName());
+        assertEquals("model_a_1", a1.getName());
     }
 
     @Test

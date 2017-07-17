@@ -1,12 +1,11 @@
 package com.github.foxty.topaz.dao.sql;
 
-import com.github.foxty.topaz.dao.ModelA;
-import org.junit.Test;
-import sun.reflect.annotation.EnumConstantNotPresentExceptionProxy;
-
 import static com.github.foxty.topaz.dao.sql.SQLUpdate.fn.update;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+
+import org.junit.Test;
+
+import com.github.foxty.topaz.dao.ModelA;
 
 /**
  * Created by foxty on 17/6/30.

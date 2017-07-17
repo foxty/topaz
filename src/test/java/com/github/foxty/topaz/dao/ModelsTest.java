@@ -1,17 +1,16 @@
 package com.github.foxty.topaz.dao;
 
-import com.github.foxty.topaz.dao.meta.ColumnMeta;
-import com.github.foxty.topaz.dao.meta.ModelMeta;
-import com.github.foxty.topaz.dao.meta.RelationMeta;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import com.github.foxty.topaz.dao.meta.ColumnMeta;
+import com.github.foxty.topaz.dao.meta.ModelMeta;
+import com.github.foxty.topaz.dao.meta.RelationMeta;
 
 /**
  * Created by itian on 6/22/2017.
@@ -52,7 +51,6 @@ public class ModelsTest {
     @Test
     public void testColumnAnno() {
         ColumnMeta cmName = mma.findColumnMeta("name");
-        ColumnMeta cmScore = mma.findColumnMeta("score");
 
         assertEquals("model_a", cmName.getTableName());
         assertEquals("name", cmName.getColumnName());
