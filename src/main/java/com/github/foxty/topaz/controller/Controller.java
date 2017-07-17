@@ -47,23 +47,21 @@ public class Controller {
 
 	private void init() {
 		// Init all intercepters
-		Class<?> tmpClazz = clazz;
-		while (tmpClazz != Object.class) {
-			Class<? extends IIntercepter>[] interceptorClazzs = anno.interceptors();
-			if (interceptorClazzs != null) {
-				for (Class<? extends IIntercepter> interceptorClazz : interceptorClazzs) {
-					try {
-						IIntercepter inter = interceptorClazz.newInstance();
-						intercepters.add(inter);
-					} catch (InstantiationException e) {
-						log.error("Initialize " + interceptorClazz + " failed!");
-					} catch (IllegalAccessException e) {
-						log.error(e.getMessage(), e);
-					}
+		
+		Class<? extends IIntercepter>[] interceptorClazzs = anno.interceptors();
+		if (interceptorClazzs != null) {
+			for (Class<? extends IIntercepter> interceptorClazz : interceptorClazzs) {
+				try {
+					IIntercepter inter = interceptorClazz.newInstance();
+					intercepters.add(inter);
+				} catch (InstantiationException e) {
+					log.error("Initialize " + interceptorClazz + " failed!");
+				} catch (IllegalAccessException e) {
+					log.error(e.getMessage(), e);
 				}
 			}
-			tmpClazz = tmpClazz.getSuperclass();
 		}
+			
 
 		// Create Endpoints
 		Method[] methods = clazz.getMethods();

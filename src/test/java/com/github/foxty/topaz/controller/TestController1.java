@@ -1,17 +1,17 @@
 package com.github.foxty.topaz.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.github.foxty.topaz.annotation._Controller;
 import com.github.foxty.topaz.annotation._Endpoint;
 import com.github.foxty.topaz.controller.response.View;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by itian on 6/13/2017.
  */
 @_Controller(uri = "/test", layout = "layout1.ftl", interceptors = { TestInterceptor.class })
-public class TestController1 {
+public class TestController1 extends TestBaseController {
 
 	public boolean testGetAccessed = false;
 	public boolean testPostAccessed = false;

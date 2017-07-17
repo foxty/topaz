@@ -89,14 +89,11 @@ public class ControllerTest {
 		List<IIntercepter> inters = (List<IIntercepter>) Mocks.getPrivate(ep, "interceptorList");
 		assertEquals("/test", ep.getEndpointUri());
 		assertEquals(HttpMethod.ANY, ep.getAllowHttpMethod());
-		assertEquals(2, inters.size());
 
 		ep = controller1.findEndpoint("/test/post", HttpMethod.POST);
 		inters = (List<IIntercepter>) Mocks.getPrivate(ep, "interceptorList");
 		assertEquals("/test/post", ep.getEndpointUri());
 		assertEquals(HttpMethod.POST, ep.getAllowHttpMethod());
-		assertEquals(2, inters.size());
-
 		assertEquals(null, controller1.findEndpoint("/aaa", HttpMethod.GET));
 
 		ep = controller2.findEndpoint("/test2/res1", HttpMethod.GET);
