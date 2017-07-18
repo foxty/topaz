@@ -1,29 +1,23 @@
 # topaz
 
-A TinyMVC Framework
+A Fullstack MVC Framework
 
 - Convention over Configuration
-- Embedded MySQL DAO
+- Embedded ORM Layer
 - FreeMarker Support
-- JSON support
+- RESTful Support
 
-## Configuration in web.xml
+## 1 minutes to run
 
-	<listener>
-		<listener-class>org.apache.commons.fileupload.servlet.FileCleanerCleanup</listener-class>
-	</listener>
-
+- Configuration in web.xml
+```
 	<filter>
 		<display-name>CoreFilter</display-name>
 		<filter-name>CoreFilter</filter-name>
-		<filter-class>CoreFilter</filter-class>
+		<filter-class>CoreFilter</filter-class>		
 		<init-param>
-			<param-name>configFile</param-name>
-			<param-value>/var/kaigongbao/data/config/config.properties</param-value>
-		</init-param>
-		<init-param>
-			<param-name>controllerBase</param-name>
-			<param-value>/<Classpath of Controllers></param-value>
+			<param-name>controllerPackage</param-name>
+			<param-value>[Classpath of Controllers. e.g. com.yourpackage.controller]</param-value>
 		</init-param>
 	</filter>
 	<filter-mapping>
@@ -64,7 +58,47 @@ A TinyMVC Framework
 		<servlet-name>freemarker</servlet-name>
 		<url-pattern>*.ftl</url-pattern>
 	</servlet-mapping>
+```
 
-## Controller Usage
+- Write your fist controller
+```
+package com.yourpackage.controller
 
-## DAO Usage
+@_Controller(uri = "/users")
+public class UserController {
+
+	@_Endpoint
+	public Json getUser() {
+		Map<String, String> user = new HashMap<>();
+		user.put("id", 123);
+		user.put("name", "Isaac");
+		return Json.create(200, "user", user);
+	}
+}
+```
+
+
+
+- Write your first model
+> Model should exntends com.github.foxty.topaz.dao.Model class and every model has an implicit filed id which used as the primary key.
+> We defined a model named with 'User', there should be a table also named with 'user'. 
+> By default, topaz will crate a inmemroy db, you can override this configration by change configurations.
+```
+@_Model
+public class User extends Model {
+	
+	@_Column
+	private String email;
+	
+	@_Column
+	private String nick;
+	
+	@_Column
+	private transient String passwd;
+	
+	//Getter and Setters
+	......
+}
+
+
+```

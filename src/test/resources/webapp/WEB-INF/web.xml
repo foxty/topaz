@@ -16,7 +16,7 @@
         <filter-name>CoreFilter</filter-name>
         <filter-class>com.github.foxty.topaz.controller.CoreFilter</filter-class>
         <init-param>
-            <param-name>controllerBase</param-name>
+            <param-name>controllerPackage</param-name>
             <param-value>com.github.foxty.topaz.controller</param-value>
         </init-param>
         <init-param>

@@ -7,25 +7,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ConfigTest {
 	private static File CFG_FILE = new File(ClassLoader.class.getResource("/topaz.properties").getFile());
 
-	@BeforeClass
-	public static void setUpClass() {
-
+	@Test
+	public void testDefaultConfig() throws Exception {
+		Config.init(new File(""));
+		Config c = Config.getInstance();
+		assertEquals("jdbc:h2:mem:default_db;", c.getDbUrl());
 	}
 
 	@Test
 	public void testDataSource() {
-		System.out.println(CFG_FILE.getAbsolutePath());
 		Config.init(CFG_FILE);
 		Config c = Config.getInstance();
 		assertEquals("org.h2.Driver", c.getDbDriver());
-		assertEquals("jdbc:h2:mem:testdb;INIT=RUNSCRIPT FROM 'src/test/resources/testdb.sql'",
-				c.getDbUrl());
+		assertEquals("jdbc:h2:mem:testdb;INIT=RUNSCRIPT FROM 'src/test/resources/testdb.sql'", c.getDbUrl());
 		assertEquals("sa", c.getDbUsername());
 		assertEquals("", c.getDbPassword());
 		assertEquals(5, c.getDbPoolMaxIdle());

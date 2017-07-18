@@ -54,7 +54,7 @@ public class Config {
 		if (cfgFile == null || !cfgFile.exists()) {
 			log.warn("Cant'f get configuration file " + cfgFile
 					+ ", using default configuration.");
-            URL defUrl = this.getClass().getClassLoader().getResource("/topaz_default.properties");
+            URL defUrl = Config.class.getResource("/topaz_default.properties");
             cfgFile = new File(defUrl.getFile());
 		}
 		try {
