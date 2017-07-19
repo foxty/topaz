@@ -48,7 +48,7 @@ public class ConfigTest {
 	@Test
 	public void testHotConf() {
 		Config.init(CFG_FILE);
-		Config.REFRESH_TIME = 5 * 1000;
+		Config.REFRESH_TIME = 1000;
 		Config c = Config.getInstance();
 		assertEquals("sa", c.getDbUsername());
 
@@ -57,7 +57,7 @@ public class ConfigTest {
 		configItems.add("hotconfig=true");
 		try {
 			FileUtils.writeLines(CFG_FILE, configItems, true);
-			Thread.sleep(6 * 1000);
+			Thread.sleep(2 * 1000);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

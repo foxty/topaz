@@ -75,7 +75,7 @@ public class Config {
 				lastModifiedTime = cfgFile.lastModified();
 				lastCheckTime = System.currentTimeMillis();
 				ins = FileUtils.openInputStream(cfgFile);
-				log.info("Will load config from" + cfgFile + ", hot swap enabled since its an outside configuration file.");
+				log.info("Will load config from " + cfgFile + ", hot swap enabled since its an outside configuration file.");
 			}
 			props.load(ins);
 		} catch (Exception e) {
