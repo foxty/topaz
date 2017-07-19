@@ -10,13 +10,23 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 public class ConfigTest {
-	private static File CFG_FILE = new File(ClassLoader.class.getResource("/topaz.properties").getFile());
+	private static File CFG_FILE = new File(ConfigTest.class.getResource("/test_topaz.properties").getFile());
 
 	@Test
 	public void testDefaultConfig() throws Exception {
-		Config.init(new File(""));
+		Config.init(null);
 		Config c = Config.getInstance();
 		assertEquals("jdbc:h2:mem:default_db;", c.getDbUrl());
+	}
+
+	@Test
+	public void testSystemPropOverride() throws Exception {
+		Config.init(null);
+		Config c = Config.getInstance();
+		assertEquals("org.h2.Driver", c.getDbDriver());
+		assertEquals("jdbc:h2:mem:default_db;", c.getDbUrl());
+		System.setProperty("ds.Driver", "override.driver.class");
+		assertEquals("override.driver.class", c.getDbDriver());
 	}
 
 	@Test

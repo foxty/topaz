@@ -38,7 +38,6 @@ public class CoreFilter implements Filter {
 
 	private String contPackageName = DEFAULT_CONT_PACKAGE;
 	private String viewBase = DEFAULT_VIEW_BASE;
-	private String cfgFilePath;
 	private boolean xssFilterOn = true;
 
 	private ConcurrentHashMap<String, Controller> controllerUriMap = new ConcurrentHashMap<>();
@@ -56,16 +55,13 @@ public class CoreFilter implements Filter {
 		}
 		if (StringUtils.isNotBlank(vBase)) {
 			viewBase = vBase;
-		}
-		if (StringUtils.isNotBlank(cFile)) {
-			cfgFilePath = cFile;
-		}
+		}		
 		if (StringUtils.isNotBlank(xssFilterFlag)) {
 			xssFilterOn = Boolean.valueOf(xssFilterFlag);
 		}
 
-		log.info("Start load Config from file " + cfgFilePath);
-		Config.init(new File(cfgFilePath));
+		log.info("Start load Config from file " + cFile);
+		Config.init(new File(cFile));
 
 		if (StringUtils.isBlank(contPackageName)) {
 			log.error("controllerPackage not defined in web.xml");

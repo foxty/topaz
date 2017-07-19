@@ -12,7 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Configuration for the app. Will reload configuration file if the file
+ * Configuration for the application. Will reload configuration file if the file
  * changed.
  * 
  * @author foxty
@@ -20,7 +20,12 @@ import org.apache.commons.logging.LogFactory;
 public class Config {
 	public static long REFRESH_TIME = 300 * 1000;
 	private static Log log = LogFactory.getLog(Config.class);
+	private static String[] propertyFiles = new String[] { "/topaz.properties", "/topaz_default.properties" };
 	private static Config instance;
+
+	private static class DefInstanceHolder {
+		static Config instance = new Config(null);
+	}
 
 	private File cfgFile;
 	private long lastModifiedTime = 0;
@@ -34,13 +39,27 @@ public class Config {
 
 	public static Config getInstance() {
 		if (instance == null) {
-			throw new TopazException("Configuration file haven't initialized!!");
+			log.warn("Configuration haven't initialized, now create it.");
+			return DefInstanceHolder.instance;
+		} else {
+			return instance;
 		}
-		return instance;
 	}
 
 	private Config(File cFile) {
-		cfgFile = cFile;
+		if (cFile == null || !cFile.exists()) {
+			for (String pFile : propertyFiles) {
+				log.info("Try to locate config file " + pFile);
+				URL url = Config.class.getResource(pFile);
+				if (url != null) {
+					log.info("Config file " + pFile + " located, now using this one.");
+					cfgFile = new File(url.getFile());
+					break;
+				}
+			}
+		} else {
+			cfgFile = cFile;
+		}
 		props = new Properties();
 		booleanValues.add("true");
 		booleanValues.add("True");
@@ -51,12 +70,6 @@ public class Config {
 	}
 
 	private void loadConfig() {
-		if (cfgFile == null || !cfgFile.exists()) {
-			log.warn("Cant'f get configuration file " + cfgFile
-					+ ", using default configuration.");
-            URL defUrl = Config.class.getResource("/topaz_default.properties");
-            cfgFile = new File(defUrl.getFile());
-		}
 		try {
 			props.load(FileUtils.openInputStream(cfgFile));
 			lastModifiedTime = cfgFile.lastModified();
@@ -70,12 +83,12 @@ public class Config {
 
 	public String getConfig(String key) {
 		long millisDiff = System.currentTimeMillis() - lastCheckTime;
-		if (lastCheckTime != 0 && millisDiff > REFRESH_TIME
-				&& FileUtils.isFileNewer(cfgFile, lastModifiedTime)) {
+		if (lastCheckTime != 0 && millisDiff > REFRESH_TIME && FileUtils.isFileNewer(cfgFile, lastModifiedTime)) {
 			log.info("Config file changed, reloading... ");
 			loadConfig();
 		}
-		String value = (String) props.get(key);
+		// System property will override the config property
+		String value = System.getProperty(key, props.getProperty(key));
 		return value;
 	}
 
