@@ -67,19 +67,20 @@ public class Config {
 					log.info("Try to locate config file " + pFile);
 					ins = Config.class.getResourceAsStream(pFile);
 					if (ins != null) {
-						log.info("Config file " + pFile + " located, now using this one.");
+						log.info("Will load config from " + pFile);
 						break;
 					}
 				}
 			} else {
+				lastModifiedTime = cfgFile.lastModified();
+				lastCheckTime = System.currentTimeMillis();
 				ins = FileUtils.openInputStream(cfgFile);
+				log.info("Will load config from" + cfgFile + ", hot swap enabled since its an outside configuration file.");
 			}
 			props.load(ins);
-			lastModifiedTime = cfgFile.lastModified();
-			lastCheckTime = System.currentTimeMillis();
-			log.info("Load config " + cfgFile);
 		} catch (Exception e) {
 			log.error("Fail to load config", e);
+			throw new TopazException(e);
 		} finally {
 			IOUtils.close(ins);
 		}
@@ -88,7 +89,7 @@ public class Config {
 	public String getConfig(String key) {
 		long millisDiff = System.currentTimeMillis() - lastCheckTime;
 		if (lastCheckTime != 0 && millisDiff > REFRESH_TIME && FileUtils.isFileNewer(cfgFile, lastModifiedTime)) {
-			log.info("Config file changed, reloading... ");
+			log.info("Config file changed, reloading...");
 			loadConfig();
 		}
 		// System property will override the config property
