@@ -1,7 +1,8 @@
-package com.github.foxty.topaz.controller;
+package com.github.foxty.topaz.controller.res;
 
 import com.github.foxty.topaz.annotation._Controller;
 import com.github.foxty.topaz.annotation._Endpoint;
+import com.github.foxty.topaz.controller.HttpMethod;
 
 /**
  * Created by itian on 6/13/2017.

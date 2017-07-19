@@ -7,7 +7,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -19,6 +21,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.github.foxty.topaz.controller.res.TestController1;
+import com.github.foxty.topaz.controller.res.TestController2;
+import com.github.foxty.topaz.controller.res.TestLauncher1;
 import com.github.foxty.topaz.tool.Mocks;
 
 /**
@@ -34,7 +39,7 @@ public class CoreFilterTest {
 		filter = new CoreFilter();
 		FilterConfig config = Mocks.mockServletConfig(new HashMap<String, String>() {
 			{
-				put("controllerPackage", "");
+				put("scanPath", "");
 				put("viewBase", "/config/");
 				put("configFile", cfgFile);
 				put("xssFilterOn", "true");
@@ -44,8 +49,10 @@ public class CoreFilterTest {
 	}
 
 	@AfterClass
-	public static void done() {
+	public static void done() throws Exception {
 		filter.destroy();
+		ExecutorService launcherExecutor = Mocks.getPrivate(filter, "launcherExecutor");
+		assertTrue(launcherExecutor.isShutdown());
 	}
 
 	private Map<String, Controller> checkControllerMap(CoreFilter filter) throws Exception {
@@ -66,7 +73,7 @@ public class CoreFilterTest {
 	@Test
 	public void testInit() throws Exception {
 		// Check init params
-		String contPkgName = Mocks.getPrivate(filter, "contPackageName");
+		String contPkgName = Mocks.getPrivate(filter, "scanPath");
 		String viewBase = Mocks.getPrivate(filter, "viewBase");
 		boolean xssFilterOn = Mocks.getPrivate(filter, "xssFilterOn");
 		assertEquals(CoreFilter.DEFAULT_CONT_PACKAGE, contPkgName);
@@ -75,6 +82,15 @@ public class CoreFilterTest {
 
 		// Check scan controller/intercepter/endpoint
 		checkControllerMap(filter);
+	}
+
+	@Test
+	public void testLauncher() throws Exception {
+		List<Runnable> launchers = Mocks.getPrivate(filter, "launchers");
+		Runnable launcher = launchers.get(0);
+		assertEquals(1, launchers.size());
+		assertTrue(launcher instanceof TestLauncher1);
+		assertTrue(((TestLauncher1) launcher).executed);
 	}
 
 	@Test
@@ -115,5 +131,20 @@ public class CoreFilterTest {
 		filter.doFilter(request, response, chain);
 		verify(chain, never()).doFilter(request, response);
 		verify(response).setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+	}
+
+	@Test(expected = ControllerException.class)
+	public void testInvalidScanPath() throws Exception {
+		CoreFilter f = new CoreFilter();
+		FilterConfig config = Mocks.mockServletConfig(new HashMap<String, String>() {
+			private static final long serialVersionUID = 1L;
+			{
+				put("scanPath", "test.a.b");
+				put("viewBase", "/config/");
+				put("configFile", cfgFile);
+				put("xssFilterOn", "true");
+			}
+		});
+		f.init(config);
 	}
 }

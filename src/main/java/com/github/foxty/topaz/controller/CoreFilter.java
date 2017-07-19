@@ -9,7 +9,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -24,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.github.foxty.topaz.annotation.Launcher;
 import com.github.foxty.topaz.annotation._Controller;
 import com.github.foxty.topaz.common.Config;
 
@@ -33,89 +39,110 @@ import com.github.foxty.topaz.common.Config;
 public class CoreFilter implements Filter {
 
 	private static Log log = LogFactory.getLog(CoreFilter.class);
-	public static final String DEFAULT_CONT_PACKAGE = "com.github.foxty.topaz.controller";
+	public static final String DEFAULT_CONT_PACKAGE = ".";
 	public static final String DEFAULT_VIEW_BASE = "/WEB-INF/view";
 
-	private String contPackageName = DEFAULT_CONT_PACKAGE;
+	private String scanPath = DEFAULT_CONT_PACKAGE;
 	private String viewBase = DEFAULT_VIEW_BASE;
 	private boolean xssFilterOn = true;
 
 	private ConcurrentHashMap<String, Controller> controllerUriMap = new ConcurrentHashMap<>();
+	private List<Runnable> launchers = new LinkedList<>();
+	private ExecutorService launcherExecutor = Executors.newCachedThreadPool(new ThreadFactory() {
+		@Override
+		public Thread newThread(Runnable r) {
+			Thread t = new Thread(r, "Launcher - " + System.currentTimeMillis());
+			if (t.isDaemon())
+				t.setDaemon(false);
+			return t;
+		}
+	});
 
 	/*
 	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
 	 */
 	public void init(FilterConfig config) throws ServletException {
-		String cBase = config.getInitParameter("controllerPackage");
+		String cBase = config.getInitParameter("scanPath");
 		String vBase = config.getInitParameter("viewBase");
 		String cFile = config.getInitParameter("configFile");
 		String xssFilterFlag = config.getInitParameter("xssFilterOn");
 		if (StringUtils.isNotBlank(cBase)) {
-			contPackageName = cBase;
+			scanPath = cBase;
 		}
 		if (StringUtils.isNotBlank(vBase)) {
 			viewBase = vBase;
-		}		
+		}
 		if (StringUtils.isNotBlank(xssFilterFlag)) {
 			xssFilterOn = Boolean.valueOf(xssFilterFlag);
 		}
 
-		log.info("Start load Config from file " + cFile);
 		Config.init(new File(cFile));
 
-		if (StringUtils.isBlank(contPackageName)) {
-			log.error("controllerPackage not defined in web.xml");
-			throw new ControllerException("controllerPackage not defined in web.xml");
+		log.info("[Resource Scan]Start ...");
+		scanResources(scanPath);
+		log.info("[Resource Scan]End: found " + controllerUriMap.size() + " controllers, " + launchers.size()
+				+ " launchers!");
+
+		log.info("[Launchers]Start...");
+		for (Runnable r : launchers) {
+			launcherExecutor.execute(r);
 		}
-		log.info("Start scan controllers");
-		scanControllers(contPackageName);
-		log.info("Topaz initialized: contPackageName=" + contPackageName + ", viewBase=" + viewBase);
+		log.info("[Launchers]End...");
 	}
 
 	/**
 	 * Scan controllers in the package list and do the initialization.
 	 *
-	 * @param contPackageName
+	 * @param scanPath
 	 */
-	private void scanControllers(String contPackageName) {
-		String packageDirName = contPackageName.replace('.', '/');
+	private void scanResources(String scanPath) {
+		String packageDirName = scanPath.equals(".") ? scanPath : scanPath.replace('.', '/');
 		URL url = Thread.currentThread().getContextClassLoader().getResource(packageDirName);
+		if (url == null) {
+			ControllerException ce = new ControllerException("Invalid scan path " + scanPath);
+			log.error(ce);
+			throw ce;
+		}
 		File pFile = new File(url.getFile());
 		if (pFile.exists()) {
-			scanControllersInFolder(contPackageName, pFile);
+			scanResourcesInFolder(scanPath, pFile);
 		} else {
-			log.warn("Package " + contPackageName + " not exist.");
+			log.warn("Package " + scanPath + " not exist.");
 		}
 
 	}
 
-	private void scanControllersInFolder(String contPackageName, File folder) {
+	private void scanResourcesInFolder(String pkgPath, File folder) {
 		for (File f : folder.listFiles()) {
 			String pName = f.getName();
 			if (f.isFile()) {
 				if (pName.endsWith(".class")) {
-					String clsPath = contPackageName + "." + pName.replace(".class", "");
+					String clsPath = (pkgPath.equals(".") ? "" : pkgPath + ".") + pName.replace(".class", "");
 					Class<?> cls = null;
 					try {
 						cls = Thread.currentThread().getContextClassLoader().loadClass(clsPath);
 					} catch (ClassNotFoundException e) {
-						log.error("Can not find class " + clsPath, e);
+						log.error("Cannot find class " + clsPath, e);
 						continue;
 					}
 
 					if (cls.isAnnotationPresent(_Controller.class)) {
-						log.info("Init controller " + cls.getName());
-						initControllerAndEndpoints(cls);
+						log.info("Found controller " + cls.getName());
+						initController(cls);
+					}
+
+					if (cls.isAnnotationPresent(Launcher.class)) {
+						log.info("Found laucher " + cls.getName());
+						initLauncher(cls);
 					}
 				}
 			} else {
-				scanControllersInFolder(contPackageName + "." + f.getName(), f);
+				scanResourcesInFolder((pkgPath.equals(".") ? "" : pkgPath + ".") + f.getName(), f);
 			}
 		}
 	}
 
-	private void initControllerAndEndpoints(Class<?> contClazz) {
-
+	private void initController(Class<?> contClazz) {
 		// Instant the controller object.
 		Controller controller = null;
 		try {
@@ -129,6 +156,21 @@ public class CoreFilter implements Filter {
 			throw new ControllerException(e);
 		}
 		log.info("Controller " + contClazz.getName() + " created with " + controller.getEndpointCount() + " endpoint.");
+	}
+
+	private void initLauncher(Class<?> cls) {
+		if (Runnable.class.isAssignableFrom(cls)) {
+			Runnable launcher = null;
+			try {
+				launcher = (Runnable) cls.newInstance();
+				launchers.add(launcher);
+			} catch (Exception e) {
+				log.error(e);
+				throw new ControllerException(e);
+			}
+		} else {
+			log.error("Launcher " + cls.getName() + " is not a Runnable.");
+		}
 	}
 
 	/**
@@ -204,6 +246,7 @@ public class CoreFilter implements Filter {
 	}
 
 	public void destroy() {
+		launcherExecutor.shutdownNow();
 		log.info("CoreFilter has been destroyed!");
 	}
 }

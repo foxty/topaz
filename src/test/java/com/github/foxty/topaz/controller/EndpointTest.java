@@ -13,6 +13,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.github.foxty.topaz.controller.interceptor.IIntercepter;
+import com.github.foxty.topaz.controller.res.TestController1;
+import com.github.foxty.topaz.controller.res.TestInterceptor;
 import com.github.foxty.topaz.tool.Mocks;
 
 /**

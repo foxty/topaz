@@ -1,9 +1,9 @@
-package com.github.foxty.topaz.controller;
+package com.github.foxty.topaz.controller.res;
 
 import com.github.foxty.topaz.controller.interceptor.IIntercepter;
 import com.github.foxty.topaz.controller.interceptor.IntercepterChain;
 
-class TestInterceptor implements IIntercepter {
+public class TestInterceptor implements IIntercepter {
 
     public boolean called;
 

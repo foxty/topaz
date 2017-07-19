@@ -1,10 +1,12 @@
-package com.github.foxty.topaz.controller;
+package com.github.foxty.topaz.controller.res;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import com.github.foxty.topaz.annotation._Controller;
 import com.github.foxty.topaz.annotation._Endpoint;
+import com.github.foxty.topaz.controller.HttpMethod;
+import com.github.foxty.topaz.controller.WebContext;
 import com.github.foxty.topaz.controller.response.View;
 
 /**

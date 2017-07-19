@@ -1,8 +1,7 @@
 package com.github.foxty.topaz.common;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -10,6 +9,8 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import com.alibaba.fastjson.util.IOUtils;
 
 /**
  * Configuration for the application. Will reload configuration file if the file
@@ -47,37 +48,40 @@ public class Config {
 	}
 
 	private Config(File cFile) {
-		if (cFile == null || !cFile.exists()) {
-			for (String pFile : propertyFiles) {
-				log.info("Try to locate config file " + pFile);
-				URL url = Config.class.getResource(pFile);
-				if (url != null) {
-					log.info("Config file " + pFile + " located, now using this one.");
-					cfgFile = new File(url.getFile());
-					break;
-				}
-			}
-		} else {
-			cfgFile = cFile;
-		}
 		props = new Properties();
 		booleanValues.add("true");
 		booleanValues.add("True");
 		booleanValues.add("false");
 		booleanValues.add("False");
+		cfgFile = cFile;
 
 		loadConfig();
+
 	}
 
 	private void loadConfig() {
+		InputStream ins = null;
 		try {
-			props.load(FileUtils.openInputStream(cfgFile));
+			if (cfgFile == null || !cfgFile.exists()) {
+				for (String pFile : propertyFiles) {
+					log.info("Try to locate config file " + pFile);
+					ins = Config.class.getResourceAsStream(pFile);
+					if (ins != null) {
+						log.info("Config file " + pFile + " located, now using this one.");
+						break;
+					}
+				}
+			} else {
+				ins = FileUtils.openInputStream(cfgFile);
+			}
+			props.load(ins);
 			lastModifiedTime = cfgFile.lastModified();
 			lastCheckTime = System.currentTimeMillis();
 			log.info("Load config " + cfgFile);
-		} catch (IOException e) {
-			log.error(e.getMessage(), e);
-			throw new TopazException(e);
+		} catch (Exception e) {
+			log.error("Fail to load config", e);
+		} finally {
+			IOUtils.close(ins);
 		}
 	}
 

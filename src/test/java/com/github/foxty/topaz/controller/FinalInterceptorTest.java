@@ -14,6 +14,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.github.foxty.topaz.controller.interceptor.FinalIntercepter;
+import com.github.foxty.topaz.controller.res.TestController1;
 import com.github.foxty.topaz.tool.Mocks;
 
 /**

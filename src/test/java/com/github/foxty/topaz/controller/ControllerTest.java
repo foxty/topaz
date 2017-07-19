@@ -12,6 +12,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.github.foxty.topaz.controller.interceptor.IIntercepter;
+import com.github.foxty.topaz.controller.res.TestController1;
+import com.github.foxty.topaz.controller.res.TestController2;
 
 /**
  * @author itian
