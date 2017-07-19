@@ -27,6 +27,7 @@ public class ConfigTest {
 		assertEquals("jdbc:h2:mem:default_db;", c.getDbUrl());
 		System.setProperty("ds.Driver", "override.driver.class");
 		assertEquals("override.driver.class", c.getDbDriver());
+		System.setProperty("ds.Driver", "org.h2.Driver");
 	}
 
 	@Test

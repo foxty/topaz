@@ -17,7 +17,7 @@ public class DaoManagerTest {
 
 	@BeforeClass
 	public static void setUp() throws Exception {
-		File cfgFile = new File(ClassLoader.class.getResource("/topaz.properties").getFile());
+		File cfgFile = new File(ClassLoader.class.getResource("/test_topaz.properties").getFile());
 		Config.init(cfgFile);
 		config = Config.getInstance();
 	}

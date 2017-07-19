@@ -26,7 +26,7 @@ import com.github.foxty.topaz.tool.Mocks;
  */
 public class CoreFilterTest {
 
-	static String cfgFile = ClassLoader.class.getResource("/topaz.properties").getFile();
+	static String cfgFile = ClassLoader.class.getResource("/test_topaz.properties").getFile();
 	static CoreFilter filter;
 
 	@BeforeClass
