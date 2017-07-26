@@ -76,7 +76,9 @@ public class CoreFilter implements Filter {
 			xssFilterOn = Boolean.valueOf(xssFilterFlag);
 		}
 
-		Config.init(new File(cFile));
+		if (StringUtils.isNotBlank(cFile)) {
+			Config.init(new File(cFile));
+		}
 
 		log.info("[Resource Scan]Start ...");
 		scanResources(scanPath);
