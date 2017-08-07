@@ -5,8 +5,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -31,7 +34,7 @@ public class Config {
 	private File cfgFile;
 	private long lastModifiedTime = 0;
 	private long lastCheckTime = 0;
-	private Properties props;
+	private Properties props = new Properties();
 	private List<String> booleanValues = new ArrayList<String>(2);
 
 	public static void init(File cFile) {
@@ -48,13 +51,11 @@ public class Config {
 	}
 
 	private Config(File cFile) {
-		props = new Properties();
 		booleanValues.add("true");
 		booleanValues.add("True");
 		booleanValues.add("false");
 		booleanValues.add("False");
 		cfgFile = cFile;
-
 		loadConfig();
 
 	}
@@ -75,8 +76,10 @@ public class Config {
 				lastModifiedTime = cfgFile.lastModified();
 				lastCheckTime = System.currentTimeMillis();
 				ins = FileUtils.openInputStream(cfgFile);
-				log.info("Will load config from " + cfgFile + ", hot swap enabled since its an outside configuration file.");
+				log.info("Will load config from " + cfgFile
+						+ ", hot swap enabled since its an outside configuration file.");
 			}
+			// configurations.pro
 			props.load(ins);
 		} catch (Exception e) {
 			log.error("Fail to load config", e);
@@ -84,6 +87,68 @@ public class Config {
 		} finally {
 			IOUtils.close(ins);
 		}
+	}
+
+	/**
+	 * interpolation the value from system env or system property. 
+	 * <pre>
+	 * - p1=${env:xxx:default}		Sytem.env("xxx") or default 
+	 * - p2=${prop:yyy:default}		System.properties("yyy") or default 
+	 * - p3=${p1}					this.getConfig("p1") 
+	 * - p4=http://${p1}/			"http://" + this.getConfig("p1")
+	 * </pre>
+	 * @param val expression to interpolate
+	 * @return interpolated value
+	 */
+
+	public String interpolate(String val) {
+		String re = val;
+		if (StringUtils.isNotBlank(val)) {
+			StringBuffer sb = new StringBuffer(val);
+			int spos = sb.indexOf("${");
+			int epos = sb.indexOf("}", spos);
+			while (spos >= 0 && epos > 0) {
+				String exp = sb.substring(spos, epos + 1);
+				String finalValue = interpolateExpression(exp);
+				sb.replace(spos, epos + 1, finalValue == null ? "" : finalValue);
+				spos = sb.indexOf("${");
+				epos = sb.indexOf("}");
+			}
+
+			re = sb.length() == 0 ? null : sb.toString();
+		}
+		return re;
+	}
+
+	public String interpolateExpression(String expression) {
+		String re = null;
+		int expLen = expression.length();
+		int firstPos = expression.indexOf(':');
+		int lastPos = expression.lastIndexOf(':');
+		if (firstPos != -1) {
+			String prefix = expression.substring(2, firstPos);
+			String key = expression.substring(firstPos + 1, firstPos == lastPos ? expLen - 1 : lastPos);
+			String defVal = null;
+			if (firstPos != lastPos) {
+				defVal = expression.substring(lastPos + 1, expLen - 1);
+			}
+			if ("env".equals(prefix)) {
+				String envVal = System.getenv(key);
+				if (null != envVal) {
+					re = envVal;
+				} else {
+					re = defVal;
+				}
+			}
+			if ("prop".equals(prefix)) {
+				re = System.getProperty(key, defVal);
+			}
+		} else {
+			// Get rid of the starter "${" and trailing "}"
+			String key = expression.substring(2, expLen - 1);
+			re = getConfig(key);
+		}
+		return re;
 	}
 
 	public String getConfig(String key) {
@@ -94,7 +159,7 @@ public class Config {
 		}
 		// System property will override the config property
 		String value = System.getProperty(key, props.getProperty(key));
-		return value;
+		return interpolate(value);
 	}
 
 	public int getInt(String key) {

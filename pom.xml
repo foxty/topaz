@@ -1,78 +1,79 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.foxty</groupId>
 	<artifactId>topaz</artifactId>
 	<version>0.0.5-SNAPSHOT</version>
-    <dependencies>
-        <dependency>
-            <groupId>commons-dbutils</groupId>
-            <artifactId>commons-dbutils</artifactId>
-            <version>${version.commons-dbutils}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>${version.commons-lang}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-pool</groupId>
-            <artifactId>commons-pool</artifactId>
-            <version>${version.commons-pool}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>${version.fastjson}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${version.commons-io}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>${version.commons-logging}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-dbcp</groupId>
-            <artifactId>commons-dbcp</artifactId>
-            <version>${version.commons-dbcp}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.freemarker</groupId>
-            <artifactId>freemarker</artifactId>
-            <version>${version.freemarker}</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${version.junit}</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>${version.servlet}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>${version.h2db}</version><!--$NO-MVN-MAN-VER$ -->
-        </dependency>
+	<dependencies>
+		<dependency>
+			<groupId>commons-dbutils</groupId>
+			<artifactId>commons-dbutils</artifactId>
+			<version>${version.commons-dbutils}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>${version.commons-lang}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-pool</groupId>
+			<artifactId>commons-pool</artifactId>
+			<version>${version.commons-pool}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>${version.fastjson}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>${version.commons-io}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>${version.commons-logging}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>${version.commons-dbcp}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.freemarker</groupId>
+			<artifactId>freemarker</artifactId>
+			<version>${version.freemarker}</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${version.junit}</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>${version.servlet}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>${version.h2db}</version><!--$NO-MVN-MAN-VER$ -->
+		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
 			<version>${version.mockito}</version>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-            <groupId>com.github.kevinsawicki</groupId>
-            <artifactId>http-request</artifactId>
-            <version>${version.http-request}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+		<dependency>
+			<groupId>com.github.kevinsawicki</groupId>
+			<artifactId>http-request</artifactId>
+			<version>${version.http-request}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 	<properties>
 		<jdk-version>8</jdk-version>
 		<encoding>UTF-8</encoding>
@@ -80,26 +81,26 @@
 		<version.maven-javadoc-plugin>2.9.1</version.maven-javadoc-plugin>
 		<version.maven-compiler-plugin>2.3.2</version.maven-compiler-plugin>
 		<version.maven-surefire-plugin>2.7.2</version.maven-surefire-plugin>
-        <version.jetty-maven-plugin>9.4.6.v20170531</version.jetty-maven-plugin>
-        <version.maven-gpg-plugin>1.6</version.maven-gpg-plugin>
-        <version.maven-release-plugin>2.5.3</version.maven-release-plugin>
+		<version.jetty-maven-plugin>9.4.6.v20170531</version.jetty-maven-plugin>
+		<version.maven-gpg-plugin>1.6</version.maven-gpg-plugin>
+		<version.maven-release-plugin>2.5.3</version.maven-release-plugin>
 		<version.nexus-staging-maven-plugin>1.6.8</version.nexus-staging-maven-plugin>
-        <version.commons-dbutils>1.5</version.commons-dbutils>
-        <version.commons-lang>2.6</version.commons-lang>
-        <version.commons-pool>1.6</version.commons-pool>
-        <version.fastjson>1.1.26</version.fastjson>
-        <version.commons-io>2.4</version.commons-io>
-        <version.commons-logging>1.1.1</version.commons-logging>
-        <version.commons-dbcp>1.4</version.commons-dbcp>
-        <version.http-request>6.0</version.http-request>
-        <version.junit>4.11</version.junit>
-        <version.servlet>3.0-alpha-1</version.servlet>
-        <version.h2db>1.4.193</version.h2db>
+		<version.commons-dbutils>1.5</version.commons-dbutils>
+		<version.commons-lang>2.6</version.commons-lang>
+		<version.commons-pool>1.6</version.commons-pool>
+		<version.fastjson>1.1.26</version.fastjson>
+		<version.commons-io>2.4</version.commons-io>
+		<version.commons-logging>1.1.1</version.commons-logging>
+		<version.commons-dbcp>1.4</version.commons-dbcp>
+		<version.http-request>6.0</version.http-request>
+		<version.junit>4.11</version.junit>
+		<version.servlet>3.0-alpha-1</version.servlet>
+		<version.h2db>1.4.193</version.h2db>
 		<version.mockito>1.9.5</version.mockito>
-        <version.freemarker>2.3.23</version.freemarker>
+		<version.freemarker>2.3.23</version.freemarker>
 	</properties>
 
-    <!-- Build Settings -->
+	<!-- Build Settings -->
 	<build>
 		<finalName>${project.artifactId}-${project.version}</finalName>
 		<resources>
@@ -147,25 +148,25 @@
 				</configuration>
 				<version>${version.maven-compiler-plugin}</version>
 			</plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${version.maven-surefire-plugin}</version>
-                <executions>
-                    <execution>
-                        <id>run-integration-test</id>
-                        <phase>integration-test</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <includes>
-                                <include>**/*IT.java</include>
-                            </includes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${version.maven-surefire-plugin}</version>
+				<executions>
+					<execution>
+						<id>run-integration-test</id>
+						<phase>integration-test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<includes>
+								<include>**/*IT.java</include>
+							</includes>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
@@ -174,10 +175,10 @@
 					<httpConnector>
 						<port>12345</port>
 					</httpConnector>
-                    <daemon>true</daemon>
+					<daemon>true</daemon>
 					<stopPort>12346</stopPort>
 					<stopKey>stop-integration-server</stopKey>
-                    <webAppSourceDirectory>${project.basedir}/src/test/resources/webapp</webAppSourceDirectory>
+					<webAppSourceDirectory>${project.basedir}/src/test/resources/webapp</webAppSourceDirectory>
 				</configuration>
 				<executions>
 					<execution>
@@ -235,39 +236,39 @@
 		</plugins>
 	</build>
 
-    <!-- More Project Information -->
-    <name>topaz</name>
-    <description>A tiny MVC framework</description>
-    <url>https://github.com/foxty/topaz</url>
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-            <comments>A business-friendly OSS license</comments>
-        </license>
-    </licenses>
-    <developers>
-        <developer>
-            <id>foxty</id>
-            <name>Isaac Tian</name>
-            <email>foxty@163.com</email>
-            <url>https://github.com/foxty</url>
-            <roles>
-                <role>architect</role>
-                <role>developer</role>
-            </roles>
-            <timezone>Asia/Chongqing</timezone>
-        </developer>
-    </developers>
+	<!-- More Project Information -->
+	<name>topaz</name>
+	<description>A tiny MVC framework</description>
+	<url>https://github.com/foxty/topaz</url>
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+			<comments>A business-friendly OSS license</comments>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<id>foxty</id>
+			<name>Isaac Tian</name>
+			<email>foxty@163.com</email>
+			<url>https://github.com/foxty</url>
+			<roles>
+				<role>architect</role>
+				<role>developer</role>
+			</roles>
+			<timezone>Asia/Chongqing</timezone>
+		</developer>
+	</developers>
 
-    <!-- Environment Settings -->
-    <scm>
-        <url>https://github.com/foxty/topaz</url>
-        <connection>scm:git:git://github.com/foxty/topaz.git</connection>
-        <developerConnection>scm:git:git@github.com:foxty/topaz.git</developerConnection>
-        <tag>HEAD</tag>
-    </scm>
+	<!-- Environment Settings -->
+	<scm>
+		<url>https://github.com/foxty/topaz</url>
+		<connection>scm:git:git://github.com/foxty/topaz.git</connection>
+		<developerConnection>scm:git:git@github.com:foxty/topaz.git</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
 	<distributionManagement>
 		<snapshotRepository>
 			<id>ossrh</id>
