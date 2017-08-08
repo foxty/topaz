@@ -115,27 +115,26 @@ final public class FinalIntercepter implements IIntercepter {
 		request.setAttribute(WEB_ERRORS, wc.getErrors());
 		// Add the controller uri as the folder name if resource name not start
 		// with /
-		String resPath = TopazUtil
-				.cleanUri(isAbsolutePath(v.getName()) ? v.getName() : "/" + baseUri + "/" + v.getName());
-		File resFile = new File(wc.getApplication().getRealPath(wc.getViewBase() + resPath));
-		if (!resFile.exists()) {
-			log.error("Can't find resource " + resFile);
+		String resPath = TopazUtil.cleanUri(isAbsolutePath(v.getName()) ? wc.getViewBase() + v.getName()
+				: wc.getViewBase() + "/" + baseUri + "/" + v.getName());
+		String resRealPath = wc.getApplication().getRealPath(resPath);
+		if (null == resRealPath) {
+			log.error("Can't find resource " + resPath);
 			render404();
 			return;
 		}
+
 		// Find the layout if exist
-		String targetRes = wc.getViewBase() + resPath;
+		String targetRes = resPath;
 		if (!v.isNoLayout() && StringUtils.isNotBlank(v.getLayout())) {
-			String layoutResPath = wc.getApplication().getRealPath(wc.getViewBase() + v.getLayout());
-			File layoutFile = new File(layoutResPath);
-			if (layoutFile.exists()) {
-				targetRes = wc.getViewBase() + v.getLayout();
-			} else {
-				log.warn("Layout " + v.getLayout() + " not exist, raise 404 to client.");
+			targetRes = TopazUtil.cleanUri(wc.getViewBase() + v.getLayout());
+			String layoutRealPath = wc.getApplication().getRealPath(targetRes);
+			if (null == layoutRealPath) {
+				log.warn("Layout " + layoutRealPath + " not exist, raise 404 to client.");
 				render404();
 				return;
 			}
-			request.setAttribute(LAYOUT_CHILDREN, wc.getViewBase() + resPath);
+			request.setAttribute(LAYOUT_CHILDREN, resPath);
 		}
 		if (log.isDebugEnabled()) {
 			log.debug("Render  " + v);

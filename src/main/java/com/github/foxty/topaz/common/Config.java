@@ -43,11 +43,10 @@ public class Config {
 
 	public static Config getInstance() {
 		if (instance == null) {
-			log.warn("Configuration haven't initialized, now create it.");
-			return DefInstanceHolder.instance;
-		} else {
-			return instance;
+			log.warn("Configuration not initialized, use default one.");
+			instance = DefInstanceHolder.instance;
 		}
+		return instance;
 	}
 
 	private Config(File cFile) {
@@ -90,14 +89,17 @@ public class Config {
 	}
 
 	/**
-	 * interpolation the value from system env or system property. 
+	 * interpolation the value from system env or system property.
+	 * 
 	 * <pre>
 	 * - p1=${env:xxx:default}		Sytem.env("xxx") or default 
 	 * - p2=${prop:yyy:default}		System.properties("yyy") or default 
 	 * - p3=${p1}					this.getConfig("p1") 
 	 * - p4=http://${p1}/			"http://" + this.getConfig("p1")
 	 * </pre>
-	 * @param val expression to interpolate
+	 * 
+	 * @param val
+	 *            expression to interpolate
 	 * @return interpolated value
 	 */
 
