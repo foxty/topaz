@@ -43,22 +43,19 @@ public class WebContext {
 		return local.get();
 	}
 
-	public static WebContext create(HttpServletRequest req,
-									HttpServletResponse resp, String viewBase) {
+	public static WebContext create(HttpServletRequest req, HttpServletResponse resp, String viewBase) {
 		WebContext ctx = new WebContext(req, resp, viewBase);
 		local.set(ctx);
 		return ctx;
 	}
 
-	private WebContext(HttpServletRequest req, HttpServletResponse resp,
-					   String viewBase) {
+	private WebContext(HttpServletRequest req, HttpServletResponse resp, String viewBase) {
 
 		this.request = req;
 		this.response = resp;
 		this.session = req.getSession();
 		this.application = this.session.getServletContext();
-		this.viewBase = StringUtils.isBlank(viewBase) ? "/view/" : (viewBase
-				.endsWith("/") ? viewBase : viewBase + "/");
+		this.viewBase = StringUtils.isBlank(viewBase) ? "/view/" : (viewBase.endsWith("/") ? viewBase : viewBase + "/");
 		this.contextPath = request.getContextPath();
 	}
 
@@ -125,7 +122,8 @@ public class WebContext {
 	/**
 	 * Get parameters in request.
 	 * 
-	 * @param key key of the parameter
+	 * @param key
+	 *            key of the parameter
 	 * @return value for the key
 	 */
 	public String param(String key) {
@@ -139,8 +137,10 @@ public class WebContext {
 	/**
 	 * Get attribute in request.
 	 * 
-	 * @param key key of the attribute
-	 * @param <T> type of the attribute
+	 * @param key
+	 *            key of the attribute
+	 * @param <T>
+	 *            type of the attribute
 	 * @return value for the key
 	 */
 	@SuppressWarnings("unchecked")
@@ -155,8 +155,10 @@ public class WebContext {
 	/**
 	 * Set attributes to request attributes.
 	 * 
-	 * @param key key of the attribute
-	 * @param value value of the attribute
+	 * @param key
+	 *            key of the attribute
+	 * @param value
+	 *            value of the attribute
 	 */
 	public void attr(String key, Object value) {
 		this.request.setAttribute(key, value);
@@ -165,8 +167,10 @@ public class WebContext {
 	/**
 	 * Get attribute value from session
 	 * 
-	 * @param key key of the session attribute
-	 * @param <T> type of the session attribute
+	 * @param key
+	 *            key of the session attribute
+	 * @param <T>
+	 *            type of the session attribute
 	 * @return value for the key
 	 */
 	@SuppressWarnings("unchecked")
@@ -177,8 +181,10 @@ public class WebContext {
 	/**
 	 * Set object to current session
 	 * 
-	 * @param key key
-	 * @param value value
+	 * @param key
+	 *            key
+	 * @param value
+	 *            value
 	 */
 	public void session(String key, Object value) {
 		this.session.setAttribute(key, value);
@@ -187,8 +193,9 @@ public class WebContext {
 	/**
 	 * Get cookie object.
 	 * 
-	 * @param name name of the cookie
-	 * @return	value of cookies[name]
+	 * @param name
+	 *            name of the cookie
+	 * @return value of cookies[name]
 	 */
 	public String cookie(String name) {
 		Cookie cookie = null;
@@ -206,14 +213,18 @@ public class WebContext {
 	/**
 	 * Add cookie to response.
 	 * 
-	 * @param name cookie's name
-	 * @param value cookie's value
-	 * @param path cookie's path
-	 * @param maxAge cookie's max age, -1 means forever
-	 * @param httpOnly flag of httpOnly
+	 * @param name
+	 *            cookie's name
+	 * @param value
+	 *            cookie's value
+	 * @param path
+	 *            cookie's path
+	 * @param maxAge
+	 *            cookie's max age, -1 means forever
+	 * @param httpOnly
+	 *            flag of httpOnly
 	 */
-	public void cookie(String name, String value, String path, int maxAge,
-			boolean httpOnly) {
+	public void cookie(String name, String value, String path, int maxAge, boolean httpOnly) {
 		Cookie cookie = new Cookie(name, value);
 		cookie.setPath(path);
 		cookie.setMaxAge(maxAge);
@@ -265,21 +276,21 @@ public class WebContext {
 		return StringUtils.equals("XMLHttpRequest", header("X-Requested-With"));
 	}
 
-
 	public List<Accept> getAccept() {
 		List<Accept> accs = new LinkedList<>();
 		String reqAccept = this.request.getHeader("Accept");
-		if (reqAccept.contains("text/html"))
-			accs.add(Accept.HTML);
-		if (reqAccept.contains("text/plain"))
-			accs.add(Accept.PLAIN);
-		if (reqAccept.contains("application/json"))
-			accs.add(Accept.JSON);
-		if (reqAccept.contains("application/xml"))
-			accs.add(Accept.XML);
+		if (null != reqAccept) {
+			if (reqAccept.contains("text/html"))
+				accs.add(Accept.HTML);
+			if (reqAccept.contains("text/plain"))
+				accs.add(Accept.PLAIN);
+			if (reqAccept.contains("application/json"))
+				accs.add(Accept.JSON);
+			if (reqAccept.contains("application/xml"))
+				accs.add(Accept.XML);
+		}
 		return accs;
 	}
-
 
 	public void addError(String key, String msg) {
 		WebContext.get().getErrors().put(key, msg);
@@ -289,14 +300,13 @@ public class WebContext {
 		return errors;
 	}
 
-
 	/**
-     * 检查是否所有数据均通过验证
-     *
-     * @return boolean
-     */
-    public boolean isInputValid() {
-        return getErrors().isEmpty();
-    }
+	 * 检查是否所有数据均通过验证
+	 *
+	 * @return boolean
+	 */
+	public boolean isInputValid() {
+		return getErrors().isEmpty();
+	}
 
 }
