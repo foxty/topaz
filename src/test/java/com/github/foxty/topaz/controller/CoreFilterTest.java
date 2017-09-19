@@ -23,6 +23,7 @@ import org.mockito.Mockito;
 
 import com.github.foxty.topaz.controller.res.TestController1;
 import com.github.foxty.topaz.controller.res.TestController2;
+import com.github.foxty.topaz.controller.res.TestController3;
 import com.github.foxty.topaz.controller.res.TestLauncher1;
 import com.github.foxty.topaz.tool.Mocks;
 
@@ -57,16 +58,20 @@ public class CoreFilterTest {
 
 	private Map<String, Controller> checkControllerMap(CoreFilter filter) throws Exception {
 		Map<String, Controller> controllerMap = Mocks.getPrivate(filter, "controllerUriMap");
-		assertEquals(2, controllerMap.size());
+		assertEquals(3, controllerMap.size());
 		Controller c1 = controllerMap.get("/test");
 		Controller c2 = controllerMap.get("/test2");
+		Controller c3 = controllerMap.get("/test3/users/{id}");
 		assertTrue(c1.getResource() instanceof TestController1);
 		assertTrue(c2.getResource() instanceof TestController2);
+		assertTrue(c3.getResource() instanceof TestController3);
 		assertEquals(1, c1.getIntercepters().size());
 		assertEquals(1, c2.getIntercepters().size());
+		assertEquals(0, c3.getIntercepters().size());
 
 		assertEquals(6, c1.getEndpointCount());
 		assertEquals(4, c2.getEndpointCount());
+		assertEquals(3, c3.getEndpointCount());
 		return controllerMap;
 	}
 
@@ -110,6 +115,20 @@ public class CoreFilterTest {
 		TestController1 tc = (TestController1) c.getResource();
 		assertTrue(tc.testGetAccessed);
 		assertFalse(tc.testPostAccessed);
+	}
+	
+	@Test
+	public void testMultiLayerEndpoint() throws Exception {
+		HttpServletRequest request = Mocks.httpRequest(HttpMethod.GET, "", "/test3/users/{id}", null);
+		HttpServletResponse response = Mocks.httpResponse();
+		FilterChain chain = Mockito.mock(FilterChain.class);
+
+		filter.doFilter(request, response, chain);
+
+		verify(request).setCharacterEncoding("UTF-8");
+		verify(response).setCharacterEncoding("UTF-8");
+		verify(chain, never()).doFilter(request, response);
+		checkControllerMap(filter);
 	}
 
 	@Test

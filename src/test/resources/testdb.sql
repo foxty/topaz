@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS model_a (
     `id` IDENTITY,
     name VARCHAR(20),
     score INTEGER,
-    born_date DATETIME
+    born_at DATETIME
 );
 INSERT INTO model_a VALUES (1, 'test_data_1', 0, now());
 INSERT INTO model_a VALUES (2, 'test_data_2', 10, now());

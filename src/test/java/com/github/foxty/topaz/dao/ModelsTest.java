@@ -30,7 +30,7 @@ public class ModelsTest {
     @Test
     public void testModelAnnontations() {
 
-        assertEquals(4, mma.getColumnMetaMap().size());
+        assertEquals(5, mma.getColumnMetaMap().size());
         assertEquals(2, mma.getRelationMetaMap().size());
         assertTrue(mma.getColumnMetaMap().containsKey("id"));
         assertTrue(mma.getColumnMetaMap().containsKey("name"));
@@ -38,7 +38,7 @@ public class ModelsTest {
         assertTrue(mma.getColumnMetaMap().containsKey("bornDate"));
         assertEquals("model_a", mma.getTableName());
 
-        assertEquals(4, mmb.getColumnMetaMap().size());
+        assertEquals(6, mmb.getColumnMetaMap().size());
         assertTrue(mmb.getRelationMetaMap().isEmpty());
         assertEquals("model_b", mmb.getTableName());
 
@@ -56,7 +56,13 @@ public class ModelsTest {
         assertEquals("name", cmName.getColumnName());
         assertEquals("name", cmName.getFieldName());
         assertEquals(String.class, cmName.getFieldClazz());
-
+        
+        ColumnMeta bornAt = mma.findColumnMeta("born_at");
+        assertEquals("born_at", bornAt.getColumnName()); 
+        ColumnMeta bornDate = mma.findColumnMeta("bornDate");
+        assertEquals("born_at", bornDate.getColumnName()); 
+        assertEquals(bornAt, bornDate);
+        
         ColumnMeta cmExpiredAt = mmb.findColumnMeta("expiredDateOn");
         assertEquals("model_b", cmExpiredAt.getTableName());
         assertEquals("expired_date_on", cmExpiredAt.getColumnName());

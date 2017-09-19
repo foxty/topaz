@@ -93,7 +93,7 @@ public class TopazResultSetHandler<T> implements ResultSetHandler<List<T>> {
         }
 
         // Process column value
-        ColumnMeta pm = mm.findColumnMeta(TopazUtil.flat2camel(cName));
+        ColumnMeta pm = mm.findColumnMeta(StringUtils.lowerCase(cName));
         Object cValue = processColumnValue(rs, pos, pm.getFieldClazz());
         callSetter(bean, pm, cValue);
 

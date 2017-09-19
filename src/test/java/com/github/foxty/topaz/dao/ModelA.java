@@ -25,7 +25,7 @@ public class ModelA extends Model {
     @_Column
     private Integer score;
 
-    @_Column
+    @_Column(name = "born_at")
     private LocalDateTime bornDate;
 
     @_Relation

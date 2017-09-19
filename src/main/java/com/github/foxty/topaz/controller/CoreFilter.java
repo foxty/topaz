@@ -230,10 +230,10 @@ public class CoreFilter implements Filter {
 	 */
 	private Endpoint searchEndpoint(String uri, HttpMethod httpMethod) {
 		// Step 1 find the controller
-		String[] uriArr = uri.split("[/\\;]");
-		String contUri = "/";
+		String[] uriArr = uri.substring(1).split("[/\\;]");
+		String contUri = "";
 		for (String uriPart : uriArr) {
-			contUri += uriPart;
+			contUri += "/" + uriPart;
 			Controller c = controllerUriMap.get(contUri);
 			if (c != null) {
 				Endpoint ep = c.findEndpoint(uri, httpMethod);
@@ -243,7 +243,6 @@ public class CoreFilter implements Filter {
 				return ep;
 			}
 		}
-		log.info("Can't mapp uri " + uri + " to any endpoint.");
 		return null;
 	}
 

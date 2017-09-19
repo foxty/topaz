@@ -84,7 +84,7 @@ public class SQLSelect extends SQLBuilder<SQLSelect> {
             ModelMeta subModelMeta = Models.getInstance().getModelMeta(rm.getModelClazz());
             String subTableName = subModelMeta.getTableName();
             if (rm.getRelation() != Relation.HasMany) {
-                for (ColumnMeta cm : subModelMeta.getColumnMetaMap().values()) {
+                for (ColumnMeta cm : subModelMeta.getColumns()) {
                     String cName = cm.getColumnName();
                     String colFullName = subTableName + "." + cName;
                     String asFullName = TopazUtil.camel2flat(w) + "__" + cName;
