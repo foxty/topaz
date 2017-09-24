@@ -52,7 +52,7 @@ public class WhereClause extends Clause {
     }
 
     public WhereClause predicate(String prop, Operators op, Object value) {
-        ColumnMeta cm = modelMeta.findColumnMeta(prop);
+        ColumnMeta cm = modelMeta.getColumnMeta(prop);
         clause.append(" " + cm.getTableName() + ".").append(cm.getColumnName())
                 .append(op.getValue()).append("? ");
         params.add(value);

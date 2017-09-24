@@ -48,7 +48,7 @@ public class Model implements Serializable {
 	}
 
 	final public void set(String prop, Object newValue) {
-		ColumnMeta cm = modelMeta.findColumnMeta(prop);
+		ColumnMeta cm = modelMeta.getColumnMeta(prop);
 		if (null != cm) {
 			try {
 				cm.getWriteMethod().invoke(this, newValue);
@@ -175,7 +175,7 @@ public class Model implements Serializable {
 		SQLUpdate ub = SQLUpdate.fn.update(this.getClass());
 
 		List<ColumnMeta> columns = modelMeta.getColumns();
-		ColumnMeta idMapping = modelMeta.findColumnMeta("id");
+		ColumnMeta idMapping = modelMeta.getColumnMeta("id");
 
 		for (ColumnMeta cm : columns) {
 			if (cm == idMapping)

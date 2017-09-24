@@ -121,6 +121,11 @@ public class ModelMeta {
 		} else {
 			cm = columnMetaMap.get(key);
 		}
+		return cm;
+	}
+
+	public ColumnMeta getColumnMeta(String key) {
+		ColumnMeta cm = findColumnMeta(key);
 		if (cm == null) {
 			throw new DaoException("No definition for column: " + key + " of " + this.getTableName());
 		}

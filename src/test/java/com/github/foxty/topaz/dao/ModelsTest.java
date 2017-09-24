@@ -49,7 +49,7 @@ public class ModelsTest {
     }
 
     @Test
-    public void testColumnAnno() {
+    public void testFindColumnAnno() {
         ColumnMeta cmName = mma.findColumnMeta("name");
 
         assertEquals("model_a", cmName.getTableName());
@@ -66,6 +66,17 @@ public class ModelsTest {
         ColumnMeta cmExpiredAt = mmb.findColumnMeta("expiredDateOn");
         assertEquals("model_b", cmExpiredAt.getTableName());
         assertEquals("expired_date_on", cmExpiredAt.getColumnName());
+    }
+    
+    @Test(expected = DaoException.class)
+    public void testGetColumnMeta() {
+        ColumnMeta cmName = mma.findColumnMeta("name");
+        assertEquals("model_a", cmName.getTableName());
+        assertEquals("name", cmName.getColumnName());
+        assertEquals("name", cmName.getFieldName());
+        assertEquals(String.class, cmName.getFieldClazz());
+        
+        mma.getColumnMeta("no_column_defined");
     }
 
     @Test
