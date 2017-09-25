@@ -88,7 +88,7 @@
 		<version.commons-dbutils>1.5</version.commons-dbutils>
 		<version.commons-lang>2.6</version.commons-lang>
 		<version.commons-pool>1.6</version.commons-pool>
-		<version.fastjson>1.1.26</version.fastjson>
+		<version.fastjson>1.2.38</version.fastjson>
 		<version.commons-io>2.4</version.commons-io>
 		<version.commons-logging>1.1.1</version.commons-logging>
 		<version.commons-dbcp>1.4</version.commons-dbcp>

@@ -90,6 +90,7 @@ final public class FinalIntercepter implements IIntercepter {
 		} else if (wc.isAcceptPlain()) {
 			renderText(result.toString());
 		} else {
+			log.warn(wc.getRequest().getMethod() + " on " + wc.getRequest().getRequestURI() + " is not acceptable.");
 			wc.getResponse().setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
 		}
 	}
