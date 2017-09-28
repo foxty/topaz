@@ -1,6 +1,5 @@
 package com.github.foxty.topaz.controller.interceptor;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -89,7 +88,7 @@ final public class FinalIntercepter implements IIntercepter {
 			renderXml(result);
 		} else if (wc.isAcceptPlain()) {
 			renderText(result.toString());
-		} else {
+		} else if(result != null) {
 			log.warn(wc.getRequest().getMethod() + " on " + wc.getRequest().getRequestURI() + " is not acceptable.");
 			wc.getResponse().setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
 		}
