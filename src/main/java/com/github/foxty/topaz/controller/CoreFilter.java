@@ -30,7 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.github.foxty.topaz.annotation.Launcher;
-import com.github.foxty.topaz.annotation._Controller;
+import com.github.foxty.topaz.annotation.Controller;
 import com.github.foxty.topaz.common.Config;
 
 /**
@@ -46,7 +46,7 @@ public class CoreFilter implements Filter {
 	private String viewBase = DEFAULT_VIEW_BASE;
 	private boolean xssFilterOn = true;
 
-	private ConcurrentHashMap<String, Controller> controllerUriMap = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, com.github.foxty.topaz.controller.Controller> controllerUriMap = new ConcurrentHashMap<>();
 	private List<Runnable> launchers = new LinkedList<>();
 	private ExecutorService launcherExecutor = Executors.newCachedThreadPool(new ThreadFactory() {
 		@Override
@@ -128,7 +128,7 @@ public class CoreFilter implements Filter {
 						continue;
 					}
 
-					if (cls.isAnnotationPresent(_Controller.class)) {
+					if (cls.isAnnotationPresent(Controller.class)) {
 						log.info("Found controller " + cls.getName());
 						initController(cls);
 					}
@@ -146,10 +146,10 @@ public class CoreFilter implements Filter {
 
 	private void initController(Class<?> contClazz) {
 		// Instant the controller object.
-		Controller controller = null;
+		com.github.foxty.topaz.controller.Controller controller = null;
 		try {
-			controller = new Controller(contClazz.newInstance());
-			Controller oldValue = controllerUriMap.putIfAbsent(controller.getUri(), controller);
+			controller = new com.github.foxty.topaz.controller.Controller(contClazz.newInstance());
+			com.github.foxty.topaz.controller.Controller oldValue = controllerUriMap.putIfAbsent(controller.getUri(), controller);
 			if (null != oldValue) {
 				log.error("Conflict uri mapping between controller " + controller + " and " + oldValue);
 			}
@@ -234,7 +234,7 @@ public class CoreFilter implements Filter {
 		String contUri = "";
 		for (String uriPart : uriArr) {
 			contUri += "/" + uriPart;
-			Controller c = controllerUriMap.get(contUri);
+			com.github.foxty.topaz.controller.Controller c = controllerUriMap.get(contUri);
 			if (c != null) {
 				Endpoint ep = c.findEndpoint(uri, httpMethod);
 				if (ep == null) {

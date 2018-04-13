@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.github.foxty.topaz.annotation._Column;
+import com.github.foxty.topaz.annotation.Column;
 import com.github.foxty.topaz.common.TopazUtil;
 
 /**
@@ -12,12 +12,12 @@ import com.github.foxty.topaz.common.TopazUtil;
  */
 public class ColumnMeta extends FieldMeta {
 	private String tableName;
-	private _Column column;
+	private Column column;
 	private String columnName;
 	private boolean consistent;
 
-	public ColumnMeta(_Column column, String tableName, String fieldName, Class<?> fieldClazz, Method readMethod,
-			Method writeMethod) {
+	public ColumnMeta(Column column, String tableName, String fieldName, Class<?> fieldClazz, Method readMethod,
+                      Method writeMethod) {
 		super(fieldClazz, readMethod, writeMethod, fieldName);
 		this.tableName = tableName;
 		this.column = column;

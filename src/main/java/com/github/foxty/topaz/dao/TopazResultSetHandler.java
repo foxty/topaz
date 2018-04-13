@@ -75,7 +75,7 @@ public class TopazResultSetHandler<T> implements ResultSetHandler<List<T>> {
 		if (cName.indexOf("__") >= 0) {
 			// Its a sub model
 			String[] arr = cName.split("__");
-			RelationMeta rm = mm.findRealtionMega(TopazUtil.flat2camel(arr[0]));
+			RelationMeta rm = mm.findRealtionMeta(TopazUtil.flat2camel(arr[0]));
 			Method method = rm.getReadMethod();
 			Object subObj = null;
 			try {

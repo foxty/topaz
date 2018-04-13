@@ -1,6 +1,6 @@
 package com.github.foxty.topaz.dao;
 
-import com.github.foxty.topaz.annotation._Column;
+import com.github.foxty.topaz.annotation.Column;
 
 import java.time.LocalDateTime;
 
@@ -14,13 +14,13 @@ public class ModelB extends Model {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	@_Column
+	@Column
     private String name;
 
-    @_Column
+    @Column
     private LocalDateTime expiredDateOn;
 
-    @_Column
+    @Column
     private Integer modelAId;
 
     public String getName() {

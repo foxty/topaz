@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import com.github.foxty.topaz.dao.Model;
-import com.github.foxty.topaz.dao.Relation;
+import com.github.foxty.topaz.dao.Relations;
 
 /**
  * Annotate relationship between tables, currently three relation suporte:
@@ -18,8 +18,8 @@ import com.github.foxty.topaz.dao.Relation;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface _Relation {
-    Relation relation() default Relation.HasOne;
+public @interface Relation {
+    Relations relation() default Relations.HasOne;
     Class<? extends Model> model() default Model.class;
     String byKey() default "";
 }

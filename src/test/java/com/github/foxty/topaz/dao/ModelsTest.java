@@ -81,14 +81,14 @@ public class ModelsTest {
 
     @Test
     public void testRelationAnno() throws Exception {
-        RelationMeta relation = mma.findRealtionMega("modelb");
+        RelationMeta relation = mma.findRealtionMeta("modelb");
         assertEquals(ModelB.class, relation.getFieldClazz());
         assertEquals(ModelB.class, relation.getModelClazz());
-        assertEquals(Relation.HasOne, relation.getRelation());
+        assertEquals(Relations.HasOne, relation.getRelation());
         assertEquals("model_a_id", relation.byKey());
 
-        RelationMeta relationC = mma.findRealtionMega("modelcList");
-        assertEquals(Relation.HasMany, relationC.getRelation());
+        RelationMeta relationC = mma.findRealtionMeta("modelcList");
+        assertEquals(Relations.HasMany, relationC.getRelation());
         assertEquals(ModelC.class, relationC.getModelClazz());
         assertEquals(ArrayList.class, relationC.getFieldClazz());
         assertEquals("model_a_id", relationC.byKey());

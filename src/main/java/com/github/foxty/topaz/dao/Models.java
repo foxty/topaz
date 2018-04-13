@@ -9,7 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import com.github.foxty.topaz.dao.meta.ModelMeta;
 
 /**
- * Model registration and cache model mappings(Column mapping and Relation
+ * Model registration and cache model mappings(Column mapping and Relations
  * mapping)
  * <p>
  * Created by itian on 6/22/2017.

@@ -4,34 +4,34 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.foxty.topaz.annotation._Column;
-import com.github.foxty.topaz.annotation._Model;
-import com.github.foxty.topaz.annotation._Relation;
+import com.github.foxty.topaz.annotation.Column;
+import com.github.foxty.topaz.annotation.Model;
+import com.github.foxty.topaz.annotation.Relation;
 
 /**
  * Created by itian on 6/22/2017.
  */
-@_Model
-public class ModelA extends Model {
+@Model
+public class ModelA extends com.github.foxty.topaz.dao.Model {
 
     /**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	@_Column
+	@Column
     private String name;
 
-    @_Column
+    @Column
     private Integer score;
 
-    @_Column(name = "born_at")
+    @Column(name = "born_at")
     private LocalDateTime bornDate;
 
-    @_Relation
+    @Relation
     private ModelB modelb;
 
-    @_Relation(relation = Relation.HasMany, model = ModelC.class)
+    @Relation(relation = Relations.HasMany, model = ModelC.class)
     private ArrayList<ModelC> modelcList;
 
     public String getName() {

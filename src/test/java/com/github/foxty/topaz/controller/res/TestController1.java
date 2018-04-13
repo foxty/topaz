@@ -3,8 +3,8 @@ package com.github.foxty.topaz.controller.res;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.github.foxty.topaz.annotation._Controller;
-import com.github.foxty.topaz.annotation._Endpoint;
+import com.github.foxty.topaz.annotation.Controller;
+import com.github.foxty.topaz.annotation.Endpoint;
 import com.github.foxty.topaz.controller.HttpMethod;
 import com.github.foxty.topaz.controller.WebContext;
 import com.github.foxty.topaz.controller.response.View;
@@ -12,28 +12,28 @@ import com.github.foxty.topaz.controller.response.View;
 /**
  * Created by itian on 6/13/2017.
  */
-@_Controller(uri = "/test", layout = "layout1.ftl", interceptors = { TestInterceptor.class })
+@Controller(uri = "/test", layout = "layout1.ftl", interceptors = { TestInterceptor.class })
 public class TestController1 extends TestBaseController {
 
 	public boolean testGetAccessed = false;
 	public boolean testPostAccessed = false;
 
-	@_Endpoint
+	@Endpoint
 	public void testGet() {
 		testGetAccessed = true;
 	}
 
-	@_Endpoint(uri = "/post", method = HttpMethod.POST, isTransactional = true)
+	@Endpoint(uri = "/post", method = HttpMethod.POST, isTransactional = true)
 	public void testPost() {
 		testPostAccessed = true;
 	}
 
-	@_Endpoint(uri = "html", method = HttpMethod.GET)
+	@Endpoint(uri = "html", method = HttpMethod.GET)
 	public View renderHtml() {
 		return View.create("html.ftl");
 	}
 
-	@_Endpoint(uri = "json", method = HttpMethod.GET)
+	@Endpoint(uri = "json", method = HttpMethod.GET)
 	public Map<String, Object> renderJson() {
 		WebContext wc = WebContext.get();
 
@@ -46,7 +46,7 @@ public class TestController1 extends TestBaseController {
 		return result;
 	}
 
-	@_Endpoint(uri = "xml", method = HttpMethod.GET)
+	@Endpoint(uri = "xml", method = HttpMethod.GET)
 	public Map<String, Object> renderXml() {
 		WebContext wc = WebContext.get();
 
@@ -59,7 +59,7 @@ public class TestController1 extends TestBaseController {
 		return result;
 	}
 
-	@_Endpoint(uri = "text", method = HttpMethod.GET)
+	@Endpoint(uri = "text", method = HttpMethod.GET)
 	public Map<String, Object> renderText() {
 		WebContext wc = WebContext.get();
 

@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface _Controller {
+public @interface Controller {
 
     /*
     A URI is a sequence of characters from a very limited set:

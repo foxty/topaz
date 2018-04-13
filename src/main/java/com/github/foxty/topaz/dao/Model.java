@@ -17,7 +17,7 @@ import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.github.foxty.topaz.annotation._Column;
+import com.github.foxty.topaz.annotation.Column;
 import com.github.foxty.topaz.dao.meta.ColumnMeta;
 import com.github.foxty.topaz.dao.meta.ModelMeta;
 import com.github.foxty.topaz.dao.sql.SQLUpdate;
@@ -31,7 +31,7 @@ public class Model implements Serializable {
 	protected ModelMeta modelMeta;
 
 	// Primary Key
-	@_Column
+	@Column
 	protected Integer id;
 
 	public Model() {

@@ -62,7 +62,7 @@ public class SQLSelect extends SQLBuilder<SQLSelect> {
         super(clazz);
         this.with = with;
         for (String w : with) {
-            RelationMeta rm = modelMeta.findRealtionMega(w);
+            RelationMeta rm = modelMeta.findRealtionMeta(w);
             Objects.requireNonNull(rm);
             Models.getInstance().register(rm.getFieldClazz());
         }
@@ -80,10 +80,10 @@ public class SQLSelect extends SQLBuilder<SQLSelect> {
         String tableName = modelMeta.getTableName();
 
         for (String w : with) {
-            RelationMeta rm = modelMeta.findRealtionMega(w);
+            RelationMeta rm = modelMeta.findRealtionMeta(w);
             ModelMeta subModelMeta = Models.getInstance().getModelMeta(rm.getModelClazz());
             String subTableName = subModelMeta.getTableName();
-            if (rm.getRelation() != Relation.HasMany) {
+            if (rm.getRelation() != Relations.HasMany) {
                 for (ColumnMeta cm : subModelMeta.getColumns()) {
                     String cName = cm.getColumnName();
                     String colFullName = subTableName + "." + cName;

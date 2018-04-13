@@ -11,9 +11,9 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.github.foxty.topaz.annotation._Column;
-import com.github.foxty.topaz.annotation._Model;
-import com.github.foxty.topaz.annotation._Relation;
+import com.github.foxty.topaz.annotation.Column;
+import com.github.foxty.topaz.annotation.Model;
+import com.github.foxty.topaz.annotation.Relation;
 import com.github.foxty.topaz.common.TopazUtil;
 import com.github.foxty.topaz.dao.DaoException;
 import com.github.foxty.topaz.dao.Models;
@@ -24,7 +24,7 @@ import com.github.foxty.topaz.dao.Models;
 public class ModelMeta {
 
 	private Class<?> modelClazz;
-	private _Model _model;
+	private Model _model;
 
 	// All model's column definitions, key is the filed name and colum name
 	private Map<String, ColumnMeta> columnMetaMap;
@@ -35,7 +35,7 @@ public class ModelMeta {
 
 	public ModelMeta(Class<?> modelClazz) {
 		this.modelClazz = modelClazz;
-		this._model = modelClazz.getAnnotation(_Model.class);
+		this._model = modelClazz.getAnnotation(Model.class);
 
 		extractAnnotations();
 	}
@@ -51,7 +51,7 @@ public class ModelMeta {
 			allFields.addAll(Arrays.asList(curClazz.getDeclaredFields()));
 			curClazz = curClazz.getSuperclass();
 		}
-		allFields.stream().filter(f -> f.isAnnotationPresent(_Column.class) || f.isAnnotationPresent(_Relation.class))
+		allFields.stream().filter(f -> f.isAnnotationPresent(Column.class) || f.isAnnotationPresent(Relation.class))
 				.forEach(f -> {
 					String fieldName = f.getName();
 					String readMethodName = (f.getType() == boolean.class || f.getType() == Boolean.class ? "is"
@@ -66,7 +66,7 @@ public class ModelMeta {
 					} catch (Exception e) {
 						throw new DaoException(e);
 					}
-					_Column column = f.getAnnotation(_Column.class);
+					Column column = f.getAnnotation(Column.class);
 					if (column != null) {
 						ColumnMeta cm = new ColumnMeta(column, getTableName(), fieldName, f.getType(), readMethod,
 								writeMethod);
@@ -76,7 +76,7 @@ public class ModelMeta {
 						}
 						columns.add(cm);
 					}
-					_Relation relation = f.getAnnotation(_Relation.class);
+					Relation relation = f.getAnnotation(Relation.class);
 					if (relation != null) {
 						relationMap.put(fieldName, new RelationMeta(relation, modelClazz, fieldName, f.getType(),
 								readMethod, writeMethod));
@@ -115,7 +115,7 @@ public class ModelMeta {
 		if (key.contains(".")) {
 			// This is a predication on relation tables.
 			String[] props = key.split("\\.");
-			RelationMeta rm = findRealtionMega(props[0]);
+			RelationMeta rm = findRealtionMeta(props[0]);
 			ModelMeta rmm = Models.getInstance().getModelMeta(rm.getFieldClazz());
 			cm = rmm.findColumnMeta(props[1]);
 		} else {
@@ -139,7 +139,7 @@ public class ModelMeta {
 	 *            field name defined in model
 	 * @return RelationMeta
 	 */
-	public RelationMeta findRealtionMega(String key) {
+	public RelationMeta findRealtionMeta(String key) {
 		RelationMeta rm = relationMetaMap.get(key);
 		if (rm == null) {
 			throw new DaoException("No definition for relation: " + key + " of " + this.getTableName());

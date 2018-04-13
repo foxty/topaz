@@ -9,8 +9,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.github.foxty.topaz.annotation._Controller;
-import com.github.foxty.topaz.annotation._Endpoint;
+import com.github.foxty.topaz.annotation.Endpoint;
 import com.github.foxty.topaz.common.TopazUtil;
 import com.github.foxty.topaz.controller.interceptor.IIntercepter;
 
@@ -24,7 +23,7 @@ public class Controller {
 
 	private static Log log = LogFactory.getLog(Controller.class);
 	private Class<?> clazz;
-	private _Controller anno;
+	private com.github.foxty.topaz.annotation.Controller anno;
 	private String uri;
 	private Object resource;
 	private List<IIntercepter> intercepters = new LinkedList<>();
@@ -35,7 +34,7 @@ public class Controller {
 
 	public Controller(Object resource) {
 		this.clazz = resource.getClass();
-		this.anno = clazz.getAnnotation(_Controller.class);
+		this.anno = clazz.getAnnotation(com.github.foxty.topaz.annotation.Controller.class);
 		this.uri = TopazUtil.cleanUri(anno.uri());
 		this.resource = resource;
 
@@ -66,8 +65,8 @@ public class Controller {
 		// Create Endpoints
 		Method[] methods = clazz.getMethods();
 		for (Method m : methods) {
-			if (m.isAnnotationPresent(_Endpoint.class)) {
-				Endpoint ep = new Endpoint(this, m);
+			if (m.isAnnotationPresent(Endpoint.class)) {
+				com.github.foxty.topaz.controller.Endpoint ep = new com.github.foxty.topaz.controller.Endpoint(this, m);
 				Endpoints eps = endpointsMap.get(ep.getEndpointUri());
 				if (eps == null) {
 					eps = new Endpoints(ep);
@@ -80,7 +79,7 @@ public class Controller {
 		}
 	}
 
-	public Endpoint findEndpoint(String uri, HttpMethod method) {
+	public com.github.foxty.topaz.controller.Endpoint findEndpoint(String uri, HttpMethod method) {
 		Endpoints eps = endpointsMap.get(uri);
 		return eps != null ? eps.findEndpoint(method) : null;
 	}

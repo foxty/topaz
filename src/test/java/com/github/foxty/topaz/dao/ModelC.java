@@ -1,7 +1,7 @@
 package com.github.foxty.topaz.dao;
 
-import com.github.foxty.topaz.annotation._Column;
-import com.github.foxty.topaz.annotation._Relation;
+import com.github.foxty.topaz.annotation.Column;
+import com.github.foxty.topaz.annotation.Relation;
 
 import java.time.LocalDateTime;
 
@@ -15,16 +15,16 @@ public class ModelC extends Model {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	@_Column
+	@Column
     private String name;
 
-    @_Column
+    @Column
     private LocalDateTime createdAt;
 
-    @_Column
+    @Column
     private Integer modelAId;
 
-    @_Relation(relation = Relation.BelongsTo)
+    @Relation(relation = Relations.BelongsTo)
     private ModelA parent;
 
     public String getName() {

@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface _Endpoint {
+public @interface Endpoint {
     String uri() default "";
     HttpMethod method() default HttpMethod.ANY;
     boolean isTransactional() default false;

@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.github.foxty.topaz.annotation._Endpoint;
 import com.github.foxty.topaz.common.TopazUtil;
 import com.github.foxty.topaz.controller.interceptor.FinalIntercepter;
 import com.github.foxty.topaz.controller.interceptor.IIntercepter;
@@ -46,7 +45,7 @@ public class Endpoint {
 
 	private void init() {
 		Objects.requireNonNull(interceptorList, "InterceptorList should not be null.");
-		_Endpoint _endpoint = method.getAnnotation(_Endpoint.class);
+		com.github.foxty.topaz.annotation.Endpoint _endpoint = method.getAnnotation(com.github.foxty.topaz.annotation.Endpoint.class);
 		Objects.requireNonNull(_endpoint, "@EP should not be null.");
 		methodUri = _endpoint.uri();
 		allowHttpMethod = _endpoint.method();
